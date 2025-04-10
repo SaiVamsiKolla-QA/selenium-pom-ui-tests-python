@@ -19,6 +19,7 @@ def driver():
     """
     # Create a unique temporary directory for Chrome's user data
     user_data_dir = tempfile.mkdtemp(prefix="chrome_userdata_")
+    print(f"[DEBUG] Using Chrome user-data-dir: {user_data_dir}")
     chrome_options = Options()
     chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
     driver = webdriver.Chrome(
