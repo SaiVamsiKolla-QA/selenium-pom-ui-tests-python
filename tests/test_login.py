@@ -2,7 +2,6 @@ import pytest
 import time
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from Pages.login_page import LoginPage
 from Pages.products_page import ProductPage

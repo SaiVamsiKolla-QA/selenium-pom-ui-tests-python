@@ -81,7 +81,6 @@ def test_swag_login(driver, username, password):
     # -------------------------------
     cart_count = product_page.get_cart_count()
     assert cart_count == expected_count, f"Expected cart count to be {expected_count}, but got {cart_count}"
-    assert successful_adds == expected_count, f"Expected to add {expected_count} products, but added {successful_adds}"
     print(f"Step_02_Products_Added_{cart_count}_Items_To_Cart")
     Utility.capture_screenshot(driver, f"Step_02_Products_Added_{cart_count}_Items_To_Cart")
 

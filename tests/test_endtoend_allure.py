@@ -122,7 +122,7 @@ def test_swag_info(driver, username, password):
     with allure.step("Enter checkout information"):
         assert info_page.enter_first_name("Vamsi"), "Failed to enter first name"
         assert info_page.enter_last_name("Kolla"), "Failed to enter last name"
-        assert info_page.enter_postal_code(""), "Failed to enter postal code"
+        assert info_page.enter_postal_code("T6H5J3"), "Failed to enter postal code"
         allure.attach(
             driver.get_screenshot_as_png(),
             name="checkout_info_entered",
