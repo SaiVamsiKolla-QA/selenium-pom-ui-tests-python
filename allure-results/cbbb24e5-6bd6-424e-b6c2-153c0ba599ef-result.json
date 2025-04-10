@@ -1,0 +1,141 @@
+{
+  "name": "test_swag_checkout_overview[standard_user]",
+  "status": "failed",
+  "statusDetails": {
+    "message": "AssertionError: Expected cart count to be 2, but got 1\nassert 1 == 2",
+    "trace": "driver = <selenium.webdriver.chrome.webdriver.WebDriver (session=\"0ad72173e77ccc68b5a3ac34a8c09ff5\")>, username = 'standard_user', password = 'secret_sauce'\n\n    @allure.epic(\"Swag Labs E-commerce\")\n    @allure.feature(\"Checkout Process\")\n    @pytest.mark.parametrize(\"username,password\", [\n        # Test data: Standard user credentials expected to log in successfully\n        pytest.param(\"standard_user\", \"secret_sauce\", id=\"standard_user\"),\n    ])\n    def test_swag_checkout_overview(driver, username, password):\n        allure.dynamic.story(f\"User {username} completes full checkout process\")\n        allure.dynamic.severity(allure.severity_level.CRITICAL)\n    \n        login_page = LoginPage(driver)\n        product_page = ProductPage(driver)\n        cart_page = CartPage(driver)\n        info_page = CheckoutInfoPage(driver)\n        overview_page = CheckoutOverviewPage(driver)\n    \n        # -------------------------------\n        # Step 1: Perform Login using provided credentials.\n        # -------------------------------\n        with allure.step(f\"Login as {username}\"):\n            login_page.login_as(username, password, url=\"https://www.saucedemo.com/\")\n            assert product_page.is_product_page_loaded(), f\"Login failed for {username}\"\n            print(f\"\\nStep_01_Login_Successful_{username}\")\n            screenshot = Utility.capture_screenshot(driver, f\"Step_01_Login_Successful_{username}\")\n            allure.attach(screenshot,\n                          name=f\"Step_01_Login_Successful_{username}\",\n                          attachment_type=allure.attachment_type.PNG)\n    \n        # -------------------------------\n        # Step 2: Add two random products to the cart\n        # -------------------------------\n        with allure.step(\"Select and add random products to cart\"):\n            all_products = product_page.available_products.copy()\n            products_to_add = random.sample(all_products, 2)\n            expected_count = len(products_to_add)\n    \n            product_list = \", \".join(products_to_add)\n            allure.attach(f\"Products to add: {product_list}\",\n                          name=\"Selected Products\",\n                          attachment_type=allure.attachment_type.TEXT)\n    \n            print(f\"\\nRandomly selected products to add: {products_to_add}\")\n            successful_adds = 0\n    \n            for index, product_id in enumerate(products_to_add, 1):\n                with allure.step(f\"Add product {index}: {product_id}\"):\n                    if product_page.add_product_to_cart(product_id):\n                        successful_adds += 1\n                        ordinal = get_ordinal(index)\n                        print(f\"Added the {ordinal} Item: {product_id}\")\n    \n        # -------------------------------\n        # Step 2.2: Verify the cart count matches the number of added products\n        # -------------------------------\n        with allure.step(\"Verify cart count\"):\n            driver.refresh()\n            cart_count = product_page.get_cart_count()\n            print(f\"Step_02_Products_Added_{cart_count}_Items_To_Cart\")\n    \n            screenshot = Utility.capture_screenshot(driver, f\"Step_02_Products_Added_{cart_count}_Items_To_Cart\")\n            allure.attach(screenshot,\n                          name=f\"Step_02_Products_Added_{cart_count}_Items_To_Cart\",\n                          attachment_type=allure.attachment_type.PNG)\n    \n            allure.attach(f\"Cart count: {cart_count}, Expected: {expected_count}\",\n                          name=\"Cart Count Verification\",\n                          attachment_type=allure.attachment_type.TEXT)\n    \n>           assert cart_count == expected_count, f\"Expected cart count to be {expected_count}, but got {cart_count}\"\nE           AssertionError: Expected cart count to be 2, but got 1\nE           assert 1 == 2\n\ntests/test_checkout_overview.py:112: AssertionError"
+  },
+  "steps": [
+    {
+      "name": "Login as standard_user",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "Step_01_Login_Successful_standard_user",
+          "source": "3baf1363-a7cb-4954-92e6-9880840e8641-attachment.png",
+          "type": "image/png"
+        }
+      ],
+      "start": 1744273458682,
+      "stop": 1744273459648
+    },
+    {
+      "name": "Select and add random products to cart",
+      "status": "passed",
+      "steps": [
+        {
+          "name": "Add product 1: sauce-labs-fleece-jacket",
+          "status": "passed",
+          "start": 1744273459648,
+          "stop": 1744273470208
+        },
+        {
+          "name": "Add product 2: sauce-labs-bike-light",
+          "status": "passed",
+          "start": 1744273470208,
+          "stop": 1744273470779
+        }
+      ],
+      "attachments": [
+        {
+          "name": "Selected Products",
+          "source": "492f6f80-9295-457b-a445-193d2e6a4cec-attachment.txt",
+          "type": "text/plain"
+        }
+      ],
+      "start": 1744273459648,
+      "stop": 1744273470779
+    },
+    {
+      "name": "Verify cart count",
+      "status": "failed",
+      "statusDetails": {
+        "message": "AssertionError: Expected cart count to be 2, but got 1\nassert 1 == 2\n",
+        "trace": "  File \"/Users/vamsikolla/Desktop/Projects/SeleniumPOM-AMA/tests/test_checkout_overview.py\", line 112, in test_swag_checkout_overview\n    assert cart_count == expected_count, f\"Expected cart count to be {expected_count}, but got {cart_count}\"\n"
+      },
+      "attachments": [
+        {
+          "name": "Step_02_Products_Added_1_Items_To_Cart",
+          "source": "5ef55303-df76-4d5b-9e81-ffbab6d4d2e7-attachment.png",
+          "type": "image/png"
+        },
+        {
+          "name": "Cart Count Verification",
+          "source": "caf71ec8-35f7-43d9-89ab-126b6203af81-attachment.txt",
+          "type": "text/plain"
+        }
+      ],
+      "start": 1744273470779,
+      "stop": 1744273471222
+    }
+  ],
+  "attachments": [
+    {
+      "name": "stdout",
+      "source": "76ab75a9-120d-472e-a930-a6efd287faa9-attachment.txt",
+      "type": "text/plain"
+    }
+  ],
+  "parameters": [
+    {
+      "name": "username",
+      "value": "'standard_user'"
+    },
+    {
+      "name": "password",
+      "value": "'secret_sauce'"
+    }
+  ],
+  "start": 1744273458682,
+  "stop": 1744273471224,
+  "uuid": "5934ff8c-ac69-4a82-99f5-8e91b88edf91",
+  "historyId": "260928d8a90bc815bb2a2433abc41ef5",
+  "testCaseId": "e5ffbf029a21f88a0b205838d0d21413",
+  "fullName": "tests.test_checkout_overview#test_swag_checkout_overview",
+  "labels": [
+    {
+      "name": "story",
+      "value": "User standard_user completes full checkout process"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "epic",
+      "value": "Swag Labs E-commerce"
+    },
+    {
+      "name": "feature",
+      "value": "Checkout Process"
+    },
+    {
+      "name": "parentSuite",
+      "value": "tests"
+    },
+    {
+      "name": "suite",
+      "value": "test_checkout_overview"
+    },
+    {
+      "name": "host",
+      "value": "Vamsis-MacBook-Air.local"
+    },
+    {
+      "name": "thread",
+      "value": "46153-MainThread"
+    },
+    {
+      "name": "framework",
+      "value": "pytest"
+    },
+    {
+      "name": "language",
+      "value": "cpython3"
+    },
+    {
+      "name": "package",
+      "value": "tests.test_checkout_overview"
+    }
+  ]
+}

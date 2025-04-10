@@ -1,0 +1,40 @@
+{
+  "uuid": "18faa69d-0d62-4643-a055-fcb9ee4c7875",
+  "children": [
+    "5934ff8c-ac69-4a82-99f5-8e91b88edf91"
+  ],
+  "befores": [
+    {
+      "name": "driver",
+      "status": "passed",
+      "steps": [
+        {
+          "name": "Configure and start browser",
+          "status": "passed",
+          "start": 1744273457422,
+          "stop": 1744273458681
+        }
+      ],
+      "start": 1744273457422,
+      "stop": 1744273458681
+    }
+  ],
+  "afters": [
+    {
+      "name": "driver::0",
+      "status": "passed",
+      "steps": [
+        {
+          "name": "Close browser",
+          "status": "passed",
+          "start": 1744273471240,
+          "stop": 1744273471372
+        }
+      ],
+      "start": 1744273471240,
+      "stop": 1744273471372
+    }
+  ],
+  "start": 1744273457422,
+  "stop": 1744273471372
+}

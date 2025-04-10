@@ -1,14 +1,10 @@
 from selenium.webdriver.common.by import By
+
 from Pages.base_page import BasePage
 from Utility.utility import Utility
 
 
 class CheckoutOverviewPage(BasePage):
-    """
-    Page object for the checkout overview page (step two) of the Sauce Demo website.
-    This page allows the user to review their order before completing the checkout process.
-    """
-
     # -------------------------------
     # Locators for checkout overview page elements
     # -------------------------------
@@ -16,21 +12,9 @@ class CheckoutOverviewPage(BasePage):
     FINISH_BUTTON = (By.ID, "finish")
 
     def __init__(self, driver):
-        """
-        Initialize the CheckoutOverviewPage with a WebDriver instance.
-
-        Args:
-            driver (WebDriver): The Selenium WebDriver instance.
-        """
         super().__init__(driver)
 
-    def is_overview_page_displayed(self):
-        """
-        Verify if the checkout overview page is loaded successfully.
-
-        :return: True if the page is loaded (i.e., the title "Checkout: Overview"
-                 is visible and the finish button is displayed), False otherwise.
-        """
+    def is_overview_page_loaded(self):
         try:
             # -------------------------------
             # Wait for the overview page title element to be visible.
@@ -53,13 +37,6 @@ class CheckoutOverviewPage(BasePage):
             return False
 
     def click_finish(self):
-        """
-        Click the finish button to complete the checkout process.
-
-        Uses a normal click first, and if it fails, falls back on a JavaScript click.
-
-        :return: True if the finish button was clicked successfully, False otherwise.
-        """
         try:
             # -------------------------------
             # Wait for the finish button to be visible.

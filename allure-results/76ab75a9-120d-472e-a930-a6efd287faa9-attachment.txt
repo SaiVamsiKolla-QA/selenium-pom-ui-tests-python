@@ -1,0 +1,28 @@
+
+Step_01_Login_Successful_standard_user
+Screenshot saved to: /Users/vamsikolla/Desktop/Projects/SeleniumPOM-AMA/assets/screenshots/Step_01_Login_Successful_standard_user_2025-04-10_02-24-19.png
+
+Randomly selected products to add: ['sauce-labs-fleece-jacket', 'sauce-labs-bike-light']
+Error: Could not add product sauce-labs-fleece-jacket. Exception: Message: 
+Stacktrace:
+0   chromedriver                        0x000000010503adec cxxbridge1$str$ptr + 2817040
+1   chromedriver                        0x0000000105033088 cxxbridge1$str$ptr + 2784940
+2   chromedriver                        0x0000000104b7a8d8 cxxbridge1$string$len + 93028
+3   chromedriver                        0x0000000104bc16a0 cxxbridge1$string$len + 383276
+4   chromedriver                        0x0000000104c027b8 cxxbridge1$string$len + 649796
+5   chromedriver                        0x0000000104bb5a80 cxxbridge1$string$len + 335116
+6   chromedriver                        0x0000000104fffc74 cxxbridge1$str$ptr + 2575000
+7   chromedriver                        0x0000000105002f40 cxxbridge1$str$ptr + 2588004
+8   chromedriver                        0x0000000104fdf9fc cxxbridge1$str$ptr + 2443296
+9   chromedriver                        0x00000001050037bc cxxbridge1$str$ptr + 2590176
+10  chromedriver                        0x0000000104fd0af0 cxxbridge1$str$ptr + 2382100
+11  chromedriver                        0x00000001050239a0 cxxbridge1$str$ptr + 2721732
+12  chromedriver                        0x0000000105023b2c cxxbridge1$str$ptr + 2722128
+13  chromedriver                        0x0000000105032cd4 cxxbridge1$str$ptr + 2783992
+14  libsystem_pthread.dylib             0x0000000194359c0c _pthread_start + 136
+15  libsystem_pthread.dylib             0x0000000194354b80 thread_start + 8
+
+Successfully added sauce-labs-bike-light to cart
+Added the 2nd Item: sauce-labs-bike-light
+Step_02_Products_Added_1_Items_To_Cart
+Screenshot saved to: /Users/vamsikolla/Desktop/Projects/SeleniumPOM-AMA/assets/screenshots/Step_02_Products_Added_1_Items_To_Cart_2025-04-10_02-24-30.png

@@ -1,0 +1,236 @@
+{
+  "name": "test_swag_checkout_end2end[standard_user]",
+  "status": "passed",
+  "steps": [
+    {
+      "name": "Login as standard_user",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "Step_01_Login_Successful_standard_user",
+          "source": "b9190e92-29cf-4a43-bd83-9dac1635ef75-attachment.png",
+          "type": "image/png"
+        }
+      ],
+      "start": 1744273472736,
+      "stop": 1744273473570
+    },
+    {
+      "name": "Select and add random products to cart",
+      "status": "passed",
+      "steps": [
+        {
+          "name": "Add product 1: sauce-labs-backpack",
+          "status": "passed",
+          "start": 1744273473570,
+          "stop": 1744273474129
+        },
+        {
+          "name": "Add product 2: test.allthethings()-t-shirt-(red)",
+          "status": "passed",
+          "start": 1744273474129,
+          "stop": 1744273474686
+        }
+      ],
+      "attachments": [
+        {
+          "name": "Selected Products",
+          "source": "72590c6e-9426-4750-b71d-832fd6c62f77-attachment.txt",
+          "type": "text/plain"
+        }
+      ],
+      "start": 1744273473570,
+      "stop": 1744273474687
+    },
+    {
+      "name": "Verify cart count",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "Step_02_Products_Added_2_Items_To_Cart",
+          "source": "38bfd6a0-d465-4d1c-853d-eacb9f18d76d-attachment.png",
+          "type": "image/png"
+        },
+        {
+          "name": "Cart Count Verification",
+          "source": "448e32e9-f7f1-4474-b6f7-0766f6af2aee-attachment.txt",
+          "type": "text/plain"
+        }
+      ],
+      "start": 1744273474687,
+      "stop": 1744273475125
+    },
+    {
+      "name": "Navigate to cart page",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "Step_03_Cart_Items_Available_In_Cart",
+          "source": "14451ca4-549f-46de-b1f2-c09e96b29606-attachment.png",
+          "type": "image/png"
+        }
+      ],
+      "start": 1744273475125,
+      "stop": 1744273476444
+    },
+    {
+      "name": "Click checkout button",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "Step_04_Cart_Checkout_Button_Clicked",
+          "source": "015f05e3-610a-4788-bdbd-c0bc03226892-attachment.png",
+          "type": "image/png"
+        }
+      ],
+      "start": 1744273476444,
+      "stop": 1744273477715
+    },
+    {
+      "name": "Enter checkout information",
+      "status": "passed",
+      "steps": [
+        {
+          "name": "Enter first name: Vamsi",
+          "status": "passed",
+          "start": 1744273477715,
+          "stop": 1744273477736
+        },
+        {
+          "name": "Enter last name: Kolla",
+          "status": "passed",
+          "start": 1744273477736,
+          "stop": 1744273477760
+        },
+        {
+          "name": "Enter postal code: T6H5J3",
+          "status": "passed",
+          "start": 1744273477760,
+          "stop": 1744273477782
+        },
+        {
+          "name": "Verify entered information",
+          "status": "passed",
+          "attachments": [
+            {
+              "name": "Checkout Information",
+              "source": "51de2671-2e4d-4690-8669-3804800b2b48-attachment.txt",
+              "type": "text/plain"
+            }
+          ],
+          "start": 1744273477782,
+          "stop": 1744273477793
+        }
+      ],
+      "attachments": [
+        {
+          "name": "Step_05_Checkout_Info_Entered",
+          "source": "0080b82e-c35c-4517-be50-485c19e6da2a-attachment.png",
+          "type": "image/png"
+        }
+      ],
+      "start": 1744273477715,
+      "stop": 1744273478038
+    },
+    {
+      "name": "Click continue button and navigate to overview page",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "Step_06_Checkout_Overview_Page_Displayed",
+          "source": "c31fa44f-4678-44c8-a4bf-04bd21cb9b50-attachment.png",
+          "type": "image/png"
+        }
+      ],
+      "start": 1744273478038,
+      "stop": 1744273478303
+    },
+    {
+      "name": "Complete checkout by clicking finish",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "Step_07_Checkout_Complete",
+          "source": "639fd6eb-94b3-4f51-9237-2a977c23a696-attachment.png",
+          "type": "image/png"
+        },
+        {
+          "name": "Checkout Completion",
+          "source": "7f68559d-e95c-4193-a514-470cefac8eae-attachment.txt",
+          "type": "text/plain"
+        }
+      ],
+      "start": 1744273478303,
+      "stop": 1744273478558
+    }
+  ],
+  "attachments": [
+    {
+      "name": "stdout",
+      "source": "b15e33a5-58dc-4d47-a841-db6395418878-attachment.txt",
+      "type": "text/plain"
+    }
+  ],
+  "parameters": [
+    {
+      "name": "username",
+      "value": "'standard_user'"
+    },
+    {
+      "name": "password",
+      "value": "'secret_sauce'"
+    }
+  ],
+  "start": 1744273472735,
+  "stop": 1744273478558,
+  "uuid": "1c83d203-7354-4f04-bf3d-0ca1e3fdd636",
+  "historyId": "8db044dc317291cc07c8c08d45006d61",
+  "testCaseId": "dd3a36292955be6b5ee0fd61993844c8",
+  "fullName": "tests.test_endtoend#test_swag_checkout_end2end",
+  "labels": [
+    {
+      "name": "story",
+      "value": "User standard_user completes full checkout process"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "epic",
+      "value": "Swag Labs E-commerce"
+    },
+    {
+      "name": "feature",
+      "value": "End-to-End Flow"
+    },
+    {
+      "name": "parentSuite",
+      "value": "tests"
+    },
+    {
+      "name": "suite",
+      "value": "test_endtoend"
+    },
+    {
+      "name": "host",
+      "value": "Vamsis-MacBook-Air.local"
+    },
+    {
+      "name": "thread",
+      "value": "46153-MainThread"
+    },
+    {
+      "name": "framework",
+      "value": "pytest"
+    },
+    {
+      "name": "language",
+      "value": "cpython3"
+    },
+    {
+      "name": "package",
+      "value": "tests.test_endtoend"
+    }
+  ]
+}

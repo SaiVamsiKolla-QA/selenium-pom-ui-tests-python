@@ -1,0 +1,173 @@
+{
+  "name": "test_swag_login[standard_user]",
+  "status": "passed",
+  "description": "Testing login with user: standard_user and validating product page access",
+  "steps": [
+    {
+      "name": "Login as standard_user",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "Login Credentials",
+          "source": "f94423ba-8e0c-4759-b39d-e47a7049f4e8-attachment.txt",
+          "type": "text/plain"
+        },
+        {
+          "name": "Login Successful",
+          "source": "81bdccfd-a060-4603-b6fd-e6c732c88bbd-attachment.png",
+          "type": "image/png"
+        }
+      ],
+      "start": 1744273481979,
+      "stop": 1744273482866
+    },
+    {
+      "name": "Select random products to add to cart",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "Selected Products",
+          "source": "e79d294d-c0c2-462c-8467-8e7b8448252b-attachment.txt",
+          "type": "text/plain"
+        }
+      ],
+      "start": 1744273482866,
+      "stop": 1744273482867
+    },
+    {
+      "name": "Add product 1: sauce-labs-fleece-jacket",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "Product Added: sauce-labs-fleece-jacket",
+          "source": "d5da7a6d-c4fb-41d2-9d9e-24f092c40e89-attachment.png",
+          "type": "image/png"
+        },
+        {
+          "name": "Product 1 Details",
+          "source": "f78159a4-880e-485d-ab7b-604e1a6206b7-attachment.txt",
+          "type": "text/plain"
+        }
+      ],
+      "start": 1744273482867,
+      "stop": 1744273483426
+    },
+    {
+      "name": "Add product 2: sauce-labs-bike-light",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "Product Added: sauce-labs-bike-light",
+          "source": "6129570d-6293-4946-a74c-4eca4a921404-attachment.png",
+          "type": "image/png"
+        },
+        {
+          "name": "Product 2 Details",
+          "source": "c33b9d28-44b1-4154-a178-630f9ceaa20f-attachment.txt",
+          "type": "text/plain"
+        }
+      ],
+      "start": 1744273483426,
+      "stop": 1744273483985
+    },
+    {
+      "name": "Verify cart count",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "Cart Count Verification",
+          "source": "a376e682-ca46-44bb-bab7-803d796e86bb-attachment.txt",
+          "type": "text/plain"
+        },
+        {
+          "name": "Products Added To Cart",
+          "source": "6be6cd71-8acd-4a40-98b6-c930a9ebb681-attachment.png",
+          "type": "image/png"
+        }
+      ],
+      "start": 1744273483985,
+      "stop": 1744273485952
+    }
+  ],
+  "attachments": [
+    {
+      "name": "stdout",
+      "source": "396e59e3-8467-4f6a-bb30-4a7e29284fe7-attachment.txt",
+      "type": "text/plain"
+    }
+  ],
+  "parameters": [
+    {
+      "name": "username",
+      "value": "'standard_user'"
+    },
+    {
+      "name": "password",
+      "value": "'secret_sauce'"
+    }
+  ],
+  "start": 1744273481979,
+  "stop": 1744273485952,
+  "uuid": "075d3c9d-4620-4f27-a751-4726f7eb4b7c",
+  "historyId": "ba0fff08a51bcf8a908ff636ec333f88",
+  "testCaseId": "9cb70e4e9dffdf40223c6592af661fc9",
+  "fullName": "tests.test_products#test_swag_login",
+  "labels": [
+    {
+      "name": "story",
+      "value": "User standard_user logs in"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "story",
+      "value": "Add any two products"
+    },
+    {
+      "name": "epic",
+      "value": "Swag Labs E-commerce"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "feature",
+      "value": "Product Management"
+    },
+    {
+      "name": "feature",
+      "value": "Swag Login Feature"
+    },
+    {
+      "name": "parentSuite",
+      "value": "tests"
+    },
+    {
+      "name": "suite",
+      "value": "test_products"
+    },
+    {
+      "name": "host",
+      "value": "Vamsis-MacBook-Air.local"
+    },
+    {
+      "name": "thread",
+      "value": "46153-MainThread"
+    },
+    {
+      "name": "framework",
+      "value": "pytest"
+    },
+    {
+      "name": "language",
+      "value": "cpython3"
+    },
+    {
+      "name": "package",
+      "value": "tests.test_products"
+    }
+  ]
+}

@@ -1,0 +1,218 @@
+{
+  "name": "test_swag_your_cart_info[standard_user]",
+  "status": "passed",
+  "steps": [
+    {
+      "name": "Login as standard_user",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "Step_01_Login_Successful_standard_user",
+          "source": "83ffaacf-c9b6-41e6-80c4-00fdbe934261-attachment.png",
+          "type": "image/png"
+        }
+      ],
+      "start": 1744273487451,
+      "stop": 1744273488292
+    },
+    {
+      "name": "Select and add random products to cart",
+      "status": "passed",
+      "steps": [
+        {
+          "name": "Add product 1: sauce-labs-bike-light",
+          "status": "passed",
+          "start": 1744273488292,
+          "stop": 1744273488849
+        },
+        {
+          "name": "Add product 2: sauce-labs-fleece-jacket",
+          "status": "passed",
+          "start": 1744273488849,
+          "stop": 1744273489406
+        }
+      ],
+      "attachments": [
+        {
+          "name": "Selected Products",
+          "source": "40952bc6-d476-4399-a44a-9d5c17cd109e-attachment.txt",
+          "type": "text/plain"
+        }
+      ],
+      "start": 1744273488292,
+      "stop": 1744273489406
+    },
+    {
+      "name": "Verify cart count",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "Step_02_Products_Added_2_Items_To_Cart",
+          "source": "5cb13668-0eb9-4c3f-98ce-9eac9b36c160-attachment.png",
+          "type": "image/png"
+        },
+        {
+          "name": "Cart Count Verification",
+          "source": "05e642dd-8bd3-4f01-afb7-b81353f1cac9-attachment.txt",
+          "type": "text/plain"
+        }
+      ],
+      "start": 1744273489406,
+      "stop": 1744273489750
+    },
+    {
+      "name": "Navigate to cart page",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "Step_03_Cart_Items_Available_In_Cart",
+          "source": "3b124b9d-d28c-4e47-be9b-daf112a22b30-attachment.png",
+          "type": "image/png"
+        }
+      ],
+      "start": 1744273489750,
+      "stop": 1744273491056
+    },
+    {
+      "name": "Click checkout button",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "Step_04_Cart_Checkout_Button_Clicked",
+          "source": "c3cb9483-d3a7-49ae-93a8-b798ff950f47-attachment.png",
+          "type": "image/png"
+        }
+      ],
+      "start": 1744273491056,
+      "stop": 1744273492346
+    },
+    {
+      "name": "Enter checkout information",
+      "status": "passed",
+      "steps": [
+        {
+          "name": "Enter first name: Vamsi",
+          "status": "passed",
+          "start": 1744273492346,
+          "stop": 1744273492363
+        },
+        {
+          "name": "Enter last name: Kolla",
+          "status": "passed",
+          "start": 1744273492363,
+          "stop": 1744273492388
+        },
+        {
+          "name": "Enter postal code: T6H5J3",
+          "status": "passed",
+          "start": 1744273492388,
+          "stop": 1744273492411
+        },
+        {
+          "name": "Verify entered information",
+          "status": "passed",
+          "attachments": [
+            {
+              "name": "Checkout Information",
+              "source": "2d9a1c04-bbd0-41b3-bdbf-bf3dd52b0aef-attachment.txt",
+              "type": "text/plain"
+            }
+          ],
+          "start": 1744273492411,
+          "stop": 1744273492422
+        }
+      ],
+      "attachments": [
+        {
+          "name": "Step_05_Checkout_Info_Entered",
+          "source": "92d20a8f-a64b-4154-93a6-c8dd8965f699-attachment.png",
+          "type": "image/png"
+        }
+      ],
+      "start": 1744273492346,
+      "stop": 1744273492666
+    },
+    {
+      "name": "Click continue to proceed to overview",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "Step_06_Checkout_Overview_Page_Displayed",
+          "source": "883496e4-1f72-4e8e-a73d-b11d2298f206-attachment.png",
+          "type": "image/png"
+        }
+      ],
+      "start": 1744273492666,
+      "stop": 1744273492937
+    }
+  ],
+  "attachments": [
+    {
+      "name": "stdout",
+      "source": "28aacfb0-648c-4894-b49e-af5415e06e7e-attachment.txt",
+      "type": "text/plain"
+    }
+  ],
+  "parameters": [
+    {
+      "name": "username",
+      "value": "'standard_user'"
+    },
+    {
+      "name": "password",
+      "value": "'secret_sauce'"
+    }
+  ],
+  "start": 1744273487451,
+  "stop": 1744273492937,
+  "uuid": "93f97edf-7fdf-41d1-9087-543ae25515e7",
+  "historyId": "e39a8b8f47548cc008ec095a7f21ad1e",
+  "testCaseId": "6db702d687d156b6fec4a5325c95e2ff",
+  "fullName": "tests.test_your_Info#test_swag_your_cart_info",
+  "labels": [
+    {
+      "name": "story",
+      "value": "User standard_user completes checkout process"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "epic",
+      "value": "Swag Labs E-commerce"
+    },
+    {
+      "name": "feature",
+      "value": "Checkout Process"
+    },
+    {
+      "name": "parentSuite",
+      "value": "tests"
+    },
+    {
+      "name": "suite",
+      "value": "test_your_Info"
+    },
+    {
+      "name": "host",
+      "value": "Vamsis-MacBook-Air.local"
+    },
+    {
+      "name": "thread",
+      "value": "46153-MainThread"
+    },
+    {
+      "name": "framework",
+      "value": "pytest"
+    },
+    {
+      "name": "language",
+      "value": "cpython3"
+    },
+    {
+      "name": "package",
+      "value": "tests.test_your_Info"
+    }
+  ]
+}

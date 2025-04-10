@@ -1,0 +1,91 @@
+{
+  "name": "test_swag_login[standard_user-secret_sauce]",
+  "status": "passed",
+  "description": "Test login functionality and verify the product page.",
+  "steps": [
+    {
+      "name": "Login as standard_user",
+      "status": "passed",
+      "start": 1744273479668,
+      "stop": 1744273480168
+    },
+    {
+      "name": "Verify successful login",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "Step_01_Login_Successful_standard_user",
+          "source": "d6a18d79-cb9e-4224-b215-b49926b0743a-attachment.png",
+          "type": "image/png"
+        }
+      ],
+      "start": 1744273480168,
+      "stop": 1744273480484
+    }
+  ],
+  "attachments": [
+    {
+      "name": "stdout",
+      "source": "a91b7a97-0c92-46ed-94b4-0ef1ee97b19a-attachment.txt",
+      "type": "text/plain"
+    }
+  ],
+  "parameters": [
+    {
+      "name": "username",
+      "value": "'standard_user'"
+    },
+    {
+      "name": "password",
+      "value": "'secret_sauce'"
+    }
+  ],
+  "start": 1744273479668,
+  "stop": 1744273480484,
+  "uuid": "cb5b7238-ca8b-4bad-9bb7-907ebb21fe62",
+  "historyId": "ef407888ca7179a65ad7e9ddc406640f",
+  "testCaseId": "a214b37c1f4f395be629569be1124a5e",
+  "fullName": "tests.test_login#test_swag_login",
+  "labels": [
+    {
+      "name": "story",
+      "value": "User standard_user logs in"
+    },
+    {
+      "name": "epic",
+      "value": "Swag Labs E-commerce"
+    },
+    {
+      "name": "feature",
+      "value": "Swag Login Feature"
+    },
+    {
+      "name": "parentSuite",
+      "value": "tests"
+    },
+    {
+      "name": "suite",
+      "value": "test_login"
+    },
+    {
+      "name": "host",
+      "value": "Vamsis-MacBook-Air.local"
+    },
+    {
+      "name": "thread",
+      "value": "46153-MainThread"
+    },
+    {
+      "name": "framework",
+      "value": "pytest"
+    },
+    {
+      "name": "language",
+      "value": "cpython3"
+    },
+    {
+      "name": "package",
+      "value": "tests.test_login"
+    }
+  ]
+}

@@ -1,3 +1,0 @@
-Navigated to the cart page using JavaScript click.
-Clicked the checkout button using JavaScript.
-Finish button clicked successfully using a normal click.

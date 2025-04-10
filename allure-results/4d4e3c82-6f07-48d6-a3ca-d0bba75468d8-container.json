@@ -1,0 +1,24 @@
+{
+  "uuid": "b6bedb19-d0d6-4a28-b606-9420f3df5592",
+  "children": [
+    "cb5b7238-ca8b-4bad-9bb7-907ebb21fe62"
+  ],
+  "befores": [
+    {
+      "name": "driver",
+      "status": "passed",
+      "start": 1744273478695,
+      "stop": 1744273479667
+    }
+  ],
+  "afters": [
+    {
+      "name": "driver::0",
+      "status": "passed",
+      "start": 1744273480484,
+      "stop": 1744273480612
+    }
+  ],
+  "start": 1744273478695,
+  "stop": 1744273480612
+}

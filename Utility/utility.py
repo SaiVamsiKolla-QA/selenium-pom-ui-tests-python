@@ -1,8 +1,9 @@
 import os
 import time
 from datetime import datetime
-from selenium.webdriver.support.ui import WebDriverWait
+
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 
 class Utility:
@@ -10,6 +11,7 @@ class Utility:
     def capture_screenshot(driver, test_name=None):
         """
         Capture a screenshot and save it in the assets/screenshots directory.
+        Returns the screenshot as bytes for Allure reporting.
         """
         # -------------------------------
         # Generate a timestamp and build the screenshot filename
@@ -30,7 +32,11 @@ class Utility:
         screenshot_path = os.path.join(screenshot_dir, f"{name}.png")
         driver.save_screenshot(screenshot_path)
         print(f"Screenshot saved to: {screenshot_path}")
-        return screenshot_path
+
+        # -------------------------------
+        # Return screenshot as bytes for Allure
+        # -------------------------------
+        return driver.get_screenshot_as_png()
 
     @staticmethod
     def wait_for_element_visible(driver, locator, timeout=10):
