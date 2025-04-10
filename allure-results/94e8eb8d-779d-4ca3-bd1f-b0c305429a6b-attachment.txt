@@ -1,1 +1,0 @@
-Browser configured with implicit wait of 10 seconds

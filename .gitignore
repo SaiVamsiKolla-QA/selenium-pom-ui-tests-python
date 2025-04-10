@@ -1,10 +1,9 @@
- Python
+# Python bytecode and cache files
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
-env/
+
+# Distribution / packaging
 build/
 develop-eggs/
 dist/
@@ -16,22 +15,30 @@ lib64/
 parts/
 sdist/
 var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-.pytest_cache/
-.coverage
-htmlcov/
 
-# Virtual Environment
-.env
-.venv
+# Virtual environments
+.venv/
 env/
 venv/
-ENV/
 
-# PyCharm
+# Test artifacts and reports
+allure-results/
+allure-report/
+assets/screenshots/
+
+# Pytest cache
+.pytest_cache/
+
+# Editor/IDE settings (optional)
+.vscode/
 .idea/
-*.iml
-*.iws
-*.ipr
+
+# Logs and temporary files
+*.log
+*.tmp
