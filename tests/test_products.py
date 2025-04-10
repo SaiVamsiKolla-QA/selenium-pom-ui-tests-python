@@ -1,10 +1,13 @@
+import tempfile
+import shutil
 import random
 import time
-
 import allure
 import pytest
+
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 
 from Pages.login_page import LoginPage
@@ -17,20 +20,20 @@ def driver():
     """
     Initialize and configure the Chrome WebDriver.
     """
-    with allure.step("Configure and start browser"):
-        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
-        driver.implicitly_wait(10)  # Implicit wait for element loading
-        driver.maximize_window()
-        allure.attach("Browser configured with implicit wait of 10 seconds",
-                      name="Browser Configuration",
-                      attachment_type=allure.attachment_type.TEXT)
-
+    # Create a unique temporary directory for Chrome's user data
+    user_data_dir = tempfile.mkdtemp(prefix="chrome_userdata_")
+    chrome_options = Options()
+    chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
+    driver = webdriver.Chrome(
+        service=ChromeService(ChromeDriverManager().install()),
+        options=chrome_options
+    )
+    driver.implicitly_wait(10)
     yield driver
-
-    # Cleanup: Close the browser window and quit the driver
-    with allure.step("Close browser"):
-        driver.close()
-        driver.quit()
+    driver.close()
+    # Quit the driver and remove the temporary directory
+    driver.quit()
+    shutil.rmtree(user_data_dir, ignore_errors=True)
 
 
 def get_ordinal(n):

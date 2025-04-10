@@ -21,6 +21,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r Requirements.txt
 
+      # Set a unique Chrome user data directory
+      - name: Set unique Chrome user data directory
+        run: echo "CHROME_USER_DATA_DIR=${{ runner.temp }}/chrome_userdata_${{ github.run_id }}" >> $GITHUB_ENV
+
       - name: Install Google Chrome
         run: |
           sudo apt-get update
@@ -36,12 +40,10 @@ jobs:
           unzip allure-2.14.0.zip
 
       - name: Run tests with Pytest
-        run: |
-          pytest --alluredir=./allure-results
+        run: pytest --alluredir=./allure-results
 
       - name: Generate Allure report
-        run: |
-          ./allure-2.14.0/bin/allure generate ./allure-results --clean -o ./allure-report
+        run: ./allure-2.14.0/bin/allure generate ./allure-results --clean -o ./allure-report
 
       - name: Upload Allure report artifact
         uses: actions/upload-pages-artifact@v3

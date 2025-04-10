@@ -1,7 +1,10 @@
+import tempfile
+import shutil
 import allure
 import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 
 from Pages.login_page import LoginPage
@@ -14,12 +17,20 @@ def driver():
     """
     Initialize and configure the Chrome WebDriver.
     """
-    driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
+    # Create a unique temporary directory for Chrome's user data
+    user_data_dir = tempfile.mkdtemp(prefix="chrome_userdata_")
+    chrome_options = Options()
+    chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
+    driver = webdriver.Chrome(
+        service=ChromeService(ChromeDriverManager().install()),
+        options=chrome_options
+    )
     driver.implicitly_wait(10)
     yield driver
     driver.close()
+    # Quit the driver and remove the temporary directory
     driver.quit()
-
+    shutil.rmtree(user_data_dir, ignore_errors=True)
 
 @pytest.mark.parametrize("username,password", [
     ("standard_user", "secret_sauce"),
