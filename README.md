@@ -54,21 +54,39 @@ end-to-end test scenarios from login to checkout with Allure reporting integrati
       ```
       brew install allure
       ```
+## Environment Setup
+
+Before running the tests, verify your environment is correctly set up:
+
+```bash
+# Run the environment check script
+python setup_check.py
+````
+This script will check:
+
+- Python version (3.9+ required)
+- Required packages
+- Allure installation
+- Chrome browser installation
+
+If any issues are found, the script will provide instructions for resolving them.
 
 ## Project Structure
 
 ```
-SWAG-POM_V/
+SwagLabs-POM-E2E/
 ├── Pages/                  # Page Object classes
 ├── Utility/                # Helper functions and utilities
 ├── tests/                  # Test scripts
 ├── assets/                 # Screenshots and other assets
 │   └── screenshots/        # Test execution screenshots
+├── .github/                # GitHub configurations
+│   └── workflows/          # CI/CD workflow definitions
 ├── allure-results/         # Allure test results
-├── run_tests.bat           # Windows test execution script
+├── setup_check.py          # Environment verification script
 ├── run_tests.sh            # Mac/Linux test execution script
-└── Requirements.txt        # Project dependencies
-└── TestCases-SwagLabs.xlsx # Functional Test Scenarios  
+├── Requirements.txt        # Project dependencies
+└── Testcases-SwagLabs.xlsx # Functional Test Scenarios  
 ```
 
 ## Running Tests
@@ -95,20 +113,35 @@ Run specific tests:
 # Run a specific test file
 pytest tests/test_login.py -v --alluredir=allure-results
 
-# Run a specific test
-pytest tests/test_checkout_overview.py::test_swag_checkout_overview -v --alluredir=allure-results
+# To Run a End_to_End test
+pytest tests/test_end_to_end.py::test_swag_checkout_end_to_end -v --alluredir=allure-results
 
 # Generate Allure report
 allure serve allure-results
 ```
+## CI/CD Pipeline
+This project uses GitHub Actions for continuous integration, ensuring tests can run consistently on any machine.
 
-## Test Scenarios
+# Workflow Features:
+- Automated Test Execution: Tests run automatically on push to main branch and pull requests
+- Cross-Platform Compatibility: The workflow sets up a standardized environment regardless of local setup
+- Dependency Management: All required dependencies are automatically installed
+- Browser Installation: Chrome browser is set up for Selenium tests
+- Allure Integration: Allure is installed and reports are generated automatically
+- Report Artifacts: Test reports are saved and can be downloaded for review
+
+# Viewing Pipeline Results
+
+- Go to the Actions tab in the GitHub repository
+- Select the latest workflow run
+- Download the Allure report artifact to view detailed test results
+## End_to_End Test Scenario
 
 1. **Login Test**
     - Validates user login functionality
 
 2. **Products Test**
-    - Adds random products to cart
+    - Adds 2 random products to cart
     - Verifies cart count
 
 3. **Cart Test**
@@ -141,6 +174,10 @@ allure serve allure-results
 3. **Test Failures**
     - Check the screenshots in the assets/screenshots directory
     - Review the Allure report for detailed step information
+
+
+
+
 
 ## Contributing
 
