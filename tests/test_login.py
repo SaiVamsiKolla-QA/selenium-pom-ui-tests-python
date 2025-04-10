@@ -5,8 +5,8 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from Pages.login_page import LoginPage
+from Pages.products_page import ProductPage
 from Utility.utility import Utility
-
 
 @pytest.fixture()
 def driver():
@@ -31,7 +31,7 @@ def driver():
 ])
 def test_swag_login(driver, username, password):
     login_page = LoginPage(driver)
-
+    product_page = ProductPage(driver)
     # -------------------------------
     # Step 1: Perform Login using provided credentials.
     # The login_as method encapsulates:
@@ -45,14 +45,8 @@ def test_swag_login(driver, username, password):
     #   - Capture a screenshot after the login attempt.
     #   - Wait for the inventory container element to verify successful login.
     # -------------------------------
-    Utility.capture_screenshot(driver, f"Logging in as a {username}")
-    inventory_locator = (By.ID, "inventory_container")
-    inventory = Utility.wait_for_element_visible(driver, inventory_locator)
 
-    # -------------------------------
-    # Step 3: Assertion and Logging
-    #   - Verify that the inventory page is displayed.
-    #   - Log a successful login message.
-    # -------------------------------
-    assert inventory.is_displayed(), f"Login failed for {username}"
-    print(f"Successfully logged in as {username}")
+    assert product_page.is_page_loaded(), f"Login failed for {username}"
+    print(f"\nStep_01_Login_Successful_{username}")
+    Utility.capture_screenshot(driver, f"Step_01_Login_Successful_{username}")
+

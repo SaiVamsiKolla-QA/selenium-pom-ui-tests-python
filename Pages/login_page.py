@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 
+
 class LoginPage:
     # -------------------------------
     # Locators for the login elements on the page

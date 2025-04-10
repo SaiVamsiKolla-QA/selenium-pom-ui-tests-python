@@ -1,5 +1,4 @@
 import pytest
-import time
 import random
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -23,35 +22,41 @@ def driver():
     driver.quit()
 
 
+def get_ordinal(n):
+    """
+    Convert a number to its ordinal representation (1st, 2nd, 3rd, etc.)
+    """
+    if 10 <= n % 100 <= 20:
+        suffix = 'th'
+    else:
+        suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')
+    return f"{n}{suffix}"
+
+
 @pytest.mark.parametrize("username,password", [
     # Test data: Standard user credentials expected to log in successfully
     ("standard_user", "secret_sauce"),
 ])
-def test_add_product(driver, username, password):
-    """
-    Test case: Add two random products to the cart.
-
-    This test performs the following steps:
-      1. Logs in to the Sauce Demo application.
-      2. Waits for the products page to load.
-      3. Randomly selects and adds two products to the cart.
-      4. Captures a screenshot after adding the products.
-      5. Verifies that the cart count matches the expected number.
-    """
-    # -------------------------------
-    # Step 1: Initialize Page Objects and log in
-    # -------------------------------
+def test_swag_products(driver, username, password):
     login_page = LoginPage(driver)
     product_page = ProductPage(driver)
-
-
-    # Step 1: Login into the application
+    # -------------------------------
+    # Step 1: Perform Login using provided credentials.
+    # The login_as method encapsulates:
+    #   - Navigating to the Sauce Demo website
+    #   - Entering the username and password
+    #   - Clicking the login button
+    # -------------------------------
     login_page.login_as(username, password, url="https://www.saucedemo.com/")
+    # -------------------------------
+    # Step 2: Post-Login Actions
+    #   - Capture a screenshot after the login attempt.
+    #   - Wait for the inventory container element to verify successful login.
+    # -------------------------------
 
-    # -------------------------------
-    # Step 2: Wait for the Products page to load
-    # -------------------------------
-    assert product_page.wait_for_page_load(), "Products page did not load in time."
+    assert product_page.is_page_loaded(), f"Login failed for {username}"
+    print(f"\nStep_01_Login_Successful_{username}")
+    Utility.capture_screenshot(driver, f"Step_01_Login_Successful_{username}")
 
     # -------------------------------
     # Step 3: Add two random products to the cart
@@ -59,25 +64,19 @@ def test_add_product(driver, username, password):
     all_products = product_page.available_products.copy()
     products_to_add = random.sample(all_products, 2)
     expected_count = len(products_to_add)
-    print(f"Randomly selected products to add: {products_to_add}")
-
+    print(f"\nRandomly selected products to add: {products_to_add}")
     successful_adds = 0
-    for product_id in products_to_add:
+
+    # Use enumerate to create an index for each product
+    for index, product_id in enumerate(products_to_add, 1):
         if product_page.add_product_to_cart(product_id):
             successful_adds += 1
-            print(f"Successfully added: {product_id}")
-
+            ordinal = get_ordinal(index)
+            print(f"Added the {ordinal} Item: {product_id}")
     # -------------------------------
-    # Step 4: Capture a screenshot after adding products
-    # -------------------------------
-    Utility.capture_screenshot(driver, "Adding products to the cart")
-    print("Screenshot captured after adding all products to cart.")
-
-    # -------------------------------
-    # Step 5: Verify the cart count matches the number of added products
+    # Step 2.2: Verify the cart count matches the number of added products
     # -------------------------------
     cart_count = product_page.get_cart_count()
+    print(f"Step_02_Products_Added_{cart_count}_Items_To_Cart")
+    Utility.capture_screenshot(driver, f"Step_02_Products_Added_{cart_count}_Items_To_Cart")
     assert cart_count == expected_count, f"Expected cart count to be {expected_count}, but got {cart_count}"
-    assert successful_adds == expected_count, f"Expected to add {expected_count} products, but added {successful_adds}"
-    print(f"Successfully added all {cart_count} products to cart.")
-    print("Test passed: All products were successfully added to cart.")
