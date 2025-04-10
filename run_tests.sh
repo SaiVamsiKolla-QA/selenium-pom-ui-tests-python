@@ -1,6 +1,9 @@
 #!/bin/bash
 echo "Running Swag Labs Tests with Allure Reporting"
 
+# Run the cleanup script first
+python cleanup.py
+
 # Create results directory if it doesn't exist (clean run)
 if [ -d "allure-results" ]; then
     echo "Cleaning previous results..."
