@@ -4,7 +4,7 @@ import pytest
 
 @allure.epic("Swag Labs E-commerce")
 @allure.feature("Checkout Process")
-def test_swag_your_cart_info(checkout_info_filled, driver):
+def test_swag_checkout_step_one(checkout_info_filled, driver):
     """Test completing checkout information and navigating to overview page"""
     allure.dynamic.story("User completes checkout information process")
     allure.dynamic.severity(allure.severity_level.CRITICAL)
@@ -13,7 +13,7 @@ def test_swag_your_cart_info(checkout_info_filled, driver):
     info_page = checkout_info_filled
 
     # Create overview page
-    from Pages.checkout_overview_page import CheckoutOverviewPage
+    from Pages.checkout_step_two_page import CheckoutOverviewPage
     overview_page = CheckoutOverviewPage(driver)
 
     # -------------------------------

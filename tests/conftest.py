@@ -10,10 +10,10 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 
 from Pages.login_page import LoginPage
-from Pages.products_page import ProductPage
-from Pages.your_cart_page import CartPage
-from Pages.checkout_yourinformation_page import CheckoutInfoPage
-from Pages.checkout_overview_page import CheckoutOverviewPage
+from Pages.inventory_page import ProductPage
+from Pages.cart_page import CartPage
+from Pages.checkout_step_one_page import CheckoutInfoPage
+from Pages.checkout_step_two_page import CheckoutOverviewPage
 from Utility.utility import Utility
 
 

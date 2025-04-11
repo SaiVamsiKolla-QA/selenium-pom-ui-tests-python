@@ -137,13 +137,13 @@ run_tests.bat
 Run a specific test file:
 
 ```bash
-pytest tests/test_login.py -v --alluredir=allure-results
+pytest tests/test_swag_login.py -v --alluredir=allure-results
 ```
 
 End-to-End Checkout Test:
 
 ```bash
-pytest tests/test_end_to_end.py::test_swag_end_to_end -v --alluredir=allure-results 
+pytest tests/test_swag_end_to_end.py::test_swag_end_to_end -v --alluredir=allure-results 
 ```
 
 Generate and view Allure Report:

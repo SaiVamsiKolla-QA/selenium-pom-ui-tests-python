@@ -4,7 +4,7 @@ import allure
 @allure.feature("Product Management")
 @allure.story("Add products to cart")
 @allure.severity(allure.severity_level.CRITICAL)
-def test_swag_add_products_to_cart(products_added_to_cart):
+def test_swag_inventory(products_added_to_cart):
     """Test adding 2 random products to cart"""
     # Just verify the fixture worked properly
     product_page, products_to_add = products_added_to_cart

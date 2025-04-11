@@ -4,7 +4,7 @@ import allure
 @allure.feature("Shopping Cart")
 @allure.story("Navigate to cart and checkout")
 @allure.severity(allure.severity_level.CRITICAL)
-def test_cart_checkout(checkout_info_page_loaded):
+def test_swag_cart(checkout_info_page_loaded):
     """Test cart navigation and proceeding to checkout"""
     # The fixture handles navigation to cart and checkout
     # We just need to verify we reached the info page

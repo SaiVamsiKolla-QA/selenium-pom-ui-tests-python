@@ -1,7 +1,7 @@
 import allure
 import pytest
 from Pages.login_page import LoginPage
-from Pages.products_page import ProductPage
+from Pages.inventory_page import ProductPage
 from Utility.utility import Utility
 
 @pytest.mark.parametrize("username,password", [

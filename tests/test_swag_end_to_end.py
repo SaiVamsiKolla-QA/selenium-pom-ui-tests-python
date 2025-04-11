@@ -1,6 +1,6 @@
 import allure
 import pytest
-from Pages.checkout_overview_page import CheckoutOverviewPage
+from Pages.checkout_step_two_page import CheckoutOverviewPage
 from Utility.utility import Utility
 
 
