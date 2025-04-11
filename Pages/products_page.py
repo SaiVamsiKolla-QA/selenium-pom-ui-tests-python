@@ -8,10 +8,11 @@ from Utility.utility import Utility
 
 
 class ProductPage:
+    # -------------------------------
+    # Locators for the Products elements on the page
+    # -------------------------------
     def __init__(self, driver):
         self.driver = driver
-
-        # Locators for the Products page
         self.inventory_container = (By.ID, "inventory_container")
         self.shopping_cart_badge = (By.CLASS_NAME, "shopping_cart_badge")
 

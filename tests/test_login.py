@@ -14,7 +14,7 @@ from Utility.utility import Utility
 ])
 @allure.epic("Swag Labs E-commerce")
 @allure.feature('Swag Login Feature')
-def test_swag_login(driver, username, password):
+def test_swag_login(driver, username, password,base_url):
     """Test login functionality and verify the product page."""
     allure.dynamic.story(f"User {username} logs in")
     login_page = LoginPage(driver)
@@ -23,7 +23,7 @@ def test_swag_login(driver, username, password):
     # Step 1: Perform Login using provided credentials.
     # -------------------------------
     with allure.step(f"Login as {username}"):
-        login_page.login_as(username, password, url="https://www.saucedemo.com/")
+        login_page.login_as(username, password, url=base_url)
 
     # -------------------------------
     # Step 2: Verify login was successful by checking product page
