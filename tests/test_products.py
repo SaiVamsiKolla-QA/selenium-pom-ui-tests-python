@@ -15,7 +15,7 @@ from Pages.products_page import ProductPage
 from Utility.utility import Utility
 
 
-@pytest.fixture()
+@pytest.fixture(scope='function')
 def driver():
     """
     Initialize and configure the Chrome WebDriver.

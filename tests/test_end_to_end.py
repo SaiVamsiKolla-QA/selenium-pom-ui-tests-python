@@ -17,7 +17,7 @@ from Pages.your_cart_page import CartPage
 from Utility.utility import Utility
 
 
-@pytest.fixture()
+@pytest.fixture(scope='function')
 def driver():
     """
     Initialize and configure the Chrome WebDriver.
@@ -36,6 +36,7 @@ def driver():
     driver.quit()
     shutil.rmtree(user_data_dir, ignore_errors=True)
 
+
 def get_ordinal(n):
     """
     Convert a number to its ordinal representation (1st, 2nd, 3rd, etc.)
@@ -53,7 +54,7 @@ def get_ordinal(n):
     # Test data: Standard user credentials expected to log in successfully
     pytest.param("standard_user", "secret_sauce", id="standard_user"),
 ])
-def test_swag_checkout_end_to_end(driver, username, password):
+def test_swag_checkout_overview(driver, username, password):
     allure.dynamic.story(f"User {username} completes full checkout process")
     allure.dynamic.severity(allure.severity_level.CRITICAL)
 

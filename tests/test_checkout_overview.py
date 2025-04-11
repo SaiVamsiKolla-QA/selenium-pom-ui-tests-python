@@ -17,7 +17,7 @@ from Pages.your_cart_page import CartPage
 from Utility.utility import Utility
 
 
-@pytest.fixture()
+@pytest.fixture(scope='function')
 def driver():
     """
     Initialize and configure the Chrome WebDriver.
