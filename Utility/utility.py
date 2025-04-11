@@ -1,6 +1,5 @@
 import os
 from datetime import datetime
-from typing import List
 
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -78,5 +77,3 @@ class Utility:
         # -------------------------------
         wait = WebDriverWait(driver, timeout)
         return wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
-
-

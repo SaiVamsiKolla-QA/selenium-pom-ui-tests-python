@@ -32,13 +32,10 @@ class CartPage(BasePage):
         except:
             return False
 
-    # Alternative approach using JavaScript click
+
     def click_checkout(self):
         """
         Click the checkout button using JavaScript.
-
-        Returns:
-            bool: True if the checkout button was clicked successfully, False otherwise.
         """
         try:
             # Locate the checkout button by its ID.

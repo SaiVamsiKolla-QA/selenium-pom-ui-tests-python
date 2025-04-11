@@ -1,7 +1,9 @@
 import time
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+
 from Utility.utility import Utility
 
 
@@ -25,10 +27,7 @@ class ProductPage:
 
     def is_product_page_loaded(self):
         """
-        Verify if the products page is loaded successfully.
-
-        Returns:
-            bool: True if the inventory container is visible, False otherwise.
+         Verify if the products page is loaded successfully.
         """
         try:
             inventory_locator = (By.ID, "inventory_container")
@@ -39,12 +38,6 @@ class ProductPage:
     def add_product_to_cart(self, product_id):
         """
         Add the specified product to the shopping cart.
-
-        Args:
-            product_id (str): The product identifier used to generate the locator.
-
-        Returns:
-            bool: True if the product is added successfully, False otherwise.
         """
         add_button_id = f"add-to-cart-{product_id}"
         try:
@@ -73,9 +66,6 @@ class ProductPage:
     def get_cart_count(self):
         """
         Retrieve the number of items in the shopping cart.
-
-        Returns:
-            int: The cart count, or 0 if unable to retrieve.
         """
         try:
             badge = self.driver.find_element(*self.shopping_cart_badge)
@@ -86,9 +76,6 @@ class ProductPage:
     def go_to_cart(self):
         """
         Navigate to the cart page using JavaScript to click the cart icon.
-
-        Returns:
-            bool: True if navigation is successful, False otherwise.
         """
         try:
             cart_icon = self.driver.find_element(By.CLASS_NAME, "shopping_cart_link")

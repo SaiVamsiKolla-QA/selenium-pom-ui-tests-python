@@ -3,12 +3,12 @@
 Comprehensive environment check for SwagLabs-POM-E2E project
 """
 
+import importlib.metadata
 import os
-import sys
 import platform
 import subprocess
+import sys
 from typing import Tuple, Dict, List
-import importlib.metadata
 
 # Constants
 REQUIREMENTS_FILE = "requirements.txt"

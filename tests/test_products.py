@@ -1,13 +1,13 @@
-import tempfile
-import shutil
 import random
+import shutil
+import tempfile
 import time
+
 import allure
 import pytest
-
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 
 from Pages.login_page import LoginPage

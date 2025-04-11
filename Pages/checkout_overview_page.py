@@ -37,7 +37,6 @@ class CheckoutOverviewPage(BasePage):
             return False
 
     def click_finish(self):
-        try:
             # -------------------------------
             # Wait for the finish button to be visible.
             # -------------------------------
@@ -48,16 +47,4 @@ class CheckoutOverviewPage(BasePage):
             finish_button.click()
             print("Finish button clicked successfully using a normal click.")
             return True
-        except Exception as e:
-            print(f"Normal click failed on finish button: {str(e)}")
-            try:
-                # -------------------------------
-                # Fallback: Use JavaScript to click the finish button.
-                # -------------------------------
-                finish_button = self.driver.find_element(*self.FINISH_BUTTON)
-                self.driver.execute_script("arguments[0].click();", finish_button)
-                print("Finish button clicked successfully using JavaScript.")
-                return True
-            except Exception as e:
-                print(f"JavaScript click failed on finish button: {str(e)}")
-                return False
+

@@ -1,10 +1,12 @@
 # Swag Labs Automation Framework
 
-A Page Object Model-based Selenium automation framework for testing the [Swag Labs demo website](https://www.saucedemo.com/). It includes full end-to-end scenarios from login to checkout with Allure reporting integration.
+A Page Object Model-based Selenium automation framework for testing
+the [Swag Labs demo website](https://www.saucedemo.com/). It includes full end-to-end scenarios from login to checkout
+with Allure reporting integration.
 
 ---
 
-##  Features
+## Features
 
 - Page Object Model (POM) design pattern
 - Cross-platform support (Windows, Mac, Linux)
@@ -15,7 +17,7 @@ A Page Object Model-based Selenium automation framework for testing the [Swag La
 
 ---
 
-##  Prerequisites
+## Prerequisites
 
 - Python 3.9 or higher
 - Git
@@ -53,7 +55,7 @@ pip install -r Requirements.txt
 
 ---
 
-##  Environment Check (Run First!)
+## Environment Check (Run First!)
 
 Before installing additional tools like Allure, verify your setup:
 
@@ -72,7 +74,7 @@ If something is missing, it will guide you to fix it.
 
 ---
 
-##  Install Allure (if needed)
+## Install Allure (if needed)
 
 ### Mac:
 
@@ -94,7 +96,7 @@ choco install allure-commandline
 
 ---
 
-##  Project Structure
+## Project Structure
 
 ```
 SwagLabs-POM-E2E/
@@ -103,8 +105,6 @@ SwagLabs-POM-E2E/
 ├── tests/                  # Test scripts
 ├── assets/
 │   └── screenshots/        # Screenshots from test runs
-├── .github/
-│   └── workflows/          # GitHub Actions CI/CD
 ├── allure-results/         # Allure results directory
 ├── setup_check.py          # Environment verification script
 ├── run_tests.sh            # Shell script for running tests (Mac/Linux)
@@ -114,7 +114,7 @@ SwagLabs-POM-E2E/
 
 ---
 
-##  Running Tests
+## Running Tests
 
 ### Using Scripts
 
@@ -200,7 +200,7 @@ allure serve allure-results
 
 ---
 
-##  Troubleshooting
+## Troubleshooting
 
 ### WebDriver Issues
 
@@ -234,7 +234,7 @@ allure serve allure-results
 
 This project is licensed under the [MIT License](LICENSE).
 
-i need to copy it in PyCharm so can you give it that 
+i need to copy it in PyCharm so can you give it that
 
 =======
 
@@ -242,5 +242,4 @@ i need to copy it in PyCharm so can you give it that 
 
 This project is licensed under the [MIT License](LICENSE).
 
-i need to copy it in PyCharm so can you give it that 
->>>>>>> fb78c11 (Local updates)
+i need to copy it in PyCharm so can you give it that> > > > > > > fb78c11 (Local updates)

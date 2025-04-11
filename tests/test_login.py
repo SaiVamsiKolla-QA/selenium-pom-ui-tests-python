@@ -1,10 +1,11 @@
-import tempfile
 import shutil
+import tempfile
+
 import allure
 import pytest
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 
 from Pages.login_page import LoginPage
@@ -32,6 +33,7 @@ def driver():
     # Quit the driver and remove the temporary directory
     driver.quit()
     shutil.rmtree(user_data_dir, ignore_errors=True)
+
 
 @pytest.mark.parametrize("username,password", [
     ("standard_user", "secret_sauce"),
