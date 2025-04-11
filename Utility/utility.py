@@ -1,9 +1,28 @@
 import os
-import time
 from datetime import datetime
+from typing import List
 
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+
+
+class SoftAssert:
+    def __init__(self):
+        self.errors = []
+
+    def assert_true(self, condition, message):
+        if not condition:
+            self.errors.append(f"AssertionError: {message}")
+
+    def assert_equal(self, actual, expected, message):
+        if actual != expected:
+            self.errors.append(f"AssertionError: {message}. Expected: {expected}, Actual: {actual}")
+
+    def verify_all(self):
+        if self.errors:
+            error_message = "\n".join(self.errors)
+            self.errors = []  # Reset errors after verification
+            raise AssertionError(f"Soft assertion failures:\n{error_message}")
 
 
 class Utility:
@@ -50,28 +69,6 @@ class Utility:
         return wait.until(EC.visibility_of_element_located(locator))
 
     @staticmethod
-    def wait_for_element_clickable(driver, locator, timeout=10):
-        """
-        Wait until the element specified by the locator is clickable.
-        """
-        # -------------------------------
-        # Create a WebDriverWait and wait for the element to be clickable
-        # -------------------------------
-        wait = WebDriverWait(driver, timeout)
-        return wait.until(EC.element_to_be_clickable(locator))
-
-    @staticmethod
-    def wait_for_url_contains(driver, text, timeout=10):
-        """
-        Wait until the current URL contains the specified text.
-        """
-        # -------------------------------
-        # Create a WebDriverWait and wait until the URL contains the provided text
-        # -------------------------------
-        wait = WebDriverWait(driver, timeout)
-        return wait.until(EC.url_contains(text))
-
-    @staticmethod
     def wait_for_page_load(driver, timeout=30):
         """
         Wait until the page is fully loaded (i.e., document.readyState == 'complete').
@@ -82,13 +79,4 @@ class Utility:
         wait = WebDriverWait(driver, timeout)
         return wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
 
-    @staticmethod
-    def scroll_to_element(driver, element):
-        """
-        Scroll the page until the specified element is in view.
-        """
-        # -------------------------------
-        # Execute JavaScript to scroll the element into view, then pause briefly
-        # -------------------------------
-        driver.execute_script("arguments[0].scrollIntoView(true);", element)
-        time.sleep(0.5)  # Delay to allow the scroll action to complete
+

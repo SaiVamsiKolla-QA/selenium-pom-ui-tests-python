@@ -1,108 +1,163 @@
-# setup_check.py
-import subprocess
+#!/usr/bin/env python3
+"""
+Comprehensive environment check for SwagLabs-POM-E2E project
+"""
+
+import os
 import sys
 import platform
-import pkg_resources
-import os
+import subprocess
+from typing import Tuple, Dict, List
+import importlib.metadata
+
+# Constants
+REQUIREMENTS_FILE = "requirements.txt"
+CHROME_MAC_PATH = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
 
-def check_python_version():
-    """Check if Python version is compatible."""
-    major, minor = sys.version_info[:2]
-    if major < 3 or (major == 3 and minor < 9):
-        print(f"❌ Python 3.9 or higher required. You have {major}.{minor}")
-        return False
-    print(f"✅ Python version: {major}.{minor}")
-    return True
+def print_header(title: str) -> None:
+    """Print formatted section header"""
+    print(f"\n\033[1m{title}\033[0m")
+    print("-" * len(title))
 
 
-def check_packages():
-    """Check if all required packages are installed."""
+def check_python_version() -> Tuple[bool, str]:
+    """Check Python version compatibility"""
+    required = (3, 9)
+    current = sys.version_info[:2]
+    version_str = f"{current[0]}.{current[1]}"
+
+    if current >= required:
+        return True, f"✅ Python {version_str} (meets minimum 3.9+)"
+    return False, f"❌ Python {version_str} (requires 3.9+)"
+
+
+def check_packages() -> Tuple[bool, List[str]]:
+    """Check required Python packages"""
+    if not os.path.exists(REQUIREMENTS_FILE):
+        return False, ["requirements.txt not found"]
+
+    with open(REQUIREMENTS_FILE) as f:
+        requirements = [
+            line.strip()
+            for line in f
+            if line.strip() and not line.startswith('#')
+        ]
+
+    missing = []
+    for req in requirements:
+        pkg = req.split('==')[0].split('>')[0].split('<')[0].strip()
+        try:
+            importlib.metadata.version(pkg)
+        except importlib.metadata.PackageNotFoundError:
+            missing.append(pkg)
+
+    if not missing:
+        return True, ["✅ All required packages installed"]
+    return False, [f"❌ Missing package: {pkg}" for pkg in missing]
+
+
+def check_allure() -> Tuple[bool, str]:
+    """Check Allure CLI installation"""
     try:
-        requirements_path = "requirements.txt"
-        if not os.path.exists(requirements_path):
-            print("❌ requirements.txt not found")
-            return False
-
-        with open(requirements_path) as f:
-            requirements = [line.strip() for line in f if line.strip() and not line.startswith('#')]
-
-        pkg_resources.require(requirements)
-        print("✅ All Python packages are installed")
-        return True
-    except pkg_resources.DistributionNotFound as e:
-        print(f"❌ Missing package: {e}")
-        print("Run: pip install -r requirements.txt")
-        return False
-    except Exception as e:
-        print(f"❌ Error checking packages: {e}")
-        return False
+        result = subprocess.run(
+            ["allure", "--version"],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        return True, f"✅ Allure {result.stdout.strip()}"
+    except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+        return False, "❌ Allure not found (install via brew/choco/scoop)"
 
 
-def check_allure():
-    """Check if Allure is installed."""
+def check_chrome() -> Tuple[bool, str]:
+    """Check Chrome browser installation with macOS support"""
+    system = platform.system()
+
+    if system == "Darwin":
+        if os.path.exists(CHROME_MAC_PATH):
+            try:
+                version = subprocess.run(
+                    [CHROME_MAC_PATH, "--version"],
+                    capture_output=True,
+                    text=True
+                )
+                return True, f"✅ Chrome {version.stdout.strip().replace('Google Chrome ', '')}"
+            except:
+                return True, "✅ Chrome found (version check failed)"
+        return False, "❌ Chrome not found in Applications"
+
+    # Windows/Linux
+    cmd = ["where", "chrome.exe"] if system == "Windows" else ["which", "google-chrome"]
     try:
-        result = subprocess.run(["allure", "--version"], check=True, capture_output=True, text=True)
-        version = result.stdout.strip()
-        print(f"✅ Allure is installed: {version}")
-        return True
-    except FileNotFoundError:
-        print("❌ Allure command-line tool is not installed")
-        os_type = platform.system()
-        if os_type == "Windows":
-            print("\nWindows installation options:")
-            print("Option 1: scoop install allure")
-            print("Option 2: choco install allure-commandline")
-        elif os_type == "Darwin":
-            print("\nMac installation option:")
-            print("brew install allure")
-        else:
-            print("\nLinux installation option:")
-            print("sudo apt-add-repository ppa:qameta/allure")
-            print("sudo apt-get update")
-            print("sudo apt-get install allure")
-        return False
-    except Exception as e:
-        print(f"❌ Error checking Allure: {e}")
-        return False
-
-
-def check_chrome():
-    """Check if Chrome is installed."""
-    try:
-        if platform.system() == "Windows":
-            process = subprocess.run(["where", "chrome"], check=True, capture_output=True, text=True)
-        else:
-            process = subprocess.run(["which", "google-chrome"], check=True, capture_output=True, text=True)
-        print("✅ Chrome browser is installed")
-        return True
+        subprocess.run(cmd, check=True, capture_output=True, timeout=5)
+        return True, "✅ Chrome detected"
     except:
-        print("❌ Chrome browser not found")
-        print("Please install Chrome browser")
-        return False
+        return False, "❌ Chrome not found in PATH"
 
 
-def main():
-    """Run all environment checks."""
-    print("🔍 Checking environment for SwagLabs-POM-E2E...\n")
+def get_installation_commands() -> Dict[str, str]:
+    """Get OS-specific installation commands"""
+    system = platform.system()
+    return {
+        "Windows": (
+            "Install missing components:\n"
+            "1. Chrome: https://www.google.com/chrome/\n"
+            "2. Allure: choco install allure-commandline OR scoop install allure"
+        ),
+        "Darwin": (
+            "Install missing components:\n"
+            "1. Chrome: brew install --cask google-chrome\n"
+            "2. Allure: brew install allure"
+        ),
+        "Linux": (
+            "Install missing components:\n"
+            "1. Chrome: sudo apt install google-chrome-stable\n"
+            "2. Allure:\n"
+            "   sudo apt-add-repository ppa:qameta/allure\n"
+            "   sudo apt-get update\n"
+            "   sudo apt-get install allure"
+        )
+    }.get(system, "Please check documentation for your OS")
 
-    python_ok = check_python_version()
-    packages_ok = check_packages()
-    allure_ok = check_allure()
-    chrome_ok = check_chrome()
 
-    print("\n📋 Environment Check Summary:")
-    print(f"Python 3.9+: {'✅' if python_ok else '❌'}")
-    print(f"Required packages: {'✅' if packages_ok else '❌'}")
-    print(f"Allure: {'✅' if allure_ok else '❌'}")
-    print(f"Chrome: {'✅' if chrome_ok else '❌'}")
+def main() -> int:
+    """Main execution function"""
+    print_header("SwagLabs-POM-E2E Environment Check")
 
-    if all([python_ok, packages_ok, allure_ok, chrome_ok]):
-        print("\n✅ All checks passed! Your environment is ready to run the tests.")
+    # Run all checks
+    checks = {
+        "Python Version": check_python_version(),
+        "Python Packages": check_packages(),
+        "Allure CLI": check_allure(),
+        "Chrome Browser": check_chrome()
+    }
+
+    # Display results
+    all_passed = True
+    for name, (passed, message) in checks.items():
+        if isinstance(message, list):
+            print_header(name)
+            for m in message:
+                print(m)
+                if "❌" in m:
+                    all_passed = False
+        else:
+            print(f"{name}: {message}")
+            if not passed:
+                all_passed = False
+
+    # Final summary
+    if all_passed:
+        print_header("✅ All checks passed! You're ready to run tests.")
         return 0
-    else:
-        print("\n❌ Some checks failed. Please fix the issues listed above.")
-        return 1
+
+    print_header("❌ Some requirements are missing")
+    print(get_installation_commands())
+    print("\nNote: If Chrome is installed but not detected, tests may still work")
+    return 1
 
 
 if __name__ == "__main__":

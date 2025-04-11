@@ -228,6 +228,7 @@ allure serve allure-results
 4. Submit a pull request
 
 ---
+<<<<<<< HEAD
 
 ## 📝 License
 
@@ -235,3 +236,11 @@ This project is licensed under the [MIT License](LICENSE).
 
 i need to copy it in PyCharm so can you give it that 
 
+=======
+
+## 📝 License
+
+This project is licensed under the [MIT License](LICENSE).
+
+i need to copy it in PyCharm so can you give it that 
+>>>>>>> fb78c11 (Local updates)
