@@ -14,6 +14,7 @@ end-to-end test scenarios from login to checkout with Allure reporting integrati
 ## Prerequisites
 
 - Python 3.9 or higher
+- GIT
 - Chrome browser
 - Java JDK 8 or higher (required for Allure reporting)
 
