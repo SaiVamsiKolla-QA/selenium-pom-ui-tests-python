@@ -1,6 +1,6 @@
 # Swag Labs Automation Framework
 
-A Page Object Model based Selenium automation framework for testing the Swag Labs demo website. This framework includes
+A Page Object Model based on the Selenium automation framework for testing the Swag Labs demo website. This framework includes
 end-to-end test scenarios from login to checkout with Allure reporting integration.
 
 ## Features
@@ -21,7 +21,7 @@ end-to-end test scenarios from login to checkout with Allure reporting integrati
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/VamsiKolla-QA/SWAG-POM_V.git
+   git clone https://github.com/VamsiKolla-QA/SwagLabs-POM-E2E.git
    cd SWAG-POM_V
    ```
 
@@ -113,7 +113,7 @@ Run specific tests:
 # Run a specific test file
 pytest tests/test_login.py -v --alluredir=allure-results
 
-# To Run a End_to_End test
+# To run an end-to-end test
 pytest tests/test_end_to_end.py::test_swag_checkout_end_to_end -v --alluredir=allure-results
 
 # Generate Allure report
@@ -141,7 +141,7 @@ This project uses GitHub Actions for continuous integration, ensuring tests can 
     - Validates user login functionality
 
 2. **Products Test**
-    - Adds 2 random products to cart
+    - Adds 2 random products to the cart
     - Verifies cart count
 
 3. **Cart Test**
@@ -152,7 +152,7 @@ This project uses GitHub Actions for continuous integration, ensuring tests can 
 4. **Checkout Information Test**
     - Completes user information form
     - Verifies entered information
-    - Navigates to overview page
+    - Navigates to the overview page
 
 5. **Checkout Overview Test**
     - Complete end-to-end checkout process
