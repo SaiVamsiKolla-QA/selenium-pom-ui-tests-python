@@ -143,7 +143,7 @@ pytest tests/test_login.py -v --alluredir=allure-results
 End-to-End Checkout Test:
 
 ```bash
-pytest tests/test_end_to_end.py::test_swag_checkout_end_to_end -v --alluredir=allure-results
+pytest tests/test_end_to_end.py::test_swag_end_to_end -v --alluredir=allure-results 
 ```
 
 Generate and view Allure Report:
@@ -152,25 +152,7 @@ Generate and view Allure Report:
 allure serve allure-results
 ```
 
----
 
-## 🚄 CI/CD Pipeline (GitHub Actions)
-
-### Workflow Features:
-
-- Auto-run tests on push to `main` or pull requests
-- Cross-platform runner setup
-- Chrome browser installation
-- Allure report generation
-- Artifacts available for download
-
-### View Results:
-
-1. Go to **Actions** tab in GitHub
-2. Select the latest workflow run
-3. Download the Allure report artifact
-
----
 
 ## 🔢 End-to-End Test Scenarios
 

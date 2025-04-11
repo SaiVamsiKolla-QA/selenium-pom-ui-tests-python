@@ -54,7 +54,7 @@ def get_ordinal(n):
     # Test data: Standard user credentials expected to log in successfully
     pytest.param("standard_user", "secret_sauce", id="standard_user"),
 ])
-def test_swag_checkout_overview(driver, username, password):
+def test_swag_end_to_end(driver, username, password):
     allure.dynamic.story(f"User {username} completes full checkout process")
     allure.dynamic.severity(allure.severity_level.CRITICAL)
 
