@@ -13,7 +13,7 @@ with Allure reporting integration.
 - Allure reports with screenshots at every test step
 - Randomized product selection
 - End-to-end test scenarios covering login through order finish
-- GitHub Actions CI/CD integration
+- Multi-run test execution with statistics
 
 ---
 
@@ -55,7 +55,7 @@ pip install -r Requirements.txt
 
 ---
 
-## Environment Check (Run First!)
+## Environment Check
 
 Before installing additional tools like Allure, verify your setup:
 
@@ -106,7 +106,10 @@ SwagLabs-POM-E2E/
 ├── assets/
 │   └── screenshots/        # Screenshots from test runs
 ├── allure-results/         # Allure results directory
+├── logs/                   # Test execution logs
+├── reports/                # Generated test reports
 ├── setup_check.py          # Environment verification script
+├── run_tests.py            # Python script for repeated test execution with statistics
 ├── run_tests.sh            # Shell script for running tests (Mac/Linux)
 ├── Requirements.txt        # Python dependencies
 └── Testcases-SwagLabs.xlsx # Manual test scenarios
@@ -151,6 +154,17 @@ Generate and view Allure Report:
 ```bash
 allure serve allure-results
 ```
+### Using Multi-Run Script
+Run a specific test multiple times and collect statistics:
+```bash
+python run_tests.py tests/test_swag_checkout_step_one.py::test_swag_checkout_step_one -n 10
+```
+This will:
+
+- Run the specified test 100 times
+- Log all test executions
+- Calculate success rate
+- Measure average, min, and max execution times
 
 ## 🔢 End-to-End Test Scenarios
 
@@ -214,12 +228,3 @@ allure serve allure-results
 
 This project is licensed under the [MIT License](LICENSE).
 
-i need to copy it in PyCharm so can you give it that
-
-=======
-
-## 📝 License
-
-This project is licensed under the [MIT License](LICENSE).
-
-i need to copy it in PyCharm so can you give it that> > > > > > > fb78c11 (Local updates)
