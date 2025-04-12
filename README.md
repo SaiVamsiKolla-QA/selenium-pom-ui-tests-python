@@ -1,8 +1,7 @@
 # Swag Labs Automation Framework
 
-A Page Object Model-based Selenium automation framework for testing
-the [Swag Labs demo website](https://www.saucedemo.com/). It includes full end-to-end scenarios from login to checkout
-with Allure reporting integration.
+This is a Selenium automation framework developed in Python using pytest. Based on the Page Object Model, it automates end-to-end test scenarios for 
+the [Swag Labs demo website](https://www.saucedemo.com/). from login through checkout and integrates Allure for detailed reporting.
 
 ---
 
