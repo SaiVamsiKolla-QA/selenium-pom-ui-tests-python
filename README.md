@@ -169,7 +169,7 @@ This will:
 
 ### Login Test
 
-- Verifies login with valid credentials
+- Verifies login with valid credentials for various user types.
 
 ### Products Test
 
