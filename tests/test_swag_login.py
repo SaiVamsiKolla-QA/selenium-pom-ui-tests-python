@@ -1,8 +1,10 @@
 import allure
 import pytest
-from Pages.login_page import LoginPage
+
 from Pages.inventory_page import ProductPage
+from Pages.login_page import LoginPage
 from Utility.utility import Utility
+
 
 @pytest.mark.parametrize("username,password", [
     ("standard_user", "secret_sauce"),
@@ -14,7 +16,7 @@ from Utility.utility import Utility
 ])
 @allure.epic("Swag Labs E-commerce")
 @allure.feature('Swag Login Feature')
-def test_swag_login(driver, username, password,base_url):
+def test_swag_login(driver, username, password, base_url):
     """Test login functionality and verify the product page."""
     allure.dynamic.story(f"User {username} logs in")
     login_page = LoginPage(driver)

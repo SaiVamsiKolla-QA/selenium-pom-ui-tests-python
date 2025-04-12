@@ -152,8 +152,6 @@ Generate and view Allure Report:
 allure serve allure-results
 ```
 
-
-
 ## 🔢 End-to-End Test Scenarios
 
 ### Login Test

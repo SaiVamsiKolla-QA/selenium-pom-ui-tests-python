@@ -37,14 +37,13 @@ class CheckoutOverviewPage(BasePage):
             return False
 
     def click_finish(self):
-            # -------------------------------
-            # Wait for the finish button to be visible.
-            # -------------------------------
-            finish_button = Utility.wait_for_element_visible(self.driver, self.FINISH_BUTTON)
-            # Scroll the finish button into view.
-            self.driver.execute_script("arguments[0].scrollIntoView(true);", finish_button)
-            # Attempt a normal click.
-            finish_button.click()
-            print("Finish button clicked successfully using a normal click.")
-            return True
-
+        # -------------------------------
+        # Wait for the finish button to be visible.
+        # -------------------------------
+        finish_button = Utility.wait_for_element_visible(self.driver, self.FINISH_BUTTON)
+        # Scroll the finish button into view.
+        self.driver.execute_script("arguments[0].scrollIntoView(true);", finish_button)
+        # Attempt a normal click.
+        finish_button.click()
+        print("Finish button clicked successfully using a normal click.")
+        return True

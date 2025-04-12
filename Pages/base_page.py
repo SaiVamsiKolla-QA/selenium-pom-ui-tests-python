@@ -98,4 +98,3 @@ class BasePage:
         except TimeoutException:
             print("Page did not load completely within the timeout period")
             return False
-

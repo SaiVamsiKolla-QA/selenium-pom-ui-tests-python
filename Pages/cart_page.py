@@ -1,5 +1,7 @@
 import time
+
 from selenium.webdriver.common.by import By
+
 from Pages.base_page import BasePage
 from Utility.utility import Utility
 

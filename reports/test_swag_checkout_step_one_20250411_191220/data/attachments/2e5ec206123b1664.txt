@@ -1,0 +1,2 @@
+Step_01_visual_user logged in successfully
+Screenshot saved to: /Users/vamsikolla/SwagLabs-POM-E2E/assets/screenshots/Step_01_Login_Successful_visual_user_2025-04-11_14-00-43.png

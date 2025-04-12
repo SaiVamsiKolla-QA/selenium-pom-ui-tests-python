@@ -1,5 +1,6 @@
 import allure
 
+
 @allure.epic("Swag Labs E-commerce")
 @allure.feature("Product Management")
 @allure.story("Add products to cart")

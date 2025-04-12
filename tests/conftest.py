@@ -1,7 +1,7 @@
 import random
 import shutil
 import tempfile
-import time
+
 import allure
 import pytest
 from selenium import webdriver
@@ -9,11 +9,11 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 
-from Pages.login_page import LoginPage
-from Pages.inventory_page import ProductPage
 from Pages.cart_page import CartPage
 from Pages.checkout_step_one_page import CheckoutInfoPage
 from Pages.checkout_step_two_page import CheckoutOverviewPage
+from Pages.inventory_page import ProductPage
+from Pages.login_page import LoginPage
 from Utility.utility import Utility
 
 
@@ -26,9 +26,11 @@ def get_ordinal(n):
         suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')
     return f"{n}{suffix}"
 
+
 @pytest.fixture
 def base_url():
     return "https://www.saucedemo.com/"
+
 
 # Base driver fixture
 @pytest.fixture(scope='function')

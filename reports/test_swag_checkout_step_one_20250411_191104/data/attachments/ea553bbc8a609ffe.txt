@@ -1,0 +1,19 @@
+
+Step_01_Login_Successful_standard_user
+Screenshot saved to: /Users/vamsikolla/SwagLabs-POM-E2E/assets/screenshots/Step_01_Login_Successful_standard_user_2025-04-11_02-55-08.png
+
+Randomly selected products to add: ['test.allthethings()-t-shirt-(red)', 'sauce-labs-bolt-t-shirt']
+Added the 1st Item: test.allthethings()-t-shirt-(red)
+Added the 2nd Item: sauce-labs-bolt-t-shirt
+Step_02_Products_Added_2_Items_To_Cart
+Screenshot saved to: /Users/vamsikolla/SwagLabs-POM-E2E/assets/screenshots/Step_02_Products_Added_2_Items_To_Cart_2025-04-11_02-55-08.png
+Navigated to the cart page using JavaScript click.
+
+Step_03_Cart_Items_Available_In_Cart
+Screenshot saved to: /Users/vamsikolla/SwagLabs-POM-E2E/assets/screenshots/Step_03_Cart_Items are available in the cart_2025-04-11_02-55-09.png
+Clicked the checkout button using JavaScript.
+Step_04_Cart_Page_Checkout_Clicked.
+Screenshot saved to: /Users/vamsikolla/SwagLabs-POM-E2E/assets/screenshots/Step_04_Cart_Checkout_Button is Clicked._2025-04-11_02-55-11.png
+Entering checkout information
+Step_05_Checkout_Info_Entered
+Screenshot saved to: /Users/vamsikolla/SwagLabs-POM-E2E/assets/screenshots/Step_05_Checkout_Info_Entered_2025-04-11_02-55-34.png
