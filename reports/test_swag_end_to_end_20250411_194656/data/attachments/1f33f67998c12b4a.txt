@@ -1,0 +1,2 @@
+Step_01_error_user logged in successfully
+Screenshot saved to: /Users/vamsikolla/SwagLabs-POM-E2E/assets/screenshots/Step_01_Login_Successful_error_user_2025-04-11_15-32-17.png

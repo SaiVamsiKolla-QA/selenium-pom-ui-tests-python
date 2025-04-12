@@ -1,10 +1,10 @@
 from selenium.webdriver.common.by import By
-
 from Pages.base_page import BasePage
-from Utility.utility import Utility
 
 
 class CheckoutOverviewPage(BasePage):
+    """Checkout overview page"""
+
     # -------------------------------
     # Locators for checkout overview page elements
     # -------------------------------
@@ -15,35 +15,22 @@ class CheckoutOverviewPage(BasePage):
         super().__init__(driver)
 
     def is_overview_page_loaded(self):
+        """Verify if overview page is loaded with critical elements"""
         try:
-            # -------------------------------
-            # Wait for the overview page title element to be visible.
-            # -------------------------------
-            title_element = Utility.wait_for_element_visible(self.driver, self.CHECKOUT_OVERVIEW_TITLE)
-            # Verify that the title is displayed and matches the expected text.
-            if not (title_element.is_displayed() and title_element.text.strip() == "Checkout: Overview"):
-                print(f"Overview title mismatch. Found: '{title_element.text}'")
+            title = self.driver.find_element(*self.CHECKOUT_OVERVIEW_TITLE)
+            is_title_correct = title.text == "Checkout: Overview"
+
+            if not is_title_correct:
+                print(f"Overview title mismatch. Found: '{title.text}'")
                 return False
 
-            # -------------------------------
-            # Wait for the finish button element to be visible.
-            # -------------------------------
-            finish_button = Utility.wait_for_element_visible(self.driver, self.FINISH_BUTTON)
-            if not finish_button.is_displayed():
-                print("Finish button is not displayed.")
+            finish_button = self.driver.find_element(*self.FINISH_BUTTON)
             return finish_button.is_displayed()
-        except Exception as e:
-            print(f"Error in is_overview_page_displayed: {str(e)}")
+        except Exception:
             return False
 
     def click_finish(self):
-        # -------------------------------
-        # Wait for the finish button to be visible.
-        # -------------------------------
-        finish_button = Utility.wait_for_element_visible(self.driver, self.FINISH_BUTTON)
-        # Scroll the finish button into view.
-        self.driver.execute_script("arguments[0].scrollIntoView(true);", finish_button)
-        # Attempt a normal click.
-        finish_button.click()
-        print("Finish button clicked successfully using a normal click.")
+        """Click the finish button using JavaScript for reliability"""
+        finish_button = self.driver.find_element(*self.FINISH_BUTTON)
+        self.driver.execute_script("arguments[0].click();", finish_button)
         return True

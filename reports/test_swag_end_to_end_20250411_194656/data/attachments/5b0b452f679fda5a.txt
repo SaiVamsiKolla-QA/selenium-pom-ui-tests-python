@@ -1,0 +1,22 @@
+
+Step_01_Login_Successful_standard_user
+Screenshot saved to: /Users/vamsikolla/SwagLabs-POM-E2E/assets/screenshots/Step_01_Login_Successful_standard_user_2025-04-11_19-12-29.png
+
+Randomly selected products to add: ['sauce-labs-bolt-t-shirt', 'sauce-labs-backpack']
+Added the 1st Item: sauce-labs-bolt-t-shirt
+Added the 2nd Item: sauce-labs-backpack
+Step_02_Products_Added_2_Items_To_Cart
+Screenshot saved to: /Users/vamsikolla/SwagLabs-POM-E2E/assets/screenshots/Step_02_Products_Added_2_Items_To_Cart_2025-04-11_19-12-29.png
+Navigated to the cart page using JavaScript click.
+
+Step_03_Cart_Items_Available_In_Cart
+Screenshot saved to: /Users/vamsikolla/SwagLabs-POM-E2E/assets/screenshots/Step_03_Cart_Items_Available_In_Cart_2025-04-11_19-12-30.png
+Clicked the checkout button using JavaScript.
+Step_04_Cart_Page_Checkout_Clicked.
+Screenshot saved to: /Users/vamsikolla/SwagLabs-POM-E2E/assets/screenshots/Step_04_Cart_Checkout_Button_Clicked_2025-04-11_19-12-32.png
+Entering checkout information
+Step_05_Checkout_Info_Entered
+Screenshot saved to: /Users/vamsikolla/SwagLabs-POM-E2E/assets/screenshots/Step_05_Checkout_Info_Entered_2025-04-11_19-12-32.png
+Screenshot saved to: /Users/vamsikolla/SwagLabs-POM-E2E/assets/screenshots/Step_06_Checkout_Overview_Page_Displayed_2025-04-11_19-12-33.png
+
+Step_06_Checkout_Overview_Page_Displayed
