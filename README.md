@@ -160,7 +160,7 @@ python run_tests.py tests/test_swag_checkout_step_one.py::test_swag_checkout_ste
 ```
 This will:
 
-- Run the specified test 100 times
+- Run the specified test 10 times
 - Log all test executions
 - Calculate success rate
 - Measure average, min, and max execution times
