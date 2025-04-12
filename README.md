@@ -221,7 +221,6 @@ This will:
 4. Submit a pull request
 
 ---
-<<<<<<< HEAD
 
 ## 📝 License
 
