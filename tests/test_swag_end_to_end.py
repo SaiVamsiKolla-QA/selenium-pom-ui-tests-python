@@ -4,7 +4,7 @@ from Utility.utility import Utility
 
 
 @allure.epic("Swag Labs E-commerce")
-@allure.feature("End-to-End Process")
+@allure.feature("Swag End-to-End Process")
 def test_swag_end_to_end(overview_page_loaded, driver):
     """Test complete end-to-end checkout process from login to completion"""
     allure.dynamic.story("User completes full purchase flow")

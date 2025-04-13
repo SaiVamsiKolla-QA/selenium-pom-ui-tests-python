@@ -2,7 +2,7 @@ import allure
 
 
 @allure.epic("Swag Labs E-commerce")
-@allure.feature("Shopping Cart")
+@allure.feature("Swag cart page")
 @allure.story("Navigate to cart and checkout")
 @allure.severity(allure.severity_level.CRITICAL)
 def test_swag_cart(checkout_info_page_loaded):

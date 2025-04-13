@@ -3,7 +3,7 @@ import pytest
 
 
 @allure.epic("Swag Labs E-commerce")
-@allure.feature("Checkout Process")
+@allure.feature("Swag Checkout Page One")
 def test_swag_checkout_step_one(checkout_info_filled, driver):
     """Test completing checkout information and navigating to overview page"""
     allure.dynamic.story("User enter the necessary details to complete the check out process")
