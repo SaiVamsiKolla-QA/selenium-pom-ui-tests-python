@@ -6,7 +6,7 @@ import pytest
 @allure.feature("Checkout Process")
 def test_swag_checkout_step_one(checkout_info_filled, driver):
     """Test completing checkout information and navigating to overview page"""
-    allure.dynamic.story("User completes checkout information process")
+    allure.dynamic.story("User enter the necessary details to complete the check out process")
     allure.dynamic.severity(allure.severity_level.CRITICAL)
 
     # Get the info page from the fixture

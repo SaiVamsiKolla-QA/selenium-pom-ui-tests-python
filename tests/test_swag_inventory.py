@@ -3,7 +3,7 @@ import allure
 
 @allure.epic("Swag Labs E-commerce")
 @allure.feature("Product Management")
-@allure.story("Add products to cart")
+@allure.story("Add two random products to cart")
 @allure.severity(allure.severity_level.CRITICAL)
 def test_swag_inventory(products_added_to_cart):
     """Test adding 2 random products to cart"""

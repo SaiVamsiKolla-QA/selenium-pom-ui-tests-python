@@ -1,20 +1,20 @@
 import random
-import shutil
+import os
+import uuid
 import tempfile
-
+import shutil
 import allure
 import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
-
 from Pages.cart_page import CartPage
+from Utility.utility import Utility
 from Pages.checkout_step_one_page import CheckoutInfoPage
 from Pages.checkout_step_two_page import CheckoutOverviewPage
 from Pages.inventory_page import ProductPage
 from Pages.login_page import LoginPage
-from Utility.utility import Utility
 
 
 # Shared utility function
@@ -32,21 +32,52 @@ def base_url():
     return "https://www.saucedemo.com/"
 
 
-# Base driver fixture
 @pytest.fixture(scope='function')
 def driver():
-    """Initialize and configure the Chrome WebDriver."""
-    user_data_dir = tempfile.mkdtemp(prefix="chrome_userdata_")
+    """Initialize and configure the Chrome WebDriver for both local and CI environments."""
+    # Detect if running in CI environment
+    is_ci = os.environ.get('CI') == 'true' or os.environ.get('GITHUB_ACTIONS') == 'true'
+
     chrome_options = Options()
-    chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
+
+    # For CI environment, use headless mode without user data directory
+    if is_ci:
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--window-size=1920,1080")
+    else:
+        # For local environment, use user data directory
+        unique_id = uuid.uuid4().hex
+        user_data_dir = tempfile.mkdtemp(prefix=f"chrome_userdata_{unique_id}_")
+        chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
+
+    # Create driver
     driver = webdriver.Chrome(
         service=ChromeService(ChromeDriverManager().install()),
         options=chrome_options
     )
     driver.implicitly_wait(10)
+
+    # Store the user_data_dir for cleanup (only in local environment)
+    if not is_ci and locals().get('user_data_dir'):
+        driver._user_data_dir = user_data_dir
+
     yield driver
-    driver.quit()
-    shutil.rmtree(user_data_dir, ignore_errors=True)
+
+    # Cleanup
+    try:
+        driver.quit()
+    except:
+        pass
+
+    # Clean up user data directory (only in local environment)
+    if not is_ci and hasattr(driver, '_user_data_dir'):
+        try:
+            shutil.rmtree(driver._user_data_dir, ignore_errors=True)
+        except:
+            pass
 
 
 # Login fixture
