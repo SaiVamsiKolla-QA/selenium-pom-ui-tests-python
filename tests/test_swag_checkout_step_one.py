@@ -1,5 +1,4 @@
 import allure
-import pytest
 
 
 @allure.epic("Swag Labs E-commerce")

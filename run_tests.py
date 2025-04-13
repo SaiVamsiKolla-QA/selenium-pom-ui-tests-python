@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 import argparse
+import os
+import statistics
 import subprocess
 import time
-import os
 from datetime import datetime
-import statistics
 
 
 def create_directories():

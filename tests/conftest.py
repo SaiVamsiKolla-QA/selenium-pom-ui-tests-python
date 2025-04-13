@@ -1,20 +1,22 @@
-import random
 import os
-import uuid
-import tempfile
+import random
 import shutil
+import tempfile
+import uuid
+
 import allure
 import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
+
 from Pages.cart_page import CartPage
-from Utility.utility import Utility
 from Pages.checkout_step_one_page import CheckoutInfoPage
 from Pages.checkout_step_two_page import CheckoutOverviewPage
 from Pages.inventory_page import ProductPage
 from Pages.login_page import LoginPage
+from Utility.utility import Utility
 
 
 # Shared utility function
