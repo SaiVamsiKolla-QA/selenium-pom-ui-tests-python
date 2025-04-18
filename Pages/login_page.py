@@ -1,7 +1,7 @@
 from selenium.webdriver.common.by import By
+from .base_page import BasePage
 
-
-class LoginPage:
+class LoginPage(BasePage):
     # -------------------------------
     # Locators for the login elements on the page
     # -------------------------------
@@ -9,13 +9,10 @@ class LoginPage:
     PASSWORD_FIELD = (By.ID, "password")
     LOGIN_BUTTON = (By.ID, "login-button")
 
-    def __init__(self, driver):
-        self.driver = driver
-
     # -------------------------------
     # Page Actions: Methods to interact with the login page elements
     # -------------------------------
-    def open_page(self, url):
+    def open_url(self, url):
         self.driver.get(url)
 
     def enter_username(self, username):
@@ -28,7 +25,7 @@ class LoginPage:
         self.driver.find_element(*self.LOGIN_BUTTON).click()
 
     def login_as(self, username, password, url):
-        self.open_page(url)
+        self.open_url(url)
         self.enter_username(username)
         self.enter_password(password)
         self.click_login()

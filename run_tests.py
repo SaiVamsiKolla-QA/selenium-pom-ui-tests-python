@@ -18,7 +18,7 @@ def run_test(test_path, iterations=1, report=True):
     Run a specified test multiple times
 
     Args:
-        test_path: Path to the test file with optional test case (e.g. tests/test_login.py::test_swag_login)
+        test_path: Path to the test file with optional test case (e.g. Tests/test_login.py::test_swag_login)
         iterations: Number of times to run the test
         report: Whether to generate Allure reports
     """
@@ -130,10 +130,10 @@ def run_test(test_path, iterations=1, report=True):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Run automated tests multiple times")
+    parser = argparse.ArgumentParser(description="Run automated Tests multiple times")
     parser.add_argument(
         "test_path",
-        help="Path to the test file or test case (e.g., tests/test_login.py or tests/test_login.py::test_swag_login)"
+        help="Path to the test file or test case (e.g., Tests/test_login.py or Tests/test_login.py::test_swag_login)"
     )
     parser.add_argument(
         "-n", "--iterations",

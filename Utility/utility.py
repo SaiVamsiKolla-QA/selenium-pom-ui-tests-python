@@ -5,25 +5,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 
-class SoftAssert:
-    def __init__(self):
-        self.errors = []
-
-    def assert_true(self, condition, message):
-        if not condition:
-            self.errors.append(f"AssertionError: {message}")
-
-    def assert_equal(self, actual, expected, message):
-        if actual != expected:
-            self.errors.append(f"AssertionError: {message}. Expected: {expected}, Actual: {actual}")
-
-    def verify_all(self):
-        if self.errors:
-            error_message = "\n".join(self.errors)
-            self.errors = []  # Reset errors after verification
-            raise AssertionError(f"Soft assertion failures:\n{error_message}")
-
-
 class Utility:
     @staticmethod
     def capture_screenshot(driver, test_name=None):
@@ -67,13 +48,3 @@ class Utility:
         wait = WebDriverWait(driver, timeout)
         return wait.until(EC.visibility_of_element_located(locator))
 
-    @staticmethod
-    def wait_for_page_load(driver, timeout=30):
-        """
-        Wait until the page is fully loaded (i.e., document.readyState == 'complete').
-        """
-        # -------------------------------
-        # Create a WebDriverWait and wait until the document's readyState is 'complete'
-        # -------------------------------
-        wait = WebDriverWait(driver, timeout)
-        return wait.until(lambda d: d.execute_script("return document.readyState") == "complete")

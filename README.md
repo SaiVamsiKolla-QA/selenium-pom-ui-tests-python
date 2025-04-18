@@ -32,7 +32,7 @@ the [Swag Labs demo website](https://www.saucedemo.com/). from login through che
 
 ```bash
 git clone https://github.com/VamsiKolla-QA/SwagLabs-POM-E2E.git
-cd SwagLabs-POM-E2E
+cd Python-Selenium-POM
 ```
 
 ### 2. Create and activate the virtual environment
@@ -142,13 +142,13 @@ run_tests.bat
 Run a specific test file:
 
 ```bash
-pytest tests/test_swag_login.py -v --alluredir=allure-results
+pytest Tests/test_swag_login.py -v --alluredir=allure-results
 ```
 
 End-to-End Checkout Test:
 
 ```bash
-pytest tests/test_swag_end_to_end.py::test_swag_end_to_end -v --alluredir=allure-results 
+pytest Tests/test_swag_end_to_end.py::test_swag_end_to_end -v --alluredir=allure-results 
 ```
 
 Generate and view Allure Report:
@@ -159,7 +159,7 @@ allure serve allure-results
 ### Using Multi-Run Script
 Run a specific test multiple times and collect statistics:
 ```bash
-python run_tests.py tests/test_swag_checkout_step_one.py::test_swag_checkout_step_one -n 10
+python run_tests.py Tests/test_swag_checkout_step_one.py::test_swag_checkout_step_one -n 10
 ```
 This will:
 

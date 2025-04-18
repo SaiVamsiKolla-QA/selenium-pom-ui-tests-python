@@ -24,7 +24,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r Requirements.txt
 
-      - name: Run tests
+      - name: Run Tests
         run: |
           ./run_tests.sh
 

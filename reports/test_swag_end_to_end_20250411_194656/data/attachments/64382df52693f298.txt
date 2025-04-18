@@ -1,9 +1,0 @@
-
-Step_01_Login_Successful_standard_user
-Screenshot saved to: /Users/vamsikolla/SwagLabs-POM-E2E/assets/screenshots/Step_01_Login_Successful_standard_user_2025-04-11_15-48-43.png
-
-Randomly selected products to add: ['sauce-labs-backpack', 'sauce-labs-bike-light']
-Added the 1st Item: sauce-labs-backpack
-Added the 2nd Item: sauce-labs-bike-light
-Step_02_Products_Added_2_Items_To_Cart
-Screenshot saved to: /Users/vamsikolla/SwagLabs-POM-E2E/assets/screenshots/Step_02_Products_Added_2_Items_To_Cart_2025-04-11_15-48-43.png

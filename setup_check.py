@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Comprehensive environment check for SwagLabs-POM-E2E project
+Comprehensive environment check for Python-Selenium-POM project
 """
 
 import importlib.metadata
@@ -125,7 +125,7 @@ def get_installation_commands() -> Dict[str, str]:
 
 def main() -> int:
     """Main execution function"""
-    print_header("SwagLabs-POM-E2E Environment Check")
+    print_header("Python-Selenium-POM Environment Check")
 
     # Run all checks
     checks = {
@@ -151,12 +151,12 @@ def main() -> int:
 
     # Final summary
     if all_passed:
-        print_header("✅ All checks passed! You're ready to run tests.")
+        print_header("✅ All checks passed! You're ready to run Tests.")
         return 0
 
     print_header("❌ Some requirements are missing")
     print(get_installation_commands())
-    print("\nNote: If Chrome is installed but not detected, tests may still work")
+    print("\nNote: If Chrome is installed but not detected, Tests may still work")
     return 1
 
 

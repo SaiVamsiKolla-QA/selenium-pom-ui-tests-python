@@ -1,3 +1,0 @@
-[DEBUG] Using Chrome user-data-dir: /var/folders/h3/1ywfq4_15yb9lbmyjwqymm9w0000gn/T/chrome_userdata_nwqh0lyo
-Step_01_visual_user logged in successfully
-Screenshot saved to: /Users/vamsikolla/SwagLabs-POM-E2E/assets/screenshots/Step_01_Login_Successful_visual_user_2025-04-11_02-55-01.png
