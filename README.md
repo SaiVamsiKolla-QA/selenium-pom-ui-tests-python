@@ -142,9 +142,12 @@ run_tests.bat
 Run a specific test file:
 
 ```bash
-pytest Tests/test_swag_login.py -v --alluredir=allure-results
+python -m pytest Tests/test_swag_login.py -v --alluredir=allure-results
 ```
-
+Run a parallel test :
+````
+python -m pytest Tests/test_swag_login.py -n 6 --alluredir=allure-results
+````
 End-to-End Checkout Test:
 
 ```bash
