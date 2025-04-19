@@ -1,4 +1,4 @@
-# Swag Labs Automation Framework
+#  POM UI Automation Framework
 
 This is a Selenium automation framework developed in Python using pytest. Based on the Page Object Model, it automates end-to-end test scenarios for 
 the [Swag Labs demo website](https://www.saucedemo.com/). from login through checkout and integrates Allure for detailed reporting.
@@ -10,8 +10,8 @@ the [Swag Labs demo website](https://www.saucedemo.com/). from login through che
 - Page Object Model (POM) design pattern
 - Cross-platform support (Windows, Mac, Linux)
 - Allure reports with screenshots at every test step
-- Randomized product selection
-- End-to-end test scenarios covering login through order finish
+- Support Parallel Testing
+- Support Cross Browser Testing 
 - Multi-run test execution with statistics
 - GitHub Actions CI/CD integration
 
@@ -99,19 +99,18 @@ choco install allure-commandline
 ## Project Structure
 
 ```
-SwagLabs-POM-E2E-Actions/
+Python-Selenium-POM/
 ├── .github/
 │   └── workflows/          # GitHub Actions workflow files
 ├── Pages/                  # Page Object classes
 ├── Utility/                # Helper functions and utilities
-├── tests/                  # Test scripts
+├── Tests/                  # Test scripts
 ├── assets/
 │   └── screenshots/        # Screenshots from test runs
 ├── allure-results/         # Allure results directory
-├── logs/                   # Test execution logs
 ├── reports/                # Generated test reports
 ├── setup_check.py          # Environment verification script
-├── run_tests.py            # Python script for repeated test execution with statistics
+├── multiple_tests.py       # Python script for repeated test execution with statistics
 ├── run_tests.sh            # Shell script for running tests
 ├── Requirements.txt        # Python dependencies
 └── Testcases-SwagLabs.xlsx # Manual test scenarios
@@ -159,18 +158,72 @@ Generate and view Allure Report:
 ```bash
 allure serve allure-results
 ```
+## Parallel Test Execution
+
+This framework supports parallel test execution using pytest-xdist, significantly reducing execution time.
+
+Run with 6 parallel workers
+```bash
+python -m pytest Tests/test_swag_login.py -n 6 --alluredir=allure-results
+```
+
+## Cross-Browser Testing
+
+This framework supports automated testing across multiple browsers:
+
+- Chrome (default)
+- Firefox
+- Edge
+- Safari (macOS only)
+
+### Running Tests on Different Browsers
+
+
+# Run with Chrome (default)
+``` bash
+python -m pytest Tests/test_swag_login.py -v --alluredir=allure-results/chrome
+```
+# Run with Firefox
+``` bash
+python -m pytest Tests/test_swag_login.py -v --browser firefox --alluredir=allure-results/firefox
+```
+# Run with Edge
+``` bash
+python -m pytest Tests/test_swag_login.py -v --browser edge --alluredir=allure-results/edge
+```
+# Run with Safari (macOS only)
+``` bash
+python -m pytest Tests/test_swag_login.py -v --browser safari --alluredir=allure-results/safari
+```
+# Run with specific browser in parallel
+``` bash
+python -m pytest Tests/test_swag_login.py -n 4 --browser firefox --alluredir=allure-results/firefox
+```
+
+Browser-Specific Notes
+
+- Safari: Requires enabling "Allow Remote Automation" in Safari's Develop menu and it don't support parallel testing
+- Edge: Requires Microsoft Edge to be installed
+- Firefox: Requires Firefox to be installed
+- Chrome: Default browser, used if no browser is specified
+
 ### Using Multi-Run Script
 Run a specific test multiple times and collect statistics:
 ```bash
-python run_tests.py Tests/test_swag_checkout_step_one.py::test_swag_checkout_step_one -n 10
+python multiple_tests.py Tests/test_swag_checkout_step_one.py::test_swag_checkout_step_one -n 10
 ```
+Run a specific test multiple times in parallel on specific  browser and collect statistics:
+```bash
+# Run Firefox tests with 6 parallel workers, 10 iterations
+python run_tests.py Tests/test_swag_login.py -n 10 --browser firefox --parallel 6
+```
+
 This will:
 
 - Run the specified test 10 times
 - Log all test executions
 - Calculate success rate
 - Measure average, min, and max execution times
-
 
 ## Continuous Integration
 This project uses GitHub Actions for continuous integration. Every push and pull request to the main branch triggers the following workflow:
@@ -189,31 +242,15 @@ To run the GitHub Actions workflow manually:
 - Select "Swag Labs E2E Tests" workflow
 - Click "Run workflow"
 
-## End-to-End Test Scenarios
+
 
 ### Login Test
 
 - Verifies login with valid credentials for various user types.
 
-### Products Test
 
-- Adds 2 random products to cart
-- Verifies cart count matches
 
-### Cart Test
 
-- Navigates to cart page
-- Proceeds to checkout
-
-### Checkout Information Test
-
-- Fills user details
-- Verifies info submission
-
-### Overview & Finish Test
-
-- Reviews summary page
-- Completes order
 
 ---
 
