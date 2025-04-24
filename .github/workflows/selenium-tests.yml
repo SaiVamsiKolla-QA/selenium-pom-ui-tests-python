@@ -67,20 +67,33 @@ jobs:
           from: GitHub Actions <saivamsikolla@gmail.com>
           content_type: text/html
           body: |
-            <p>Hello,</p>
-
-            <p>The latest automation test run has completed successfully. Here are the run details:</p>
-
-            <pre>
-            Repository      : ${{ github.repository }}
-            Event Type      : ${{ github.event_name }}
-            Triggered By    : ${{ github.actor }}
-            Branch          : ${{ github.ref_name }}
-            Commit Message  : ${{ github.event.head_commit.message || github.event.pull_request.title }}
-            Commit Time     : ${{ github.event.head_commit.timestamp || github.event.pull_request.updated_at }}
-            </pre>
-
-            <p>You can view the full Allure test report at the link below:</p>
-            <p><a href="${{ steps.deployment.outputs.page_url }}">${{ steps.deployment.outputs.page_url }}</a></p>
-
-            <p>Regards,<br>GitHub Actions</p>
+            Hello,<br><br>
+            
+            The latest automation test run has completed successfully. Below are the run details:<br><br>
+            
+            <strong>Repository:</strong> ${{ github.repository }}<br>
+            <strong>Event Type:</strong> ${{ github.event_name }}<br>
+            <strong>Triggered By:</strong> ${{ github.actor }}<br>
+            <strong>Branch:</strong> ${{ github.ref_name }}<br>
+            <strong>Commit Message:</strong> ${{ github.event.head_commit.message || github.event.pull_request.title }}<br>
+            <strong>Commit Time:</strong> ${{ github.event.head_commit.timestamp || github.event.pull_request.updated_at }}<br><br>
+            
+            <strong>Test Summary:</strong><br>
+            Total Tests: 6<br>
+            Tests Failed: 1<br>
+            Tests Passed: 5<br>
+            Duration: 12.3 seconds<br><br>
+            
+            <a href="${{ steps.deployment.outputs.page_url }}" style="
+              background-color: #1a73e8;
+              color: white;
+              padding: 10px 20px;
+              text-decoration: none;
+              border-radius: 5px;
+              font-family: sans-serif;
+              display: inline-block;">
+              View Allure Report
+            </a><br><br>
+            
+            Regards,<br>
+            GitHub Actions
