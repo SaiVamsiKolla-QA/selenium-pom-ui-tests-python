@@ -65,23 +65,22 @@ jobs:
             Allure Report - ${{ github.repository }} | Event: ${{ github.event_name }}
           to: saivamsikolla@gmail.com
           from: GitHub Actions <saivamsikolla@gmail.com>
+          content_type: text/html
           body: |
-            Hello,
-            
-            The latest automation test run has completed successfully.
-            
-            Repository      : ${{ github.repository }}
-            Event Type      : ${{ github.event_name }}
-            Triggered By    : ${{ github.actor }}
-            Branch          : ${{ github.ref_name }}
-            Commit Message  : ${{ github.event.head_commit.message || github.event.pull_request.title }}
-            Commit Time     : ${{ github.event.head_commit.timestamp || github.event.pull_request.updated_at }}
-            
-            You can view the Allure test report at the following URL:
-            ${{ steps.deployment.outputs.page_url }}
-          
-            Regards,  
-            GitHub Actions
+            <p>Hello,</p>
 
-            Regards,  
-            GitHub Actions
+            <p>The latest automation test run has completed successfully. Here are the run details:</p>
+
+            <pre>
+Repository      : ${{ github.repository }}
+Event Type      : ${{ github.event_name }}
+Triggered By    : ${{ github.actor }}
+Branch          : ${{ github.ref_name }}
+Commit Message  : ${{ github.event.head_commit.message || github.event.pull_request.title }}
+Commit Time     : ${{ github.event.head_commit.timestamp || github.event.pull_request.updated_at }}
+            </pre>
+
+            <p>You can view the full Allure test report at the link below:</p>
+            <p><a href="${{ steps.deployment.outputs.page_url }}">${{ steps.deployment.outputs.page_url }}</a></p>
+
+            <p>Regards,<br>GitHub Actions</p>
