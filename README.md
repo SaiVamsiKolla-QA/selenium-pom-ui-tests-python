@@ -1,7 +1,7 @@
 #  POM UI Automation Framework
 
-This is a Selenium automation framework developed in Python using pytest. Based on the Page Object Model, it automates end-to-end test scenarios for 
-the [Swag Labs demo website](https://www.saucedemo.com/). from login through checkout and integrates Allure for detailed reporting.
+Selenium automation framework developed in Python using pytest, following the Page Object Model (POM) design pattern. Integrated with GitHub Actions for CI/CD and Allure for detailed reporting.
+ Designed to automate UI test cases for  [Swag Labs demo website](https://www.saucedemo.com/). 
 
 ---
 
