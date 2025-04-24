@@ -1,4 +1,4 @@
-name: CI with Allure Email Report
+name: CI with Allure Report and Email
 
 on:
   push:
@@ -10,6 +10,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -33,10 +34,27 @@ jobs:
           unzip allure-2.14.0.zip
           ./allure-2.14.0/bin/allure generate allure-results --clean -o allure-report
 
-      - name: Zip Allure Report
-        run: zip -r allure-report.zip allure-report
+      - name: Upload Allure Report Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "./allure-report"
 
-      - name: Send Allure Report via Email
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Send Allure Report Link via Email
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -44,22 +62,23 @@ jobs:
           username: ${{ secrets.SMTP_USERNAME }}
           password: ${{ secrets.SMTP_PASSWORD }}
           subject: >
-            Allure Test Report - ${{ github.repository }} | Event: ${{ github.event_name }}
+            Allure Report - ${{ github.repository }} | Event: ${{ github.event_name }}
           to: saivamsikolla@gmail.com
           from: GitHub Actions <saivamsikolla@gmail.com>
-          attachments: allure-report.zip
           body: |
             Hello,
 
-            The latest automation test suite for the repository '${{ github.repository }}' has completed execution.
+            The latest automation test run has completed successfully.
 
-            Event Type      : ${{ github.event_name }}
-            Triggered By    : ${{ github.actor }}
-            Branch          : ${{ github.ref_name }}
-            Commit Message  : ${{ github.event.head_commit.message || github.event.pull_request.title }}
-            Commit Time     : ${{ github.event.head_commit.timestamp || github.event.pull_request.updated_at }}
+            Repository     : ${{ github.repository }}
+            Event Type     : ${{ github.event_name }}
+            Triggered By   : ${{ github.actor }}
+            Branch         : ${{ github.ref_name }}
+            Commit Message : ${{ github.event.head_commit.message || github.event.pull_request.title }}
+            Commit Time    : ${{ github.event.head_commit.timestamp || github.event.pull_request.updated_at }}
 
-            Please find the Allure test report attached as a ZIP file.
+            You can view the Allure test report at the following URL:
+            ${{ steps.deployment.outputs.page_url }}
 
             Regards,  
             GitHub Actions
