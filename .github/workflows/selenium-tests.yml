@@ -52,3 +52,24 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Send Email with Allure Report Link
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: ✅ Allure Report - ${{ github.repository }}
+          body: |
+            Hello Vamsi 👋,
+
+            Your latest automation test run is complete.  
+            📊 Allure Report is available at:
+
+            👉 ${{ steps.deployment.outputs.page_url }}
+
+            Regards,  
+            GitHub Actions Bot 🤖
+          to: saivamsikolla@gmail.com
+          from: GitHub Actions <saivamsikolla@gmail.com>
