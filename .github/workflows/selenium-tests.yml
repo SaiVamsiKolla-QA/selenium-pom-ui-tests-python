@@ -1,4 +1,4 @@
-name: CI with Dynamic Test Summary and Email
+name: CI with Dynamic Allure Report and Email
 
 on:
   push:
@@ -10,6 +10,12 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    outputs:
+      total: ${{ steps.summary.outputs.total }}
+      passed: ${{ steps.summary.outputs.passed }}
+      failed: ${{ steps.summary.outputs.failed }}
+      duration: ${{ steps.summary.outputs.duration }}
 
     steps:
       - name: Check out code
@@ -70,7 +76,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Send Allure Report Link via Email
+      - name: Send Allure Report Email
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
