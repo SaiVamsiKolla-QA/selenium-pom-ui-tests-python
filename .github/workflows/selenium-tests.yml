@@ -43,25 +43,25 @@ jobs:
           server_port: 587
           username: ${{ secrets.SMTP_USERNAME }}
           password: ${{ secrets.SMTP_PASSWORD }}
-          subject: 🧪 Allure Report: ${{ github.repository }} — ${{ github.event_name }}
+          subject: >
+               Allure Report: ${{ github.repository }} — ${{ github.event_name }}
           to: saivamsikolla@gmail.com
           from: GitHub Actions <saivamsikolla@gmail.com>
+          attachments: allure-report.zip
           body: |
-            👋 Hello Vamsi,
+              Hello Vamsi,
 
             ✅ Your automation test suite just ran on **${{ github.repository }}**
 
-            📌 **Triggered by**: `${{ github.event_name | title }}`  
-            🕒 **Commit Time**: `${{ github.event.head_commit.timestamp || github.event.pull_request.updated_at }}`  
+            📌 **Triggered by**: `${{ github.event_name }}`
+            🕒 **Commit Time**: `${{ github.event.head_commit.timestamp || github.event.pull_request.updated_at }}`
             🔧 **Commit Message**: "${{ github.event.head_commit.message || github.event.pull_request.title }}"
 
             📎 The attached ZIP contains the full Allure test report.
 
-            📬 Triggered by: `${{ github.actor }}`
+            🙋 Triggered by: `${{ github.actor }}`
             🧠 Branch: `${{ github.ref_name }}`
 
             🚀 Keep testing with confidence!
 
             – GitHub Actions Bot 🤖
-
-          attachments: allure-report.zip
