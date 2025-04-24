@@ -67,18 +67,21 @@ jobs:
           from: GitHub Actions <saivamsikolla@gmail.com>
           body: |
             Hello,
-
+            
             The latest automation test run has completed successfully.
-
-            Repository     : ${{ github.repository }}
-            Event Type     : ${{ github.event_name }}
-            Triggered By   : ${{ github.actor }}
-            Branch         : ${{ github.ref_name }}
-            Commit Message : ${{ github.event.head_commit.message || github.event.pull_request.title }}
-            Commit Time    : ${{ github.event.head_commit.timestamp || github.event.pull_request.updated_at }}
-
+            
+            Repository      : ${{ github.repository }}
+            Event Type      : ${{ github.event_name }}
+            Triggered By    : ${{ github.actor }}
+            Branch          : ${{ github.ref_name }}
+            Commit Message  : ${{ github.event.head_commit.message || github.event.pull_request.title }}
+            Commit Time     : ${{ github.event.head_commit.timestamp || github.event.pull_request.updated_at }}
+            
             You can view the Allure test report at the following URL:
             ${{ steps.deployment.outputs.page_url }}
+          
+            Regards,  
+            GitHub Actions
 
             Regards,  
             GitHub Actions
