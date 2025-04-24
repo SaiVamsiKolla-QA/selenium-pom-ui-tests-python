@@ -36,7 +36,7 @@ jobs:
       - name: Zip Allure Report
         run: zip -r allure-report.zip allure-report
 
-      - name: Email Allure Report (.zip)
+      - name: Send Allure Report via Email
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -44,24 +44,22 @@ jobs:
           username: ${{ secrets.SMTP_USERNAME }}
           password: ${{ secrets.SMTP_PASSWORD }}
           subject: >
-               Allure Report: ${{ github.repository }} — ${{ github.event_name }}
+            Allure Test Report - ${{ github.repository }} | Event: ${{ github.event_name }}
           to: saivamsikolla@gmail.com
           from: GitHub Actions <saivamsikolla@gmail.com>
           attachments: allure-report.zip
           body: |
-              Hello Vamsi,
+            Hello,
 
-            ✅ Your automation test suite just ran on **${{ github.repository }}**
+            The latest automation test suite for the repository '${{ github.repository }}' has completed execution.
 
-            📌 **Triggered by**: `${{ github.event_name }}`
-            🕒 **Commit Time**: `${{ github.event.head_commit.timestamp || github.event.pull_request.updated_at }}`
-            🔧 **Commit Message**: "${{ github.event.head_commit.message || github.event.pull_request.title }}"
+            Event Type      : ${{ github.event_name }}
+            Triggered By    : ${{ github.actor }}
+            Branch          : ${{ github.ref_name }}
+            Commit Message  : ${{ github.event.head_commit.message || github.event.pull_request.title }}
+            Commit Time     : ${{ github.event.head_commit.timestamp || github.event.pull_request.updated_at }}
 
-            📎 The attached ZIP contains the full Allure test report.
+            Please find the Allure test report attached as a ZIP file.
 
-            🙋 Triggered by: `${{ github.actor }}`
-            🧠 Branch: `${{ github.ref_name }}`
-
-            🚀 Keep testing with confidence!
-
-            – GitHub Actions Bot 🤖
+            Regards,  
+            GitHub Actions
