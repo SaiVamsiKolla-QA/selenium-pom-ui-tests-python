@@ -228,30 +228,27 @@ This will:
 ## Continuous Integration
 This project uses GitHub Actions for continuous integration. Every push and pull request to the main branch triggers the following workflow:
 
+- Triggers on push/pull to main
 - Setup of Python and dependencies
 - Installation of Chrome browser
 - Installation of Allure Report CLI
-- Execution of all tests:
+- Execution tests
 - Generation of Allure Report
-- Artifact uploading (report and screenshots)
+- Uploads artifacts and hosts report via GitHub Pages
+- Email notifications with dynamic test summary and Allure report link
 
 You can view the test results in the Actions tab of the GitHub repository.
 To run the GitHub Actions workflow manually:
 
 - Go to the Actions tab in your repository
-- Select "Swag Labs E2E Tests" workflow
-- Click "Run workflow"
+- Select CI with Dynamic Allure Report and Email from the left-hand workflows list.
+- Click the Run workflow dropdown on the right side of the header, choose the branch (e.g. main), fill in any input parameters (if you’ve defined them), and hit Run workflow.
 
 
 
-### Login Test
+### Test Run
 
 - Verifies login with valid credentials for various user types.
-
-
-
-
-
 ---
 
 ## Troubleshooting
