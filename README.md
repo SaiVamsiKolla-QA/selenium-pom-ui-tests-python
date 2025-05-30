@@ -1,287 +1,396 @@
-#  POM UI Automation Framework
+# 🚀 POM UI Automation Framework
+
 [![CI with Dynamic Allure Report and Email](https://github.com/SaiVamsiKolla-QA/selenium-pom-ui-tests-python/actions/workflows/selenium-tests.yml/badge.svg)](https://github.com/SaiVamsiKolla-QA/selenium-pom-ui-tests-python/actions/workflows/selenium-tests.yml)
+[![Python Version](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/downloads/)
+[![Selenium](https://img.shields.io/badge/selenium-4.x-green)](https://selenium-python.readthedocs.io/)
+[![Pytest](https://img.shields.io/badge/pytest-7.x-orange)](https://docs.pytest.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Selenium automation framework developed in Python using pytest, following the Page Object Model (POM) design pattern. Integrated with GitHub Actions for CI/CD and Allure for detailed reporting.
- Designed to automate UI test cases for  [Swag Labs demo website](https://www.saucedemo.com/). 
+[**📊 Latest Allure Report**](https://saivamsikolla-qa.github.io/selenium-pom-ui-tests-python/) | [**🔗 Swag Labs demo website**](https://www.saucedemo.com/)
 
----
-
-## Features
-
-- Page Object Model (POM) design pattern
-- Cross-platform support (Windows, Mac, Linux)
-- Allure reports with screenshots at every test step
-- Support Parallel Testing
-- Support Cross Browser Testing 
-- Multi-run test execution with statistics
-- GitHub Actions CI/CD integration
+A robust Selenium automation framework built with Python and pytest, implementing the Page Object Model (POM) design pattern. Features comprehensive CI/CD integration with GitHub Actions and detailed Allure reporting.
 
 ---
 
-## Prerequisites
+## ✨ Features
 
-- Python 3.9 or higher
-- Git
-- Google Chrome
-- Java JDK 8 or higher *(required for Allure reporting)*
+- **🏗️ Page Object Model (POM)** - Clean, maintainable test architecture
+- **🌐 Cross-Browser Support** - Chrome, Firefox, Edge, Safari
+- **⚡ Parallel Test Execution** - Faster test runs with pytest-xdist
+- **🖥️ Cross-Platform** - Windows, macOS, Linux compatibility
+- **📸 Visual Documentation** - Screenshots captured at every test step
+- **📊 Comprehensive Reporting** - Detailed Allure reports with analytics
+- **🔄 CI/CD Integration** - Automated testing with GitHub Actions
+- **📈 Test Statistics** - Multi-run execution with performance metrics
+- **📧 Email Notifications** - Automated test result notifications
 
 ---
 
-## Setup
+## 🛠️ Prerequisites
 
-### 1. Clone the repository
+Before getting started, ensure you have the following installed:
+
+| Requirement | Version | Purpose |
+|-------------|---------|---------|
+| **Python** | 3.9+ | Core runtime |
+| **Git** | Latest | Version control |
+| **Google Chrome** | Latest | Default browser for testing |
+| **Java JDK** | 8+ | Required for Allure reporting |
+
+---
+
+## 🚀 Quick Start
+
+### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/VamsiKolla-QA/SwagLabs-POM-E2E.git
-cd Python-Selenium-POM
+git clone https://github.com/SaiVamsiKolla-QA/selenium-pom-ui-tests-python.git
+cd selenium-pom-ui-tests-python
 ```
 
-### 2. Create and activate the virtual environment
+### 2. Set Up Virtual Environment
 
+**Windows:**
 ```bash
-# Windows
 python -m venv .venv
 .venv\Scripts\activate
+```
 
-# Mac/Linux
+**macOS/Linux:**
+```bash
 python -m venv .venv
 source .venv/bin/activate
 ```
 
-### 3. Install dependencies
+### 3. Install Dependencies
 
 ```bash
 pip install -r Requirements.txt
 ```
 
----
-
-## Environment Check
-
-Before installing additional tools like Allure, verify your setup:
+### 4. Verify Installation
 
 ```bash
 python setup_check.py
 ```
 
-This script checks for:
-
-- Python version (>= 3.9)
-- Required pip packages
-- Chrome browser
-- Allure CLI availability
-
-If something is missing, it will guide you to fix it.
+This script validates:
+- ✅ Python version compatibility
+- ✅ Required packages installation
+- ✅ Browser availability
+- ✅ Allure CLI setup
 
 ---
 
-## Install Allure (if needed)
+## 🔧 Allure Setup
 
-### Mac:
+Allure is required for generating detailed test reports.
 
+### macOS (Homebrew)
 ```bash
 brew install allure
 ```
 
-### Windows (Scoop):
-
+### Windows (Scoop)
 ```bash
 scoop install allure
 ```
 
-### Windows (Chocolatey):
-
+### Windows (Chocolatey)
 ```bash
 choco install allure-commandline
 ```
 
----
-
-## Project Structure
-
-```
-Python-Selenium-POM/
-├── .github/
-│   └── workflows/          # GitHub Actions workflow files
-├── Pages/                  # Page Object classes
-├── Utility/                # Helper functions and utilities
-├── Tests/                  # Test scripts
-├── assets/
-│   └── screenshots/        # Screenshots from test runs
-├── allure-results/         # Allure results directory
-├── reports/                # Generated test reports
-├── setup_check.py          # Environment verification script
-├── multiple_tests.py       # Python script for repeated test execution with statistics
-├── run_tests.sh            # Shell script for running tests
-├── Requirements.txt        # Python dependencies
-└── Testcases-SwagLabs.xlsx # Manual test scenarios
+### Verify Installation
+```bash
+allure --version
 ```
 
 ---
 
-## Running Tests
+## 📁 Project Structure
 
-### Using Scripts
+```
+selenium-pom-ui-tests-python/
+├── 📂 .github/
+│   └── workflows/              # GitHub Actions CI/CD workflows
+├── 📂 Pages/                   # Page Object Model classes
+├── 📂 Utility/                 # Helper functions and utilities
+├── 📂 Tests/                   # Test scripts and test cases
+├── 📂 assets/
+│   └── screenshots/            # Test execution screenshots
+├── 📂 allure-results/          # Allure test results
+├── 📂 reports/                 # Generated test reports
+├── 📄 setup_check.py           # Environment verification script
+├── 📄 multiple_tests.py        # Multi-run test execution script
+├── 📄 run_tests.sh             # Test execution shell script
+├── 📄 Requirements.txt         # Python dependencies
+├── 📄 Testcases-SwagLabs.xlsx  # Manual test scenarios
+└── 📄 README.md               # Project documentation
+```
 
-Run all tests with Allure reporting:
+---
+
+## 🏃‍♂️ Running Tests
+
+### Quick Test Execution
 
 **Windows:**
-
 ```bash
 run_tests.bat
 ```
 
-**Mac/Linux:**
-
+**macOS/Linux:**
 ```bash
 ./run_tests.sh
 ```
 
-### Manual Execution
+### Manual Test Execution
 
-Run a specific test file:
-
+#### Run Specific Tests
 ```bash
+# Single test file
 python -m pytest Tests/test_swag_login.py -v --alluredir=allure-results
-```
-Run a parallel test :
-````
-python -m pytest Tests/test_swag_login.py -n 6 --alluredir=allure-results
-````
-End-to-End Checkout Test:
 
+# Specific test method
+pytest Tests/test_swag_end_to_end.py::test_swag_end_to_end -v --alluredir=allure-results
+```
+
+#### Parallel Execution
 ```bash
-pytest Tests/test_swag_end_to_end.py::test_swag_end_to_end -v --alluredir=allure-results 
+# Run with 6 parallel workers
+python -m pytest Tests/test_swag_login.py -n 6 --alluredir=allure-results
 ```
 
-Generate and view Allure Report:
-
+#### Generate Allure Report
 ```bash
 allure serve allure-results
 ```
-## Parallel Test Execution
 
-This framework supports parallel test execution using pytest-xdist, significantly reducing execution time.
+---
 
-Run with 6 parallel workers
+## 🌐 Cross-Browser Testing
+
+The framework supports testing across multiple browsers with easy configuration.
+
+### Supported Browsers
+
+| Browser | Command Flag | Notes |
+|---------|--------------|-------|
+| Chrome | `--browser chrome` (default) | Auto-managed WebDriver |
+| Firefox | `--browser firefox` | Requires Firefox installation |
+| Edge | `--browser edge` | Requires Microsoft Edge |
+| Safari | `--browser safari` | macOS only, manual setup required |
+
+### Browser-Specific Execution
+
 ```bash
-python -m pytest Tests/test_swag_login.py -n 6 --alluredir=allure-results
-```
-
-## Cross-Browser Testing
-
-This framework supports automated testing across multiple browsers:
-
-- Chrome (default)
-- Firefox
-- Edge
-- Safari (macOS only)
-
-### Running Tests on Different Browsers
-
-
-# Run with Chrome (default)
-``` bash
+# Chrome (default)
 python -m pytest Tests/test_swag_login.py -v --alluredir=allure-results/chrome
-```
-# Run with Firefox
-``` bash
+
+# Firefox
 python -m pytest Tests/test_swag_login.py -v --browser firefox --alluredir=allure-results/firefox
-```
-# Run with Edge
-``` bash
+
+# Edge
 python -m pytest Tests/test_swag_login.py -v --browser edge --alluredir=allure-results/edge
-```
-# Run with Safari (macOS only)
-``` bash
+
+# Safari (macOS only)
 python -m pytest Tests/test_swag_login.py -v --browser safari --alluredir=allure-results/safari
-```
-# Run with specific browser in parallel
-``` bash
+
+# Firefox with parallel execution
 python -m pytest Tests/test_swag_login.py -n 4 --browser firefox --alluredir=allure-results/firefox
 ```
 
-Browser-Specific Notes
+### Safari Setup (macOS)
 
-- Safari: Requires enabling "Allow Remote Automation" in Safari's Develop menu and it don't support parallel testing
-- Edge: Requires Microsoft Edge to be installed
-- Firefox: Requires Firefox to be installed
-- Chrome: Default browser, used if no browser is specified
+1. Open Safari
+2. Go to **Develop** menu
+3. Enable **"Allow Remote Automation"**
 
-### Using Multi-Run Script
-Run a specific test multiple times and collect statistics:
+*Note: Safari doesn't support parallel testing*
+
+---
+
+## 📊 Multi-Run Statistics
+
+Execute tests multiple times to gather performance statistics and reliability metrics.
+
+### Basic Multi-Run
 ```bash
 python multiple_tests.py Tests/test_swag_checkout_step_one.py::test_swag_checkout_step_one -n 10
 ```
-Run a specific test multiple times in parallel on specific  browser and collect statistics:
+
+### Advanced Multi-Run with Browser Selection
 ```bash
-# Run Firefox tests with 6 parallel workers, 10 iterations
+# Firefox tests with 6 parallel workers, 10 iterations
 python run_tests.py Tests/test_swag_login.py -n 10 --browser firefox --parallel 6
 ```
 
-This will:
-
-- Run the specified test 10 times
-- Log all test executions
-- Calculate success rate
-- Measure average, min, and max execution times
-
-## Continuous Integration
-This project uses GitHub Actions for continuous integration. Every push and pull request to the main branch triggers the following workflow:
-
-- Triggers on push/pull to main
-- Setup of Python and dependencies
-- Installation of Chrome browser
-- Installation of Allure Report CLI
-- Execution tests
-- Generation of Allure Report
-- Uploads artifacts and hosts report via GitHub Pages
-- Email notifications with dynamic test summary and Allure report link
-
-You can view the test results in the Actions tab of the GitHub repository.
-To run the GitHub Actions workflow manually:
-
-- Go to the Actions tab in your repository
-- Select CI with Dynamic Allure Report and Email from the left-hand workflows list.
-- Click the Run workflow dropdown on the right side of the header, choose the branch (e.g. main), fill in any input parameters (if you’ve defined them), and hit Run workflow.
-
-
-
-### Test Run
-
-- Verifies login with valid credentials for various user types.
----
-
-## Troubleshooting
-
-### WebDriver Issues
-
-- Make sure Chrome is up-to-date
-- `webdriver-manager` auto-downloads correct ChromeDriver
-
-### Allure Report Not Generating
-
-- Ensure Java is installed and added to the system path
-- Verify `allure-pytest` is installed
-- Confirm `allure --version` works
-
-### Test Failures
-
-- Check screenshots in `assets/screenshots`
-- Review the Allure report for full stack trace
+### Generated Metrics
+- 📈 **Success Rate** - Percentage of passed tests
+- ⏱️ **Execution Times** - Average, minimum, maximum
+- 📝 **Detailed Logs** - Complete execution history
 
 ---
 
-## 🌐 Contributing
+## 🔄 Continuous Integration
 
-1. Fork the repo
-2. Create a feature branch
-3. Make changes
-4. Submit a pull request
+### GitHub Actions Workflow
+
+The project includes a comprehensive CI/CD pipeline that:
+
+- 🔄 **Triggers** on push/pull requests to main branch
+- 🐍 **Sets up** Python environment and dependencies
+- 🌐 **Installs** Chrome browser and WebDriver
+- 📊 **Configures** Allure reporting CLI
+- 🧪 **Executes** complete test suite
+- 📈 **Generates** detailed Allure reports
+- 🚀 **Deploys** reports to GitHub Pages
+- 📧 **Sends** email notifications with results
+
+### Manual Workflow Trigger
+
+1. Navigate to the **Actions** tab in your repository
+2. Select **"CI with Dynamic Allure Report and Email"**
+3. Click **"Run workflow"** dropdown
+4. Choose the branch and parameters
+5. Click **"Run workflow"**
+
+### View Results
+
+- 📊 **Live Reports**: [GitHub Pages](https://saivamsikolla-qa.github.io/selenium-pom-ui-tests-python/)
+- 🔍 **Workflow Logs**: Repository Actions tab
+- 📧 **Email Summary**: Automated notifications
 
 ---
 
-## 📝 License
+## 🧪 Test Coverage
 
-This project is licensed under the [MIT License](LICENSE).
+### Current Test Scenarios
 
+| Test Suite | Description | Status |
+|------------|-------------|--------|
+| **Login Tests** | Valid/invalid credential verification | ✅ |
+| **End-to-End** | Complete user journey testing | ✅ |
+| **Checkout Process** | Multi-step checkout validation | ✅ |
+| **Cross-Browser** | Browser compatibility testing | ✅ |
+
+### Sample Test Execution
+
+The framework validates login functionality with various user types:
+- Standard users
+- Problem users  
+- Performance glitch users
+- Error users
+
+---
+
+## 🐛 Troubleshooting
+
+### Common Issues and Solutions
+
+#### WebDriver Problems
+```bash
+# Issue: ChromeDriver version mismatch
+# Solution: Update Chrome browser
+# The webdriver-manager automatically handles driver downloads
+```
+
+#### Allure Report Generation
+```bash
+# Issue: Allure reports not generating
+# Check: Java installation
+java --version
+
+# Check: Allure CLI installation
+allure --version
+
+# Verify: allure-pytest package
+pip show allure-pytest
+```
+
+#### Test Failures
+1. **Screenshots**: Check `assets/screenshots/` for visual debugging
+2. **Logs**: Review detailed logs in Allure reports
+3. **Stack Traces**: Full error details available in Allure report
+
+#### Python Environment
+```bash
+# Issue: Import errors
+# Solution: Verify virtual environment activation
+which python  # Should point to .venv directory
+
+# Reinstall dependencies if needed
+pip install -r Requirements.txt --force-reinstall
+```
+
+### Getting Help
+
+If you encounter issues:
+1. 📸 Check screenshots in `assets/screenshots/`
+2. 📊 Review the Allure report for stack traces
+3. 🔍 Verify environment with `python setup_check.py`
+4. 📝 Create an issue with error details
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how to get started:
+
+### Development Setup
+
+1. **Fork** the repository
+2. **Clone** your fork locally
+3. **Create** a feature branch
+   ```bash
+   git checkout -b feature/amazing-feature
+   ```
+4. **Make** your changes
+5. **Test** your changes thoroughly
+6. **Commit** with clear messages
+   ```bash
+   git commit -m "Add amazing feature"
+   ```
+7. **Submit** a pull request
+
+### Contribution Guidelines
+
+- ✅ Follow PEP 8 style guidelines
+- ✅ Add tests for new features
+- ✅ Update documentation as needed
+- ✅ Ensure all tests pass
+- ✅ Include clear commit messages
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- [Selenium WebDriver](https://selenium-python.readthedocs.io/) for browser automation
+- [Pytest](https://docs.pytest.org/) for testing framework
+- [Allure Framework](https://docs.qameta.io/allure/) for reporting
+- [Swag Labs](https://www.saucedemo.com/) for providing the demo application
+
+---
+
+## 📞 Support
+
+- 📧 **Email**: [saivamsikolla@gmail.com]
+- 🐛 **Issues**: [GitHub Issues](https://github.com/SaiVamsiKolla-QA/selenium-pom-ui-tests-python/issues)
+- 📚 **Wiki**: [Project Wiki](https://github.com/SaiVamsiKolla-QA/selenium-pom-ui-tests-python/wiki)
+
+---
+
+<div align="center">
+
+**⭐ Star this repository if you find it helpful!**
+
+Made with ❤️ by [Your Name]
+
+</div>
