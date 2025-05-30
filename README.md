@@ -1,4 +1,5 @@
 #  POM UI Automation Framework
+[![CI with Dynamic Allure Report and Email](https://github.com/SaiVamsiKolla-QA/selenium-pom-ui-tests-python/actions/workflows/selenium-tests.yml/badge.svg)](https://github.com/SaiVamsiKolla-QA/selenium-pom-ui-tests-python/actions/workflows/selenium-tests.yml)
 
 Selenium automation framework developed in Python using pytest, following the Page Object Model (POM) design pattern. Integrated with GitHub Actions for CI/CD and Allure for detailed reporting.
  Designed to automate UI test cases for  [Swag Labs demo website](https://www.saucedemo.com/). 
