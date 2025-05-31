@@ -1,4 +1,4 @@
-ame: CI with Dynamic Allure Report and Email
+name: CI with Dynamic Allure Report and Email
 
 #  'on' block
 on:
