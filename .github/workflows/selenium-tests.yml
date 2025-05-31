@@ -28,7 +28,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r Requirements.txt
 
-      - name: Run pytest and produce Allure results
+      - name: Run pytest and collect Allure results
         run: |
           pytest --alluredir=allure-results
 
@@ -66,6 +66,8 @@ jobs:
           to: saivamsikolla@gmail.com
           from: GitHub Actions CI <${{ secrets.SMTP_USERNAME }}>
           body: |
+            [![CI with Report](https://github.com/SaiVamsiKolla-QA/selenium-pom-ui-tests-python/actions/workflows/selenium-tests.yml/badge.svg)](https://github.com/SaiVamsiKolla-QA/selenium-pom-ui-tests-python/actions/workflows/selenium-tests.yml)
+
             Hello,
 
             Your Allure report is now live:
