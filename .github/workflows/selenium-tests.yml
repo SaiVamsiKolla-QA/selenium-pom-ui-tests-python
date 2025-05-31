@@ -1,4 +1,4 @@
-name: CI - Run Tests and Publish Allure Report
+name: CI – Run Tests and Publish Allure Report
 
 on:
   push:
@@ -8,14 +8,17 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  ci:
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
 
     steps:
       - name: Check out code
         uses: actions/checkout@v3
 
-      - name: Set up Python 3.10
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
@@ -32,7 +35,8 @@ jobs:
       - name: Download and unzip Allure CLI
         run: |
           ALLURE_VERSION="2.27.0"
-          wget -qO allure.zip https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
+          wget -qO allure.zip \
+            https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
           unzip -q allure.zip
           rm allure.zip
 
@@ -49,9 +53,10 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deploy-pages
         uses: actions/deploy-pages@v4
-        permissions:
-          pages: write
-          id-token: write
+
+      - name: Zip up Allure report for email
+        run: |
+          zip -r allure-report.zip allure-report
 
       - name: Send email notification
         uses: dawidd6/action-send-mail@v3
@@ -71,5 +76,8 @@ jobs:
 
             • View online: ${{ steps.deploy-pages.outputs.page_url }}
 
+            You can also download the attached ZIP to view the report locally.
+
             Regards,
             GitHub Actions CI
+          attachments: allure-report.zip
