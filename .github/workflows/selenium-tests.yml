@@ -35,6 +35,8 @@ jobs:
             https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
           unzip -q allure.zip
           rm allure.zip
+          sudo mv allure-${ALLURE_VERSION} /opt/allure
+          sudo ln -s /opt/allure/bin/allure /usr/local/bin/allure
 
       - name: Make run_tests.sh executable
         run: chmod +x ./run_tests.sh
@@ -45,7 +47,6 @@ jobs:
 
       - name: Generate Allure HTML report
         run: |
-          ALLURE_VERSION="2.27.0"
           ./allure-${ALLURE_VERSION}/bin/allure generate allure-results --clean -o allure-report
 
       - name: Upload Allure report as Pages artifact
@@ -76,5 +77,5 @@ jobs:
             • View interactive report online:
               ${{ steps.deploy-pages.outputs.page_url }}
 
-            Regards,  
+            Regards,
             GitHub Actions CI
