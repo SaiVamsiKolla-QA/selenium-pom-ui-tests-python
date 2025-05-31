@@ -1,4 +1,4 @@
-name: CI – Run Tests and Email Notification
+name: CI – Run Tests and Publish Allure Report
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
@@ -25,36 +25,37 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r Requirements.txt
 
-      - name: Make run_tests.sh executable
-        run: chmod +x ./run_tests.sh
-
-      - name: Run tests (no Allure)
+      - name: Run tests and produce Allure results
         run: |
-          ./run_tests.sh --no-report
+          pytest --alluredir=allure-results
 
-  notify:
+      - name: Download and unzip Allure CLI
+        run: |
+          ALLURE_VERSION="2.27.0"
+          wget -qO allure.zip \
+            https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
+          unzip -q allure.zip
+          rm allure.zip
+
+      - name: Generate Allure HTML report
+        run: |
+          ./allure-${ALLURE_VERSION}/bin/allure generate allure-results --clean -o allure-report
+
+      - name: Upload Allure report as artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./allure-report
+
+  deploy:
     needs: test
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
 
     steps:
-      - name: Send email notification
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 587
-          username: ${{ secrets.SMTP_USERNAME }}
-          password: ${{ secrets.SMTP_PASSWORD }}
-          subject: |
-            Test Results – ${{ github.repository }} | ${{ github.run_started_at }}
-          to: saivamsikolla@gmail.com
-          from: GitHub Actions CI <${{ secrets.SMTP_USERNAME }}>
-          body: |
-            Hello,
-
-            The test run for '${{ github.repository }}' has completed.
-            Run Status     : ${{ needs.test.result }}
-            Branch         : ${{ github.ref_name }}
-            Commit         : https://github.com/${{ github.repository }}/commit/${{ github.sha }}
-
-            Regards,
-            GitHub Actions CI
+      - name: Deploy Allure report to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
