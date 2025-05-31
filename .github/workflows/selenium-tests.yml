@@ -28,9 +28,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r Requirements.txt
 
-      - name: Run pytest and collect Allure results
+      - name: Make run_tests.sh executable
+        run: chmod +x ./run_tests.sh
+
+      - name: Run tests across all browsers in parallel
         run: |
-          pytest --alluredir=allure-results
+          ./run_tests.sh --all-browsers --parallel-browsers -n 5 -p 4 -o
 
       - name: Download and unzip Allure CLI
         run: |
