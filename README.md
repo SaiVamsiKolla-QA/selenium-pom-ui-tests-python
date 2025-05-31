@@ -319,6 +319,39 @@ The test runner provides comprehensive metrics:
 
 ---
 
+## 💻 Running the Selenium Grid Locally
+
+To run the Selenium Grid locally for distributed testing, follow these steps:
+
+*   **Install Docker and Docker Compose:**
+    *   For Ubuntu, you can use the following commands:
+        ```bash
+        sudo apt-get update
+        sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+        ```
+    *   For other operating systems, or if you prefer a GUI, download and install [Docker Desktop](https://www.docker.com/products/docker-desktop).
+*   **Start the Grid:** Run the following command to start the Selenium Grid with 2 Chrome nodes and 2 Firefox nodes:
+    ```bash
+    docker-compose up -d --scale node-chrome=2 --scale node-firefox=2
+    ```
+*   **Set Environment Variables:** Configure your environment to point to the local grid:
+    ```bash
+    export SELENIUM_REMOTE_URL="http://localhost:4444/wd/hub"
+    export BROWSER="chrome"  # Or "firefox"
+    ```
+*   **Execute Tests:** Run your tests using the test execution script:
+    ```bash
+    ./run_tests.sh
+    ```
+*   **Shut Down Grid:** Once testing is complete, shut down the grid:
+    ```bash
+    docker-compose down
+    ```
+
+This setup allows you to test your application in a distributed environment, simulating a more realistic production setup and speeding up test execution by running tests in parallel across different browser instances.
+
+---
+
 ## 🌐 Browser Configuration
 
 ### Supported Browsers
