@@ -1,4 +1,4 @@
-name: CI with Dynamic Allure Report and Email
+name: CI with Allure Reporting
 
 on:
   push:
@@ -25,17 +25,23 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r Requirements.txt
 
-      - name: Run tests
-        run: |
-          ./run_tests.sh -o
-
-      - name: Generate Allure Report
+      - name: Download and unzip Allure CLI
         run: |
           ALLURE_VERSION="2.27.0"
           wget -qO allure.zip https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
           unzip -q allure.zip
+          rm allure.zip
+
+      - name: Make run_tests.sh executable
+        run: chmod +x ./run_tests.sh
+
+      - name: Run tests
+        run: |
+          ./run_tests.sh --alluredir=allure-results
+
+      - name: Generate Allure Report
+        run: |
           ./allure-${ALLURE_VERSION}/bin/allure generate allure-results --clean -o allure-report
-          rm -rf allure.zip allure-${ALLURE_VERSION}
 
       - name: Upload Allure Report Artifact
         uses: actions/upload-pages-artifact@v3
@@ -50,7 +56,6 @@ jobs:
       id-token: write
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Deploy to GitHub Pages
