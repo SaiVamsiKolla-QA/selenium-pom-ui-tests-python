@@ -20,8 +20,7 @@ deploy:
           SMTP_USER_EXISTS: ${{ secrets.SMTP_USERNAME }}
           SMTP_PASS_EXISTS: ${{ secrets.SMTP_PASSWORD }}
         # Now use the env context in your if condition
-        if: ${{ (needs.test.result == 'success' |
-| needs.test.result == 'failure') && env.SMTP_USER_EXISTS!= '' && env.SMTP_PASS_EXISTS!= '' }}
+        if: ${{ (needs.test.result == 'success' || needs.test.result == 'failure') && env.SMTP_USER_EXISTS != '' && env.SMTP_PASS_EXISTS != '' }}
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
