@@ -36,6 +36,52 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r Requirements.txt
 
+      - name: Install Google Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
+      - name: Install ChromeDriver
+        run: |
+          CHROME_DRIVER_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$(google-chrome --version | cut -d' ' -f3 | cut -d'.' -f1,2,3))
+          wget -qO- https://chromedriver.storage.googleapis.com/${CHROME_DRIVER_VERSION}/chromedriver_linux64.zip | sudo unzip -o - -d /usr/local/bin/
+          sudo chmod +x /usr/local/bin/chromedriver
+
+      - name: Install Firefox
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y firefox
+
+      - name: Install GeckoDriver
+        run: |
+          GECKODRIVER_VERSION=$(curl -s https://api.github.com/repos/mozilla/geckodriver/releases/latest | jq -r .tag_name)
+          wget -qO- https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz | sudo tar -xz -C /usr/local/bin/
+          sudo chmod +x /usr/local/bin/geckodriver
+
+      - name: Install Microsoft Edge
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y software-properties-common
+          wget -q https://packages.microsoft.com/keys/microsoft.asc -O- | sudo apt-key add -
+          sudo add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main"
+          sudo apt-get install -y microsoft-edge-stable
+
+      - name: Install MSEdgeDriver
+        run: |
+          EDGE_VERSION=$(microsoft-edge --version | cut -d' ' -f3)
+          # Construct the download URL (this might need adjustment based on actual MS Edge Driver release patterns)
+          # Assuming a pattern like LATEST_RELEASE_MAJOR.MINOR.BUILD_amd64
+          # This part is tricky as Microsoft's Edge Driver versioning/download URL isn't as straightforward as Chrome's.
+          # Using a known compatible version for now, or a script to fetch the latest compatible one.
+          # For simplicity in this step, let's assume we know a version or use a more robust script if available.
+          # This is a placeholder for a more robust version detection and download.
+          # A more robust way would be to query: https://msedgewebdriverstorage.blob.core.windows.net/edgewebdriver/LATEST_STABLE
+          EDGEDRIVER_VERSION=$(curl -s https://msedgewebdriverstorage.blob.core.windows.net/edgewebdriver/LATEST_STABLE | iconv -f utf-16le -t utf-8 | sed 's/^[ 	]*//;s/[ 	]*$//')
+          wget -qO- "https://msedgewebdriverstorage.blob.core.windows.net/edgewebdriver?comp=get&version=${EDGEDRIVER_VERSION}&platform=linux64&filename=msedgedriver-${EDGEDRIVER_VERSION}-linux64.zip" | sudo unzip -o - -d /usr/local/bin/
+          sudo mv /usr/local/bin/msedgedriver /usr/local/bin/msedgedriver_temp # Edge driver might be in a subfolder
+          sudo mv /usr/local/bin/*/msedgedriver /usr/local/bin/msedgedriver || sudo mv /usr/local/bin/msedgedriver_temp /usr/local/bin/msedgedriver # handles if it was or wasn't in subfolder
+          sudo chmod +x /usr/local/bin/msedgedriver
+
       - name: Make run_tests.sh executable
         run: chmod +x ./run_tests.sh
 
