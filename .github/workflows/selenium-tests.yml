@@ -156,10 +156,11 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: Send email notification
-        if: >
-          (needs.test.result == 'success' || needs.test.result == 'failure')
-          && secrets.SMTP_USERNAME
-          && secrets.SMTP_PASSWORD
+        if: ${{ 
+          (needs.test.result == 'success' || needs.test.result == 'failure') 
+          && secrets.SMTP_USERNAME != '' 
+          && secrets.SMTP_PASSWORD != ''
+        }}
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
