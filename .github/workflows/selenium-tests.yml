@@ -1,4 +1,4 @@
-name: CI with Allure Reporting
+name: CI – Run Tests and Email Notification
 
 on:
   push:
@@ -25,43 +25,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r Requirements.txt
 
-      - name: Download and unzip Allure CLI
-        run: |
-          ALLURE_VERSION="2.27.0"
-          wget -qO allure.zip https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
-          unzip -q allure.zip
-          rm allure.zip
-
       - name: Make run_tests.sh executable
         run: chmod +x ./run_tests.sh
 
-      - name: Run tests
+      - name: Run tests (no Allure)
         run: |
-          ./run_tests.sh --alluredir=allure-results
+          ./run_tests.sh --no-report
 
-      - name: Generate Allure Report
-        run: |
-          ./allure-${ALLURE_VERSION}/bin/allure generate allure-results --clean -o allure-report
-
-      - name: Upload Allure Report Artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: "./allure-report"
-
-  deploy:
+  notify:
     needs: test
     runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
 
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-
       - name: Send email notification
         uses: dawidd6/action-send-mail@v3
         with:
@@ -70,14 +45,16 @@ jobs:
           username: ${{ secrets.SMTP_USERNAME }}
           password: ${{ secrets.SMTP_PASSWORD }}
           subject: |
-            Allure Report – ${{ github.repository }} | ${{ github.sha }}
+            Test Results – ${{ github.repository }} | ${{ github.sha }}
           to: saivamsikolla@gmail.com
           from: GitHub Actions CI <${{ secrets.SMTP_USERNAME }}>
           body: |
             Hello,
 
-            The automation test run for '${{ github.repository }}' has finished.
-            View the full Allure report here: ${{ steps.deployment.outputs.page_url }}
+            The test run for '${{ github.repository }}' has completed.
+            Run Status     : ${{ needs.test.result }}
+            Branch         : ${{ github.ref_name }}
+            Commit         : https://github.com/${{ github.repository }}/commit/${{ github.sha }}
 
             Regards,
             GitHub Actions CI
