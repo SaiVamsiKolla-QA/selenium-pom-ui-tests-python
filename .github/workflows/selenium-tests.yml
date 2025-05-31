@@ -32,9 +32,6 @@ jobs:
         run: |
           ./run_tests.sh --no-report
 
-      # (Optional) If you want to capture test metrics, you would add steps here
-      # to parse logs or JSON output and set them as job outputs for use in the email.
-
   notify:
     needs: test
     runs-on: ubuntu-latest
@@ -48,51 +45,16 @@ jobs:
           username: ${{ secrets.SMTP_USERNAME }}
           password: ${{ secrets.SMTP_PASSWORD }}
           subject: |
-            [CI] Test Results – ${{ github.repository }} | ${{ github.run_started_at }}
+            Test Results – ${{ github.repository }} | ${{ github.run_started_at }}
           to: saivamsikolla@gmail.com
           from: GitHub Actions CI <${{ secrets.SMTP_USERNAME }}>
           body: |
-            ==== PROJECT: ${{ github.repository }} | RELEASE: ${{ github.ref_name }} ====
+            Hello,
 
-            **Execution Summary**  
-            • Date & Time: ${{ github.run_started_at }}  
-            • Triggered By: ${{ github.actor }}  
-            • Branch/Tag: ${{ github.ref_name }}  
-            • Commit: ${{ github.sha }}  
-            • Build URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            The test run for '${{ github.repository }}' has completed.
+            Run Status     : ${{ needs.test.result }}
+            Branch         : ${{ github.ref_name }}
+            Commit         : https://github.com/${{ github.repository }}/commit/${{ github.sha }}
 
-            **Key Metrics**  
-            • Total Tests: {{TOTAL_TESTS}}  
-            • Passed: {{PASSED_TESTS}}  
-            • Failed: {{FAILED_TESTS}}  
-            • Skipped: {{SKIPPED_TESTS}}  
-            • Pass %: {{PASS_PERCENTAGE}}
-
-            ==== FAILED TESTS ====  
-            {{#each FAILED_LIST}}  
-            • Test ID: {{this.id}}  
-              Name: {{this.name}}  
-              Module: {{this.module}}  
-              Error: {{this.error_snippet}}  
-              Log/Screenshot: [View]({{this.log_url}})  
-            {{/each}}
-
-            ==== SKIPPED TESTS ====  
-            {{#each SKIPPED_LIST}}  
-            • Test ID: {{this.id}}  
-              Name: {{this.name}}  
-              Module: {{this.module}}  
-              Reason: {{this.skip_reason}}  
-            {{/each}}
-
-            ==== PASSED TESTS ====  
-            {{#each PASSED_LIST}}  
-            • Test ID: {{this.id}} – {{this.name}}  
-            {{/each}}
-
-            ==== ACTION ITEMS ====  
-            • [View Full Test Report](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})  
-            • [Open CI Build Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-
-            Regards,  
+            Regards,
             GitHub Actions CI
