@@ -162,7 +162,8 @@ selenium-pom-ui-tests-python/
 │   ├── inventory_page.py      # Product listing page
 │   └── checkout_page.py       # Checkout flow pages
 ├── 📂 Tests/                   # Test scripts
-│   ├── test_swag_login.py     # Login functionality tests
+│   ├── conftest.py            # Pytest configuration & fixtures
+    ├── test_swag_login.py     # Login functionality tests
 │   ├── test_swag_checkout.py  # Checkout process tests
 │   └── test_swag_end_to_end.py # End-to-end scenarios
 ├── 📂 Utility/                 # Helper functions
@@ -175,10 +176,9 @@ selenium-pom-ui-tests-python/
 │   └── multi-browser/         # Multi-browser run results
 ├── 📂 allure-report/          # Generated HTML reports
 ├── 📂 reports/                # Archived test reports
-├── 📄 conftest.py             # Pytest configuration & fixtures
 ├── 📄 cleanup.py              # Browser process cleanup utility
 ├── 📄 setup_check.py          # Environment verification
-├── 📄 run_tests.sh            # Advanced test runner (macOS/Linux)
+├── 📄 run_tests.sh            # Test runner (macOS/Linux)
 ├── 📄 run_tests.bat           # Test runner (Windows)
 ├── 📄 Requirements.txt        # Python dependencies
 ├── 📄 Test cases - SwagLabs.xlsx  # Manual test scenarios

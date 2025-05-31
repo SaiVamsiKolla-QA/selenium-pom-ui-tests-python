@@ -24,46 +24,77 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: "3.10" # Ensure this matches your project's needs
 
-      - name: Install dependencies
+      - name: Install system dependencies for summary
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq bc # For the Extract Test Summary step
+
+      - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r Requirements.txt
+          pip install -r Requirements.txt # Ensure this file lists allure-pytest, pytest, selenium etc.
 
-      - name: Run Tests
-        run: ./run_tests.sh
+      - name: Make run_tests.sh executable
+        run: chmod +x ./run_tests.sh
 
-      - name: Generate Allure Report
+      - name: Run Tests (and generate Allure results, but not the HTML report)
+        run: ./run_tests.sh --all-browsers --parallel-browsers -p 2 --no-report
+        # This command runs a comprehensive test suite.
+        # --no-report tells run_tests.sh to skip its internal Allure HTML generation
+        # and also skips its check for the allure CLI, as CI will handle generation.
+        # Test results will be in allure-results/parallel-multi-browser/
+
+      - name: Generate Allure Report HTML
+        id: allure_report_generation
         run: |
-          wget https://github.com/allure-framework/allure2/releases/download/2.14.0/allure-2.14.0.zip
-          unzip allure-2.14.0.zip
-          ./allure-2.14.0/bin/allure generate allure-results --clean -o allure-report
+          # Download and set up Allure CLI (consider using setup-allure action for robustness)
+          wget https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.zip # Using a more recent Allure version
+          unzip allure-2.27.0.zip
+          # The run_tests.sh script with --all-browsers --parallel-browsers outputs to allure-results/parallel-multi-browser
+          # If you run with default ./run_tests.sh --no-report, it would be allure-results/chrome
+          # Adjust the source directory if your "Run Tests" command changes
+          ./allure-2.27.0/bin/allure generate allure-results/parallel-multi-browser --clean -o allure-report
+        # Continue on error for this step if you want to extract summary even if report gen has minor issues
+        # continue-on-error: true
 
-      - name: Upload Allure Report Artifact
+      - name: Upload Allure Report Artifact for GitHub Pages
+        if: success() || failure() # Upload report even if tests fail
         uses: actions/upload-pages-artifact@v3
         with:
           path: "./allure-report"
 
       - name: Extract Test Summary
+        if: success() || failure() # Attempt to extract summary even if tests fail but report was generated
         id: summary
         run: |
           STATS_FILE="allure-report/widgets/summary.json"
+          if [ -f "$STATS_FILE" ]; then
+            TOTAL=$(jq '.statistic.total' $STATS_FILE)
+            PASSED=$(jq '.statistic.passed' $STATS_FILE)
+            FAILED=$(jq '.statistic.failed' $STATS_FILE)
+            DURATION_MS=$(jq '.time.duration' $STATS_FILE)
+            DURATION_SEC=$(echo "scale=2; $DURATION_MS / 1000" | bc)
 
-          TOTAL=$(jq '.statistic.total' $STATS_FILE)
-          PASSED=$(jq '.statistic.passed' $STATS_FILE)
-          FAILED=$(jq '.statistic.failed' $STATS_FILE)
-          DURATION_MS=$(jq '.time.duration' $STATS_FILE)
-          DURATION_SEC=$(echo "scale=2; $DURATION_MS / 1000" | bc)
-
-          echo "total=$TOTAL" >> $GITHUB_OUTPUT
-          echo "passed=$PASSED" >> $GITHUB_OUTPUT
-          echo "failed=$FAILED" >> $GITHUB_OUTPUT
-          echo "duration=$DURATION_SEC" >> $GITHUB_OUTPUT
+            echo "total=${TOTAL:-0}" >> $GITHUB_OUTPUT
+            echo "passed=${PASSED:-0}" >> $GITHUB_OUTPUT
+            echo "failed=${FAILED:-0}" >> $GITHUB_OUTPUT
+            echo "duration=${DURATION_SEC:-0.00}" >> $GITHUB_OUTPUT
+            echo "Summary extracted: Total=$TOTAL, Passed=$PASSED, Failed=$FAILED, Duration=${DURATION_SEC}s"
+          else
+            echo "Warning: summary.json not found at $STATS_FILE. Setting defaults for summary."
+            echo "total=0" >> $GITHUB_OUTPUT
+            echo "passed=0" >> $GITHUB_OUTPUT
+            echo "failed=0" >> $GITHUB_OUTPUT
+            echo "duration=0.00" >> $GITHUB_OUTPUT
+          fi
 
   deploy:
     needs: test
     runs-on: ubuntu-latest
+    # Run deploy step even if tests fail, so the report (showing failures) is deployed
+    if: always()
     permissions:
       pages: write
       id-token: write
@@ -77,6 +108,9 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: Send Allure Report Email
+        # Send email only if the test job itself succeeded or failed,
+        # not if it was cancelled or skipped. And if secrets are available.
+        if: (needs.test.result == 'success' || needs.test.result == 'failure') && (secrets.SMTP_USERNAME != '' && secrets.SMTP_PASSWORD != '')
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -84,29 +118,31 @@ jobs:
           username: ${{ secrets.SMTP_USERNAME }}
           password: ${{ secrets.SMTP_PASSWORD }}
           subject: >
-            Allure Report - ${{ github.repository }} | Event: ${{ github.event_name }}
-          to: saivamsikolla@gmail.com
-          from: GitHub Actions <saivamsikolla@gmail.com>
+            Allure Report - ${{ github.repository }} | Status: ${{ needs.test.result }} | Event: ${{ github.event_name }}
+          to: saivamsikolla@gmail.com # Consider making this a secret or input
+          from: GitHub Actions CI <${{ secrets.SMTP_USERNAME }}> # Use your SMTP username as sender
           body: |
             Hello,
 
-            The latest automation test run has completed successfully. Below are the run details:
+            The automation test run for '${{ github.repository }}' has completed.
+            Run Status: **${{ needs.test.result }}**
 
             Repository      : ${{ github.repository }}
+            Workflow        : ${{ github.workflow }}
             Event Type      : ${{ github.event_name }}
             Triggered By    : ${{ github.actor }}
             Branch          : ${{ github.ref_name }}
+            Commit          : ${{ github.sha }}
             Commit Message  : ${{ github.event.head_commit.message || github.event.pull_request.title }}
-            Commit Time     : ${{ github.event.head_commit.timestamp || github.event.pull_request.updated_at }}
 
             Test Summary:
             Total Tests     : ${{ needs.test.outputs.total }}
-            Tests Failed    : ${{ needs.test.outputs.failed }}
             Tests Passed    : ${{ needs.test.outputs.passed }}
+            Tests Failed    : ${{ needs.test.outputs.failed }}
             Duration        : ${{ needs.test.outputs.duration }} seconds
 
-            View the Allure Report:
+            View the full Allure Report:
             ${{ steps.deployment.outputs.page_url }}
 
             Regards,
-            GitHub Actions
+            GitHub Actions CI
