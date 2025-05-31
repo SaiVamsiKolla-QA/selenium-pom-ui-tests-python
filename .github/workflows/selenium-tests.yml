@@ -27,7 +27,7 @@ jobs:
 
       - name: Run tests
         run: |
-          ./run_tests.sh --all-browsers --parallel-browsers -p 2 --no-report
+          ./run_tests.sh -o
 
       - name: Generate Allure Report
         run: |
