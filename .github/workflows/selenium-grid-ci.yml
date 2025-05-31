@@ -26,6 +26,9 @@ jobs:
     permissions:
       pages: write      # Required to deploy to GitHub Pages
       id-token: write   # Required for OIDC token authentication with GitHub Pages
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     services:
       # Selenium Grid Services: Hub and browser nodes
