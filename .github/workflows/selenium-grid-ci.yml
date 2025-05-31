@@ -86,6 +86,9 @@ jobs:
             sleep $interval
           done
 
+      - name: Create Allure results directories
+        run: mkdir -p allure-results/chrome allure-results/firefox
+
       # Test Execution Steps using Docker container
       - name: Run tests on Chrome
         env:
@@ -119,24 +122,33 @@ jobs:
       - name: Generate Combined Allure Report
         if: always()
         run: |
-          # Ensure allure-results directories exist before generating report
-          mkdir -p allure-results/chrome allure-results/firefox
-          # Assuming Allure CLI is in the PATH of the myorg/test-framework:latest image
-          docker run --rm \
-            -v "${PWD}/allure-results:/app/allure-results" \
-            -v "${PWD}/allure-report:/app/allure-report" \
-            -w /app \
-            myorg/test-framework:latest \
-            allure generate allure-results/chrome allure-results/firefox --clean -o allure-report
-          echo "Allure report generated in ./allure-report"
+          # Ensure allure-results and allure-report directories exist
+          mkdir -p allure-results/chrome allure-results/firefox allure-report
+
+          # Check if any allure result files (xml or json) exist in the chrome or firefox allure-results directories
+          if ls allure-results/chrome/*{json,xml} 1> /dev/null 2>&1 || \
+             ls allure-results/firefox/*{json,xml} 1> /dev/null 2>&1; then
+            echo "Allure result files found. Generating report..."
+            docker run --rm \
+              -v "${PWD}/allure-results:/app/allure-results" \
+              -v "${PWD}/allure-report:/app/allure-report" \
+              -w /app \
+              myorg/test-framework:latest \
+              allure generate allure-results/chrome allure-results/firefox --clean -o /app/allure-report
+            echo "Allure report generated in ./allure-report"
+          else
+            echo "No Allure result files found. Creating a placeholder report."
+            echo "<html><body><h1>No test results found.</h1></body></html>" > allure-report/index.html
+          fi
           ls -la allure-report
 
       # GitHub Pages Deployment
       - name: Upload Allure report to Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
+          name: github-pages # Explicitly name the artifact
           path: allure-report # Directory containing the generated Allure report
-        if: always() # Ensure this step runs even if tests or report generation fails (though report might be empty)
+        if: always()
 
       - name: Deploy to GitHub Pages
         id: deployment # Give this step an ID to reference its outputs
