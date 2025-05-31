@@ -1,4 +1,4 @@
-name: CI – Run Tests and Publish Allure Report
+name: CI – Run Tests, Deploy Allure, and Email
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  ci:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,7 +25,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r Requirements.txt
 
-      - name: Run tests and produce Allure results
+      - name: Run pytest and collect Allure results
         run: |
           pytest --alluredir=allure-results
 
@@ -42,21 +42,38 @@ jobs:
           ALLURE_VERSION="2.27.0"
           ./allure-${ALLURE_VERSION}/bin/allure generate allure-results --clean -o allure-report
 
-      - name: Upload Allure report as artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./allure-report
-
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-
-    steps:
-      - name: Deploy Allure report to GitHub Pages
-        id: deployment
+      - name: Publish Allure report to GitHub Pages
+        id: deploy_pages
         uses: actions/deploy-pages@v4
+        with:
+          # By default, this picks up the ./allure-report folder
+          folder: allure-report
+
+      - name: Zip up Allure report for email
+        run: |
+          zip -r allure-report.zip allure-report
+
+      - name: Send email notification (with Allure ZIP attached)
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: |
+            [CI] ${{ github.repository }} – Allure Report (run on ${{ github.run_started_at }})
+          to: saivamsikolla@gmail.com
+          from: GitHub Actions CI <${{ secrets.SMTP_USERNAME }}>
+          body: |
+            Hello,
+
+            The tests have completed, and the Allure report is now live.
+
+            • **View interactive report online:**  
+              ${{ steps.deploy_pages.outputs.page_url }}
+
+            • **Download attached ZIP** to browse locally (unzips to the exact same HTML files you see on Pages).
+
+            Regards,  
+            GitHub Actions CI
+          attachments: allure-report.zip
