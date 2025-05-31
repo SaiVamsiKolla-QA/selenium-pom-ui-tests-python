@@ -54,10 +54,6 @@ jobs:
         id: deploy-pages
         uses: actions/deploy-pages@v4
 
-      - name: Zip up Allure report for email
-        run: |
-          zip -r allure-report.zip allure-report
-
       - name: Send email notification
         uses: dawidd6/action-send-mail@v3
         with:
@@ -72,12 +68,10 @@ jobs:
           body: |
             Hello,
 
-            Your Allure report is live:
+            Your Allure report is now live:
 
-            • View online: ${{ steps.deploy-pages.outputs.page_url }}
+            • View interactive report online:  
+              ${{ steps.deploy-pages.outputs.page_url }}
 
-            You can also download the attached ZIP to view the report locally.
-
-            Regards,
+            Regards,  
             GitHub Actions CI
-          attachments: allure-report.zip
