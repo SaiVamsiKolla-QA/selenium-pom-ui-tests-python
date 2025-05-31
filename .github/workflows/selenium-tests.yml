@@ -1,5 +1,6 @@
-name: CI with Dynamic Allure Report and Email
+ame: CI with Dynamic Allure Report and Email
 
+#  'on' block
 on:
   push:
     branches: [main]
@@ -14,18 +15,18 @@ jobs:
       passed: ${{ steps.summary.outputs.passed }}
       failed: ${{ steps.summary.outputs.failed }}
       duration: ${{ steps.summary.outputs.duration }}
-      commit_message_text: ${{ steps.commit_info.outputs.commit_message_text }}
+      commit_message_text: ${{ steps.commit_info.outputs.commit_message_text }} # Ensure this output is defined
 
     steps:
       - name: Check out code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Fetches all history for all branches and tags for git log
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: "3.10" # Or your project's Python version
 
       - name: Install system dependencies (jq and bc for summary)
         run: |
@@ -35,11 +36,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          if; then
-            pip install -r Requirements.txt
-          else
-            echo "Requirements.txt not found, skipping pip install -r."
-          fi
+          pip install -r Requirements.txt # Assuming Requirements.txt is in your repo root
 
       - name: Install Google Chrome
         run: |
@@ -49,6 +46,9 @@ jobs:
       - name: Install ChromeDriver
         run: |
           CHROME_VERSION=$(google-chrome --version | cut -d' ' -f3)
+          # Using the new JSON endpoints for ChromeDriver is more reliable for newer Chrome versions
+          # See: https://googlechromelabs.github.io/chrome-for-testing/
+          # This is a fallback to LATEST_RELEASE which might not always be up-to-date for the installed Chrome.
           CHROME_DRIVER_VERSION_FULL=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$(echo $CHROME_VERSION | cut -d'.' -f1,2,3))
           wget -qO chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/${CHROME_DRIVER_VERSION_FULL}/chromedriver_linux64.zip
           sudo unzip -o chromedriver_linux64.zip -d /usr/local/bin/
@@ -62,7 +62,7 @@ jobs:
 
       - name: Install GeckoDriver
         run: |
-          GECKODRIVER_VERSION=$(curl -s https://api.github.com/repos/mozilla/geckodriver/releases/latest | jq -r.tag_name)
+          GECKODRIVER_VERSION=$(curl -s https://api.github.com/repos/mozilla/geckodriver/releases/latest | jq -r .tag_name)
           wget -qO geckodriver.tar.gz https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz
           sudo tar -xzf geckodriver.tar.gz -C /usr/local/bin/
           sudo chmod +x /usr/local/bin/geckodriver
@@ -73,7 +73,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y software-properties-common apt-transport-https ca-certificates curl
           wget -q https://packages.microsoft.com/keys/microsoft.asc -O- | sudo apt-key add -
-          sudo add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main" -y
+          sudo add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main"
           sudo apt-get update
           sudo apt-get install -y microsoft-edge-stable
 
@@ -81,100 +81,57 @@ jobs:
         run: |
           EDGEDRIVER_VERSION=$(curl -s https://msedgewebdriverstorage.blob.core.windows.net/edgewebdriver/LATEST_STABLE | iconv -f utf-16le -t utf-8 | sed 's/^[ \t]*//;s/[ \t]*$//')
           wget -qO msedgedriver.zip "https://msedgedriver.azureedge.net/${EDGEDRIVER_VERSION}/edgedriver_linux64.zip"
-          sudo unzip -o msedgedriver.zip -d /usr/local/bin/
+          # Ensure the target directory exists if unzip doesn't create it (though /usr/local/bin should exist)
+          sudo unzip -o msedgedriver.zip -d /usr/local/bin/ # msedgedriver executable should be directly in this path after unzip
+          # The zip usually contains msedgedriver directly. If it's in a folder, adjust path.
+          # Example: if zip contains Driver_Notes/msedgedriver, then:
+          # sudo mv /usr/local/bin/Driver_Notes/msedgedriver /usr/local/bin/msedgedriver
           sudo chmod +x /usr/local/bin/msedgedriver
           rm msedgedriver.zip
 
       - name: Make run_tests.sh executable
-        run: |
-          if [ -f./run_tests.sh ]; then
-            chmod +x./run_tests.sh
-          else
-            echo "::error::run_tests.sh not found in the repository root."
-            exit 1
-          fi
+        run: chmod +x ./run_tests.sh # Assuming run_tests.sh is in your repo root
 
       - name: Run Tests (All browsers, parallel, no HTML report from script)
-        run: |
-          echo "Executing run_tests.sh. Consider adding 'set -ex' to the top of run_tests.sh for detailed script debugging."
-         ./run_tests.sh --all-browsers --parallel-browsers -p 2 --no-report
+        run: ./run_tests.sh --all-browsers --parallel-browsers -p 2 --no-report
+        # Test results should be in allure-results/parallel-multi-browser/
 
-      - name: Check Allure Results Directory
-        if: always()
-        run: |
-          echo "Listing contents of allure-results/parallel-multi-browser/..."
-          ls -la allure-results/parallel-multi-browser/ |
-| echo "Warning: allure-results/parallel-multi-browser/ not found or ls failed."
-
-      # Ensure correct indentation for the entire 'run' block below.
-      # Each line of the script must be indented more than the 'run:' key.
-      # Use spaces for indentation, not tabs.
       - name: Generate Allure Report HTML
         id: allure_report_generation
         run: |
+          # Recommended: Use setup-allure action
+          # - name: Setup Allure
+          #   uses: allure-framework/setup-allure@v1
+          #   with:
+          #     allure_version: 2.27.0 # Or latest
+          # ./allure generate allure-results/parallel-multi-browser --clean -o allure-report
+          
+          # Manual download method:
           ALLURE_VERSION="2.27.0" 
-          echo "Downloading Allure CLI ${ALLURE_VERSION}..."
-          wget -q https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
-          unzip -q allure-${ALLURE_VERSION}.zip
-          
-          RESULTS_DIR="allure-results/parallel-multi-browser" # This is approximately line 96
-          REPORT_DIR="allure-report"
-
-          echo "Checking Allure results directory: $RESULTS_DIR"
-          if ||; then
-            echo "::error::Allure results directory ($RESULTS_DIR) is missing or empty. Cannot generate report."
-            exit 1
-          fi
-          
-          echo "Generating Allure report from $RESULTS_DIR to $REPORT_DIR..."
-         ./allure-${ALLURE_VERSION}/bin/allure generate "$RESULTS_DIR" --clean -o "$REPORT_DIR"
-          ALLURE_EXIT_CODE=$?
-          
-          echo "Allure generate command exited with code: $ALLURE_EXIT_CODE"
-          if; then
-            echo "::error::Allure report generation failed with exit code $ALLURE_EXIT_CODE."
-            exit $ALLURE_EXIT_CODE
-          fi
-          
-          echo "Allure report generated successfully."
+          wget https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
+          unzip allure-${ALLURE_VERSION}.zip
+          ./allure-${ALLURE_VERSION}/bin/allure generate allure-results/parallel-multi-browser --clean -o allure-report
           rm allure-${ALLURE_VERSION}.zip
           rm -rf allure-${ALLURE_VERSION}
 
-      - name: Check Allure Report Directory
-        if: always()
-        run: |
-          echo "Listing contents of allure-report/..."
-          ls -R allure-report/ |
-| echo "Warning: allure-report/ not found or ls failed."
-
       - name: Upload Allure Report Artifact for GitHub Pages
-        # This condition means the step runs if the job is successful OR if it failed
-        # (but wasn't cancelled). This ensures artifacts are uploaded if possible.
-        if: success() |
-| failure() 
+        if: success() || failure()
         uses: actions/upload-pages-artifact@v3
         with:
           path: "./allure-report"
 
       - name: Extract Test Summary
-        if: success() |
-| failure() 
+        if: success() || failure()
         id: summary
         run: |
           STATS_FILE="allure-report/widgets/summary.json"
-          if; then
-            echo "::warning::Allure summary.json ($STATS_FILE) not found. Setting default summary values."
-            echo "total=0" >> $GITHUB_OUTPUT
-            echo "passed=0" >> $GITHUB_OUTPUT
-            echo "failed=0" >> $GITHUB_OUTPUT
-            echo "duration=0.00" >> $GITHUB_OUTPUT
-          else
+          if [ -f "$STATS_FILE" ]; then
             TOTAL=$(jq '.statistic.total // 0' $STATS_FILE)
             PASSED=$(jq '.statistic.passed // 0' $STATS_FILE)
             FAILED=$(jq '.statistic.failed // 0' $STATS_FILE)
             DURATION_MS=$(jq '.time.duration // 0' $STATS_FILE)
             
-            if!+(\.[0-9]+)?$ ]]; then
+            if ! [[ "$DURATION_MS" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
                 DURATION_MS=0
             fi
             DURATION_SEC=$(echo "scale=2; $DURATION_MS / 1000" | bc)
@@ -184,21 +141,30 @@ jobs:
             echo "failed=$FAILED" >> $GITHUB_OUTPUT
             echo "duration=$DURATION_SEC" >> $GITHUB_OUTPUT
             echo "Summary extracted: Total=$TOTAL, Passed=$PASSED, Failed=$FAILED, Duration=${DURATION_SEC}s"
+          else
+            echo "Warning: summary.json not found at $STATS_FILE. Setting default values."
+            echo "total=0" >> $GITHUB_OUTPUT
+            echo "passed=0" >> $GITHUB_OUTPUT
+            echo "failed=0" >> $GITHUB_OUTPUT
+            echo "duration=0.00" >> $GITHUB_OUTPUT
           fi
 
       - name: Get Commit Message for Email
         id: commit_info
         run: |
+          # Since pull_request trigger is removed, this primarily handles 'push' and 'workflow_dispatch'
           COMMIT_MSG=$(git log -1 --pretty=%B)
+          # Sanitize message for multiline and special characters if necessary for email body
           COMMIT_MSG="${COMMIT_MSG//'%'/'%25'}"
           COMMIT_MSG="${COMMIT_MSG//$'\n'/'%0A'}"
           COMMIT_MSG="${COMMIT_MSG//$'\r'/'%0D'}"
           echo "commit_message_text=$COMMIT_MSG" >> $GITHUB_OUTPUT
 
+  # User's updated 'deploy' job
   deploy:
     needs: test
     runs-on: ubuntu-latest
-    if: always()
+    if: always() # This job-level 'if' is fine as it doesn't use secrets
     permissions:
       pages: write
       id-token: write
@@ -212,21 +178,23 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: Send Allure Report Email
+        # Map secrets to environment variables for this step's 'if' condition
         env:
           SMTP_USER_EXISTS: ${{ secrets.SMTP_USERNAME }}
           SMTP_PASS_EXISTS: ${{ secrets.SMTP_PASSWORD }}
-        if: ${{ (needs.test.result == 'success' |
-| needs.test.result == 'failure') && env.SMTP_USER_EXISTS!= '' && env.SMTP_PASS_EXISTS!= '' }}
+        # Now use the env context in your if condition
+        if: ${{ (needs.test.result == 'success' || needs.test.result == 'failure') && env.SMTP_USER_EXISTS != '' && env.SMTP_PASS_EXISTS != '' }}
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 587
-          username: ${{ secrets.SMTP_USERNAME }}
-          password: ${{ secrets.SMTP_PASSWORD }}
+          username: ${{ secrets.SMTP_USERNAME }} # Still use secrets directly here for the action's input
+          password: ${{ secrets.SMTP_PASSWORD }} # Still use secrets directly here for the action's input
           subject: >
             Allure Report - ${{ github.repository }} | Status: ${{ needs.test.result }} | Event: ${{ github.event_name }}
-          to: saivamsikolla@gmail.com
-          from: GitHub Actions CI <${{ secrets.SMTP_USERNAME }}>
+          to: saivamsikolla@gmail.com # Consider making this a repository secret
+          from: GitHub Actions CI <${{ secrets.SMTP_USERNAME }}> # Use your SMTP username as the sender's email
+          # content_type: text/html # Uncomment if your body is HTML
           body: |
             Hello,
 
