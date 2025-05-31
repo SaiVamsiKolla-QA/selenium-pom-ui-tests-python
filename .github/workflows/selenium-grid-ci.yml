@@ -55,8 +55,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Pull test framework image
-        run: docker pull myorg/test-framework:latest
+      - name: Build test framework Docker image
+        run: docker build -t test-framework:latest .
 
       # Wait for the Selenium Grid to be ready before running tests
       - name: Wait for Selenium Grid
@@ -97,7 +97,7 @@ jobs:
             -w /app \
             -e BROWSER \
             -e SELENIUM_REMOTE_URL \
-            myorg/test-framework:latest \
+            test-framework:latest \
             pytest Tests/ --browser="${BROWSER}" --remote-url="${SELENIUM_REMOTE_URL}" -n 4 --alluredir=allure-results/chrome
 
       - name: Run tests on Firefox
@@ -111,7 +111,7 @@ jobs:
             -w /app \
             -e BROWSER \
             -e SELENIUM_REMOTE_URL \
-            myorg/test-framework:latest \
+            test-framework:latest \
             pytest Tests/ --browser="${BROWSER}" --remote-url="${SELENIUM_REMOTE_URL}" -n 4 --alluredir=allure-results/firefox
 
       # Allure Report Generation
@@ -129,7 +129,7 @@ jobs:
               -v "${PWD}/allure-results:/app/allure-results" \
               -v "${PWD}/allure-report:/app/allure-report" \
               -w /app \
-              myorg/test-framework:latest \
+              test-framework:latest \
               allure generate allure-results/chrome allure-results/firefox --clean -o /app/allure-report
             echo "Allure report generated in ./allure-report"
           else
