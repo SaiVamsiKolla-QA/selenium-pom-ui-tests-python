@@ -319,6 +319,32 @@ The test runner provides comprehensive metrics:
 
 ---
 
+## 🐳 Dockerized Test Framework
+
+*   **Build the Docker Image:**
+    *   A `Dockerfile` is provided to build a test framework image. This image includes Python, pytest, Allure CLI, and all necessary project dependencies.
+    *   Command: `docker build -t myorg/test-framework:latest .`
+*   **Run Local Selenium Grid:**
+    *   Use `docker-compose up -d` to start the local Selenium Grid (hub, Chrome, Firefox nodes). Refer to the "Running the Selenium Grid Locally" section for `docker-compose.yml` details.
+    *   Example: `docker-compose up -d --scale chrome=2 --scale firefox=2`
+*   **Execute Tests using Docker Image:**
+    *   Run tests using the built Docker image, connecting to your local Selenium Grid. This requires mounting the project directory and passing environment variables.
+    *   For Docker Desktop (Windows/Mac), use `host.docker.internal` in `SELENIUM_REMOTE_URL` to allow the container to reach services on the host.
+    *   Example command:
+        ```bash
+        docker run --rm \
+          -v "$(pwd):/app" \
+          -w /app \
+          -e BROWSER="chrome" \
+          -e SELENIUM_REMOTE_URL="http://host.docker.internal:4444/wd/hub" \
+          myorg/test-framework:latest \
+          pytest Tests/ --browser=\$BROWSER --remote-url=\$SELENIUM_REMOTE_URL -n 2 --alluredir=allure-results/docker_chrome
+        ```
+*   **View Reports:**
+    *   Allure reports can be generated from the `allure-results` directory created during the Dockerized test run.
+
+---
+
 ## 💻 Running the Selenium Grid Locally
 
 To run the Selenium Grid locally for distributed testing, follow these steps:

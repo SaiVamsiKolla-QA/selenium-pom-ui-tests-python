@@ -28,12 +28,13 @@ jobs:
       id-token: write   # Required for OIDC token authentication with GitHub Pages
 
     services:
+      # Selenium Grid Services: Hub and browser nodes
       selenium-hub:
-        image: selenium/hub:4.8.0-20230103 # Using a specific stable version
+        image: selenium/hub:4.18.1
         ports:
           - 4444:4444
       node-chrome:
-        image: selenium/node-chrome:4.8.0-20230103
+        image: selenium/node-chrome:4.18.1-20240224
         depends_on:
           - selenium-hub
         environment:
@@ -43,7 +44,7 @@ jobs:
           # Optional: Add SHM_SIZE if needed for Chrome stability
           # SHM_SIZE: "2g"
       node-firefox:
-        image: selenium/node-firefox:4.8.0-20230103
+        image: selenium/node-firefox:4.18.1-20240224
         depends_on:
           - selenium-hub
         environment:
@@ -54,29 +55,14 @@ jobs:
           # SHM_SIZE: "2g"
 
     steps:
+      # Initial setup steps
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10' # As per existing workflow
+      - name: Pull test framework image
+        run: docker pull myorg/test-framework:latest
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          if [ -f Requirements.txt ]; then pip install -r Requirements.txt; fi
-
-      - name: Download and unzip Allure CLI
-        env:
-          ALLURE_VERSION: "2.27.0" # Define ALLURE_VERSION
-        run: |
-          wget -qO allure.zip https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
-          unzip -q allure.zip -d ./allure-cli
-          rm allure.zip
-          echo "${PWD}/allure-cli/allure-${ALLURE_VERSION}/bin" >> $GITHUB_PATH # Add allure to PATH
-          allure --version # Verify Allure installation
-
+      # Wait for the Selenium Grid to be ready before running tests
       - name: Wait for Selenium Grid
         run: |
           echo "Waiting for Selenium Grid to be ready..."
@@ -100,34 +86,52 @@ jobs:
             sleep $interval
           done
 
-      - name: Make run_tests.sh executable
-        run: chmod +x run_tests.sh
-
+      # Test Execution Steps using Docker container
       - name: Run tests on Chrome
         env:
           SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
           BROWSER: chrome
-          ALLURE_VERSION: "2.27.0" # Ensure ALLURE_VERSION is available if needed by test script/hooks
-        run: ./run_tests.sh --alluredir=allure-results-chrome
+        run: |
+          docker run --rm \
+            --network="host" \
+            -v "${PWD}:/app" \
+            -w /app \
+            -e BROWSER \
+            -e SELENIUM_REMOTE_URL \
+            myorg/test-framework:latest \
+            pytest Tests/ --browser="${BROWSER}" --remote-url="${SELENIUM_REMOTE_URL}" -n 4 --alluredir=allure-results/chrome
 
       - name: Run tests on Firefox
         env:
           SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
           BROWSER: firefox
-          ALLURE_VERSION: "2.27.0" # Ensure ALLURE_VERSION is available if needed by test script/hooks
-        run: ./run_tests.sh --alluredir=allure-results-firefox
-
-      - name: Generate Combined Allure Report
-        env:
-          ALLURE_VERSION: "2.27.0" # Ensure ALLURE_VERSION is available for the Allure CLI
         run: |
-          echo "Generating combined Allure report from allure-results-chrome and allure-results-firefox..."
-          ls -la # List files to confirm allure-results directories are present
-          allure generate allure-results-chrome allure-results-firefox --clean -o allure-report
-          echo "Allure report generated in ./allure-report"
-          ls -la allure-report # Verify content of allure-report
-        if: always() # Ensure this step runs even if tests fail, to report on failures
+          docker run --rm \
+            --network="host" \
+            -v "${PWD}:/app" \
+            -w /app \
+            -e BROWSER \
+            -e SELENIUM_REMOTE_URL \
+            myorg/test-framework:latest \
+            pytest Tests/ --browser="${BROWSER}" --remote-url="${SELENIUM_REMOTE_URL}" -n 4 --alluredir=allure-results/firefox
 
+      # Allure Report Generation
+      - name: Generate Combined Allure Report
+        if: always()
+        run: |
+          # Ensure allure-results directories exist before generating report
+          mkdir -p allure-results/chrome allure-results/firefox
+          # Assuming Allure CLI is in the PATH of the myorg/test-framework:latest image
+          docker run --rm \
+            -v "${PWD}/allure-results:/app/allure-results" \
+            -v "${PWD}/allure-report:/app/allure-report" \
+            -w /app \
+            myorg/test-framework:latest \
+            allure generate allure-results/chrome allure-results/firefox --clean -o allure-report
+          echo "Allure report generated in ./allure-report"
+          ls -la allure-report
+
+      # GitHub Pages Deployment
       - name: Upload Allure report to Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -146,7 +150,7 @@ jobs:
           server_port: 587
           username: ${{ secrets.SMTP_USERNAME }} # SMTP username from secrets
           password: ${{ secrets.SMTP_PASSWORD }} # SMTP password from secrets
-          subject: '[CI] ${{ github.repository }} – Selenium Grid Test Report Published'
+          subject: '[CI] ${{ github.repository }} – Allure Report Published'
           to: saivamsikolla@gmail.com # TODO: Replace with your desired email or use a secret like ${{ secrets.MAIL_TO }}
           from: GitHub Actions CI Bot <${{ secrets.SMTP_FROM_EMAIL_ADDRESS }}> # Using a specific FROM email via secrets for better deliverability
           body: |
