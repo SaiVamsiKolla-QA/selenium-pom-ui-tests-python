@@ -163,7 +163,7 @@ jobs:
       - name: Send Allure Report Email
         # Send email only if the test job itself succeeded or failed (not cancelled/skipped)
         # and if SMTP secrets are likely configured (simple check if not empty).
-        if: (needs.test.result == 'success' || needs.test.result == 'failure') && ${{ secrets.SMTP_USERNAME != '' }} && ${{ secrets.SMTP_PASSWORD != '' }}
+        if: ${{ (needs.test.result == 'success' || needs.test.result == 'failure') && secrets.SMTP_USERNAME != '' && secrets.SMTP_PASSWORD != '' }}
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
