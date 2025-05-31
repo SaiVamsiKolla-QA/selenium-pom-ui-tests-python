@@ -10,154 +10,54 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    outputs:
-      total: ${{ steps.summary.outputs.total }}
-      passed: ${{ steps.summary.outputs.passed }}
-      failed: ${{ steps.summary.outputs.failed }}
-      duration: ${{ steps.summary.outputs.duration }}
-      commit_message_text: ${{ steps.commit_info.outputs.commit_message_text }}
 
     steps:
       - name: Check out code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y jq bc
-
-      - name: Install Python dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r Requirements.txt
 
-      - name: Install Google Chrome
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
-
-      - name: Install ChromeDriver
-        run: |
-          CHROME_VERSION=$(google-chrome --version | cut -d' ' -f3)
-          CHROME_DRIVER_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_VERSION%.*})
-          wget -qO chromedriver.zip https://chromedriver.storage.googleapis.com/${CHROME_DRIVER_VERSION}/chromedriver_linux64.zip
-          sudo unzip -o chromedriver.zip -d /usr/local/bin/
-          sudo chmod +x /usr/local/bin/chromedriver
-          rm chromedriver.zip
-
-      - name: Install Firefox
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y firefox
-
-      - name: Install GeckoDriver
-        run: |
-          GECKO_VERSION=$(curl -s https://api.github.com/repos/mozilla/geckodriver/releases/latest | jq -r .tag_name)
-          wget -qO geckodriver.tar.gz https://github.com/mozilla/geckodriver/releases/download/${GECKO_VERSION}/geckodriver-${GECKO_VERSION}-linux64.tar.gz
-          sudo tar -xzf geckodriver.tar.gz -C /usr/local/bin/
-          sudo chmod +x /usr/local/bin/geckodriver
-          rm geckodriver.tar.gz
-
-      - name: Install Microsoft Edge
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y software-properties-common apt-transport-https ca-certificates curl gpg
-          curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /usr/share/keyrings/microsoft.gpg > /dev/null
-          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/edge stable main" | sudo tee /etc/apt/sources.list.d/microsoft-edge.list
-          sudo apt-get update
-          sudo apt-get install -y microsoft-edge-stable
-
-      - name: Install MSEdgeDriver
-        run: |
-          EDGE_VERSION=$(curl -s https://msedgewebdriverstorage.blob.core.windows.net/edgewebdriver/LATEST_STABLE | iconv -f utf-16le -t utf-8 | sed 's/^[ \t]*//;s/[ \t]*$//')
-          wget -qO msedgedriver.zip "https://msedgedriver.azureedge.net/${EDGE_VERSION}/edgedriver_linux64.zip"
-          sudo unzip -o msedgedriver.zip -d /usr/local/bin/
-          sudo chmod +x /usr/local/bin/msedgedriver
-          rm msedgedriver.zip
-
-      - name: Make tests executable
-        run: chmod +x ./run_tests.sh
-
       - name: Run tests
-        run: ./run_tests.sh --all-browsers --parallel-browsers -p 2 --no-report
+        run: |
+          ./run_tests.sh --all-browsers --parallel-browsers -p 2 --no-report
 
-      - name: Generate Allure report
-        id: allure_report_generation
+      - name: Generate Allure Report
         run: |
           ALLURE_VERSION="2.27.0"
-          if [ -d "allure-results/parallel-multi-browser" ] && [ "$(ls -A allure-results/parallel-multi-browser)" ]; then
-            wget -qO allure.zip https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
-            unzip -q allure.zip
-            ./allure-${ALLURE_VERSION}/bin/allure generate allure-results/parallel-multi-browser --clean -o allure-report
-            rm -rf allure.zip allure-${ALLURE_VERSION}
-          else
-            echo "Error: No results to generate Allure report."
-            exit 1
-          fi
+          wget -qO allure.zip https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
+          unzip -q allure.zip
+          ./allure-${ALLURE_VERSION}/bin/allure generate allure-results --clean -o allure-report
+          rm -rf allure.zip allure-${ALLURE_VERSION}
 
-      - name: Upload Allure report
-        if: success() || failure()
+      - name: Upload Allure Report Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./allure-report
-
-      - name: Extract test summary
-        id: summary
-        if: success() || failure()
-        run: |
-          STATS_FILE="allure-report/widgets/summary.json"
-          if [ -f "$STATS_FILE" ]; then
-            TOTAL=$(jq '.statistic.total // 0' $STATS_FILE)
-            PASSED=$(jq '.statistic.passed // 0' $STATS_FILE)
-            FAILED=$(jq '.statistic.failed // 0' $STATS_FILE)
-            DURATION_MS=$(jq '.time.duration // 0' $STATS_FILE)
-            DURATION_SEC=$(echo "scale=2; $DURATION_MS / 1000" | bc)
-            echo "total=$TOTAL" >> $GITHUB_OUTPUT
-            echo "passed=$PASSED" >> $GITHUB_OUTPUT
-            echo "failed=$FAILED" >> $GITHUB_OUTPUT
-            echo "duration=$DURATION_SEC" >> $GITHUB_OUTPUT
-          else
-            echo "total=0" >> $GITHUB_OUTPUT
-            echo "passed=0" >> $GITHUB_OUTPUT
-            echo "failed=0" >> $GITHUB_OUTPUT
-            echo "duration=0" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Capture commit message
-        id: commit_info
-        run: |
-          COMMIT_MSG=$(git log -1 --pretty=%B)
-          COMMIT_MSG="${COMMIT_MSG//'%'/'%25'}"
-          COMMIT_MSG="${COMMIT_MSG//$'\n'/'%0A'}"
-          COMMIT_MSG="${COMMIT_MSG//$'\r'/'%0D'}"
-          echo "commit_message_text=$COMMIT_MSG" >> $GITHUB_OUTPUT
+          path: "./allure-report"
 
   deploy:
     needs: test
     runs-on: ubuntu-latest
-    if: always()
     permissions:
       pages: write
       id-token: write
     environment:
       name: github-pages
-      # Removed the “url:” line that referenced steps.deployment.outputs.page_url
-      # because you cannot use “steps.” at the job-definition level.
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Deploy Allure report
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
 
       - name: Send email notification
-        if: ${{ (needs.test.result == 'success' || needs.test.result == 'failure') && secrets.SMTP_USERNAME != '' && secrets.SMTP_PASSWORD != '' }}
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -165,25 +65,14 @@ jobs:
           username: ${{ secrets.SMTP_USERNAME }}
           password: ${{ secrets.SMTP_PASSWORD }}
           subject: |
-            Allure Report – ${{ github.repository }} | Status: ${{ needs.test.result }} | Event: ${{ github.event_name }}
+            Allure Report – ${{ github.repository }} | ${{ github.sha }}
           to: saivamsikolla@gmail.com
           from: GitHub Actions CI <${{ secrets.SMTP_USERNAME }}>
           body: |
             Hello,
 
-            The automation test run for '${{ github.repository }}' has completed.
-            Run Status     : ${{ needs.test.result }}
-            Branch         : ${{ github.ref_name }}
-            Commit         : https://github.com/${{ github.repository }}/commit/${{ github.sha }}
-            Commit Message : ${{ needs.test.outputs.commit_message_text }}
-
-            Test Summary:
-            • Total     : ${{ needs.test.outputs.total }}
-            • Passed    : ${{ needs.test.outputs.passed }}
-            • Failed    : ${{ needs.test.outputs.failed }}
-            • Duration  : ${{ needs.test.outputs.duration }} seconds
-
-            View full Allure report: ${{ steps.deployment.outputs.page_url }}
+            The automation test run for '${{ github.repository }}' has finished.
+            View the full Allure report here: ${{ steps.deployment.outputs.page_url }}
 
             Regards,
             GitHub Actions CI
