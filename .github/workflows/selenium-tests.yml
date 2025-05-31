@@ -1,153 +1,7 @@
-name: CI with Dynamic Allure Report and Email
-
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-  workflow_dispatch:
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    outputs:
-      total: ${{ steps.summary.outputs.total }}
-      passed: ${{ steps.summary.outputs.passed }}
-      failed: ${{ steps.summary.outputs.failed }}
-      duration: ${{ steps.summary.outputs.duration }}
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10" # Or your project's Python version
-
-      - name: Install system dependencies (jq and bc for summary)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y jq bc
-
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r Requirements.txt
-
-      - name: Install Google Chrome
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
-
-      - name: Install ChromeDriver
-        run: |
-          CHROME_DRIVER_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$(google-chrome --version | cut -d' ' -f3 | cut -d'.' -f1,2,3))
-          wget -qO- https://chromedriver.storage.googleapis.com/${CHROME_DRIVER_VERSION}/chromedriver_linux64.zip | sudo unzip -o - -d /usr/local/bin/
-          sudo chmod +x /usr/local/bin/chromedriver
-
-      - name: Install Firefox
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y firefox
-
-      - name: Install GeckoDriver
-        run: |
-          GECKODRIVER_VERSION=$(curl -s https://api.github.com/repos/mozilla/geckodriver/releases/latest | jq -r .tag_name)
-          wget -qO- https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz | sudo tar -xz -C /usr/local/bin/
-          sudo chmod +x /usr/local/bin/geckodriver
-
-      - name: Install Microsoft Edge
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y software-properties-common
-          wget -q https://packages.microsoft.com/keys/microsoft.asc -O- | sudo apt-key add -
-          sudo add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main"
-          sudo apt-get install -y microsoft-edge-stable
-
-      - name: Install MSEdgeDriver
-        run: |
-          EDGE_VERSION=$(microsoft-edge --version | cut -d' ' -f3)
-          # Construct the download URL (this might need adjustment based on actual MS Edge Driver release patterns)
-          # Assuming a pattern like LATEST_RELEASE_MAJOR.MINOR.BUILD_amd64
-          # This part is tricky as Microsoft's Edge Driver versioning/download URL isn't as straightforward as Chrome's.
-          # Using a known compatible version for now, or a script to fetch the latest compatible one.
-          # For simplicity in this step, let's assume we know a version or use a more robust script if available.
-          # This is a placeholder for a more robust version detection and download.
-          # A more robust way would be to query: https://msedgewebdriverstorage.blob.core.windows.net/edgewebdriver/LATEST_STABLE
-          EDGEDRIVER_VERSION=$(curl -s https://msedgewebdriverstorage.blob.core.windows.net/edgewebdriver/LATEST_STABLE | iconv -f utf-16le -t utf-8 | sed 's/^[ 	]*//;s/[ 	]*$//')
-          wget -qO- "https://msedgewebdriverstorage.blob.core.windows.net/edgewebdriver?comp=get&version=${EDGEDRIVER_VERSION}&platform=linux64&filename=msedgedriver-${EDGEDRIVER_VERSION}-linux64.zip" | sudo unzip -o - -d /usr/local/bin/
-          sudo mv /usr/local/bin/msedgedriver /usr/local/bin/msedgedriver_temp # Edge driver might be in a subfolder
-          sudo mv /usr/local/bin/*/msedgedriver /usr/local/bin/msedgedriver || sudo mv /usr/local/bin/msedgedriver_temp /usr/local/bin/msedgedriver # handles if it was or wasn't in subfolder
-          sudo chmod +x /usr/local/bin/msedgedriver
-
-      - name: Make run_tests.sh executable
-        run: chmod +x ./run_tests.sh
-
-      - name: Run Tests (All browsers, parallel, no HTML report from script)
-        run: ./run_tests.sh --all-browsers --parallel-browsers -p 2 --no-report
-        # This command runs a comprehensive test suite.
-        # --no-report tells run_tests.sh to skip its internal Allure HTML generation
-        # and also skips its check for the allure CLI, as this CI job will handle generation.
-        # Test results will be in allure-results/parallel-multi-browser/ by default with these flags.
-
-      - name: Generate Allure Report HTML
-        id: allure_report_generation
-        run: |
-          # Download and set up Allure CLI (Consider using setup-allure action for more robustness)
-          # Using a more recent Allure version for better features and compatibility.
-          ALLURE_VERSION="2.27.0" # You can update this to the latest stable Allure version
-          wget https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
-          unzip allure-${ALLURE_VERSION}.zip
-          # The run_tests.sh script with --all-browsers --parallel-browsers outputs to allure-results/parallel-multi-browser
-          # Ensure this path matches the output directory of your run_tests.sh command in the previous step.
-          ./allure-${ALLURE_VERSION}/bin/allure generate allure-results/parallel-multi-browser --clean -o allure-report
-        # continue-on-error: true # Uncomment if you want the workflow to proceed even if report generation fails
-
-      - name: Upload Allure Report Artifact for GitHub Pages
-        if: success() || failure() # Upload report even if tests fail, as long as this step runs
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: "./allure-report"
-
-      - name: Extract Test Summary
-        if: success() || failure() # Attempt to extract summary even if tests fail but report was generated
-        id: summary
-        run: |
-          STATS_FILE="allure-report/widgets/summary.json"
-          if [ -f "$STATS_FILE" ]; then
-            TOTAL=$(jq '.statistic.total' $STATS_FILE)
-            PASSED=$(jq '.statistic.passed' $STATS_FILE)
-            FAILED=$(jq '.statistic.failed' $STATS_FILE)
-            # Handle cases where values might be null if no tests ran or summary.json is malformed
-            TOTAL=${TOTAL:-0}
-            PASSED=${PASSED:-0}
-            FAILED=${FAILED:-0}
-            
-            DURATION_MS=$(jq '.time.duration' $STATS_FILE)
-            DURATION_MS=${DURATION_MS:-0} # Default to 0 if null
-            DURATION_SEC=$(echo "scale=2; $DURATION_MS / 1000" | bc)
-
-            echo "total=$TOTAL" >> $GITHUB_OUTPUT
-            echo "passed=$PASSED" >> $GITHUB_OUTPUT
-            echo "failed=$FAILED" >> $GITHUB_OUTPUT
-            echo "duration=$DURATION_SEC" >> $GITHUB_OUTPUT
-            echo "Summary extracted: Total=$TOTAL, Passed=$PASSED, Failed=$FAILED, Duration=${DURATION_SEC}s"
-          else
-            echo "Warning: summary.json not found at $STATS_FILE. Setting default values for summary outputs."
-            echo "total=0" >> $GITHUB_OUTPUT
-            echo "passed=0" >> $GITHUB_OUTPUT
-            echo "failed=0" >> $GITHUB_OUTPUT
-            echo "duration=0.00" >> $GITHUB_OUTPUT
-          fi
-
-  deploy:
+deploy:
     needs: test
     runs-on: ubuntu-latest
-    # Run deploy step always after 'test' job finishes, regardless of its outcome,
-    # so the report (potentially showing failures) is deployed.
-    if: always()
+    if: always() # This job-level 'if' is fine as it doesn't use secrets
     permissions:
       pages: write
       id-token: write
@@ -161,19 +15,23 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: Send Allure Report Email
-        # Send email only if the test job itself succeeded or failed (not cancelled/skipped)
-        # and if SMTP secrets are likely configured (simple check if not empty).
-        if: ${{ (needs.test.result == 'success' || needs.test.result == 'failure') && secrets.SMTP_USERNAME != '' && secrets.SMTP_PASSWORD != '' }}
+        # Map secrets to environment variables for this step
+        env:
+          SMTP_USER_EXISTS: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASS_EXISTS: ${{ secrets.SMTP_PASSWORD }}
+        # Now use the env context in your if condition
+        if: ${{ (needs.test.result == 'success' |
+| needs.test.result == 'failure') && env.SMTP_USER_EXISTS!= '' && env.SMTP_PASS_EXISTS!= '' }}
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 587
-          username: ${{ secrets.SMTP_USERNAME }}
-          password: ${{ secrets.SMTP_PASSWORD }}
+          username: ${{ secrets.SMTP_USERNAME }} # Still use secrets directly here for the action's input
+          password: ${{ secrets.SMTP_PASSWORD }} # Still use secrets directly here for the action's input
           subject: >
             Allure Report - ${{ github.repository }} | Status: ${{ needs.test.result }} | Event: ${{ github.event_name }}
-          to: saivamsikolla@gmail.com # Consider making this a repository secret or workflow input for flexibility
-          from: GitHub Actions CI <${{ secrets.SMTP_USERNAME }}> # Use your SMTP username as the sender's email
+          to: saivamsikolla@gmail.com
+          from: GitHub Actions CI <${{ secrets.SMTP_USERNAME }}>
           body: |
             Hello,
 
@@ -188,7 +46,7 @@ jobs:
             Triggered By    : ${{ github.actor }}
             Branch          : ${{ github.ref_name }}
             Commit          : https://github.com/${{ github.repository }}/commit/${{ github.sha }}
-            Commit Message  : ${{needs.test.outputs.commit_message || github.event.head_commit.message || github.event.pull_request.title }}
+            Commit Message  : ${{ needs.test.outputs.commit_message_text }}
 
             Test Summary:
             Total Tests     : ${{ needs.test.outputs.total }}
