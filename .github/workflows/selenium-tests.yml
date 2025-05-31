@@ -39,6 +39,7 @@ jobs:
 
       - name: Generate Allure HTML report
         run: |
+          ALLURE_VERSION="2.27.0"
           ./allure-${ALLURE_VERSION}/bin/allure generate allure-results --clean -o allure-report
 
       - name: Upload Allure report as artifact
