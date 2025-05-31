@@ -20,7 +20,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # For full git history if needed by commit message logic
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -100,12 +100,15 @@ jobs:
          ./run_tests.sh --all-browsers --parallel-browsers -p 2 --no-report
 
       - name: Check Allure Results Directory
-        if: always() # Run this even if previous steps fail to see the state
+        if: always()
         run: |
           echo "Listing contents of allure-results/parallel-multi-browser/..."
           ls -la allure-results/parallel-multi-browser/ |
 | echo "Warning: allure-results/parallel-multi-browser/ not found or ls failed."
 
+      # Ensure correct indentation for the entire 'run' block below.
+      # Each line of the script must be indented more than the 'run:' key.
+      # Use spaces for indentation, not tabs.
       - name: Generate Allure Report HTML
         id: allure_report_generation
         run: |
@@ -114,7 +117,7 @@ jobs:
           wget -q https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
           unzip -q allure-${ALLURE_VERSION}.zip
           
-          RESULTS_DIR="allure-results/parallel-multi-browser"
+          RESULTS_DIR="allure-results/parallel-multi-browser" # This is approximately line 96
           REPORT_DIR="allure-report"
 
           echo "Checking Allure results directory: $RESULTS_DIR"
@@ -138,22 +141,24 @@ jobs:
           rm -rf allure-${ALLURE_VERSION}
 
       - name: Check Allure Report Directory
-        if: always() # Run this even if previous steps fail
+        if: always()
         run: |
           echo "Listing contents of allure-report/..."
           ls -R allure-report/ |
 | echo "Warning: allure-report/ not found or ls failed."
 
       - name: Upload Allure Report Artifact for GitHub Pages
+        # This condition means the step runs if the job is successful OR if it failed
+        # (but wasn't cancelled). This ensures artifacts are uploaded if possible.
         if: success() |
-| failure() # Upload if job reaches this point, even if prior steps failed but job didn't halt
+| failure() 
         uses: actions/upload-pages-artifact@v3
         with:
           path: "./allure-report"
 
       - name: Extract Test Summary
         if: success() |
-| failure() # Extract if job reaches this point
+| failure() 
         id: summary
         run: |
           STATS_FILE="allure-report/widgets/summary.json"
