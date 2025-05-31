@@ -66,14 +66,12 @@ jobs:
           to: saivamsikolla@gmail.com
           from: GitHub Actions CI <${{ secrets.SMTP_USERNAME }}>
           body: |
-            [![CI with Report](https://github.com/SaiVamsiKolla-QA/selenium-pom-ui-tests-python/actions/workflows/selenium-tests.yml/badge.svg)](https://github.com/SaiVamsiKolla-QA/selenium-pom-ui-tests-python/actions/workflows/selenium-tests.yml)
-
             Hello,
 
             Your Allure report is now live:
 
-            • View interactive report online:  
+            • View interactive report online:
               ${{ steps.deploy-pages.outputs.page_url }}
 
-            Regards,  
+            Regards,
             GitHub Actions CI
