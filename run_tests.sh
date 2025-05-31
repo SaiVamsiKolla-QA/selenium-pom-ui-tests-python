@@ -31,8 +31,8 @@ PARALLEL_BROWSERS=false    # Whether to run browsers simultaneously
 
 # Browser configurations
 # Note: Safari often has issues with parallel execution, consider excluding from PARALLEL_BROWSER_LIST
-BROWSER_LIST=("chrome" "firefox" "edge" "safari")              # All available browsers
-PARALLEL_BROWSER_LIST=("chrome" "firefox" "edge" "safari")     # Browsers safe for parallel execution
+BROWSER_LIST=("chrome" "firefox" "edge") # "safari")              # All available browsers
+PARALLEL_BROWSER_LIST=("chrome" "firefox" "edge") # "safari")     # Browsers safe for parallel execution
 
 # --- COLOR CODES FOR TERMINAL OUTPUT ---
 # ANSI color codes for better readability in terminal
