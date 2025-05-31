@@ -9,6 +9,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     services:
       selenium-hub:
         image: selenium/hub:4.8.0-20230103
@@ -42,6 +45,13 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f Requirements.txt ]; then pip install -r Requirements.txt; fi
         pip install selenium # Ensure selenium is installed even if not in Requirements.txt for now
+    - name: Download and unzip Allure CLI
+      run: |
+        ALLURE_VERSION="2.27.0"
+        wget -qO allure.zip               https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
+        unzip -q allure.zip
+        rm allure.zip
+        echo "./allure-${ALLURE_VERSION}/bin" >> $GITHUB_PATH # Add allure to PATH
     - name: Wait for Selenium Grid
       run: |
         echo "Waiting for Selenium Grid to be ready..."
@@ -71,9 +81,55 @@ jobs:
       env:
         SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
         BROWSER: chrome
-      run: ./run_tests.sh
+      run: ./run_tests.sh --alluredir=allure-results/chrome
     - name: Run tests on Firefox
       env:
         SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
         BROWSER: firefox
-      run: ./run_tests.sh
+      run: ./run_tests.sh --alluredir=allure-results/firefox
+    - name: Generate Allure report for Chrome
+      run: |
+        allure generate allure-results/chrome --clean -o allure-report/chrome
+      if: always() # Ensure this step runs even if tests fail
+    - name: Generate Allure report for Firefox
+      run: |
+        allure generate allure-results/firefox --clean -o allure-report/firefox
+      if: always() # Ensure this step runs even if tests fail
+    - name: Create combined Allure report directory
+      run: mkdir -p combined-allure
+    - name: Move Chrome report to combined directory
+      run: mv allure-report/chrome combined-allure/chrome
+      if: always()
+    - name: Move Firefox report to combined directory
+      run: mv allure-report/firefox combined-allure/firefox
+      if: always()
+    - name: Upload Allure report as Pages artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: combined-allure
+      if: always()
+    - name: Deploy to GitHub Pages
+      id: deploy-pages
+      uses: actions/deploy-pages@v4
+      if: always()
+    - name: Send email notification
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.gmail.com
+        server_port: 587
+        username: ${{ secrets.SMTP_USERNAME }}
+        password: ${{ secrets.SMTP_PASSWORD }}
+        subject: '[CI] ${{ github.repository }} – Allure Report Published'
+        to: saivamsikolla@gmail.com # Replace with your email or use a secret
+        from: GitHub Actions CI <${{ secrets.SMTP_USERNAME }}> # Replace with your email or use a secret
+        body: |
+          Hello,
+
+          Your Allure report for ${{ github.repository }} is now live:
+
+          • View interactive report online:
+            ${{ steps.deploy-pages.outputs.page_url }}
+
+          Regards,
+          GitHub Actions CI
+      if: always()
