@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-import shutil
+
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 

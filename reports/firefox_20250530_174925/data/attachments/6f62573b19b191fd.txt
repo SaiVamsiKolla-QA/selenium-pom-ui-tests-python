@@ -1,0 +1,1 @@
+Screenshot saved to: /Users/vamsikolla/Desktop/Projects/Demos/selenium-pom-ui-tests-python/assets/screenshots/firefox/Step_01_Login_locked_out_user_2025-05-30_17-48-32.png

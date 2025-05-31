@@ -1,11 +1,12 @@
 import os
+import allure # Make sure allure is imported
 import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
-from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.edge.options import Options as EdgeOptions
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.safari.options import Options as SafariOptions
-from Utility.utility import Utility
+
 
 def pytest_addoption(parser):
     """
@@ -20,8 +21,27 @@ def browser_name(request):
     """
         Session-scoped fixture that retrieves the browser name from command line arguments.
         The 'session' scope means this value is calculated once per test session.
+        It now includes an Allure step to log the selected browser.
     """
-    return request.config.getoption("--browser").lower()
+    # Retrieve the browser name from command line option
+    selected_browser = request.config.getoption("--browser").lower()
+
+    # Add an Allure step to make the selected browser visible in the fixture's execution
+    with allure.step(f"Session Browser: {selected_browser.capitalize()}"):
+        # This step will appear under 'browser_name' in the Allure report's "Set up" section
+        pass # The step itself doesn't need to do more; its title is the key
+
+    return selected_browser # Return the actual browser name for other fixtures/tests
+
+@pytest.fixture(scope="function")
+def allure_browser_param_fixture(browser_name):
+    """
+    Adds the browser name as a dynamic parameter to Allure reports for each test.
+    This helps identify the browser used for a specific test in combined reports.
+    """
+    if browser_name:
+        allure.dynamic.parameter("Browser Used", browser_name.capitalize())
+    return browser_name
 
 @pytest.fixture
 def base_url():
@@ -30,11 +50,8 @@ def base_url():
 @pytest.fixture(scope='function')
 def driver(browser_name):
     """Initialize and configure the WebDriver based on browser selection"""
-
-    # Detect if running in CI environment
     is_ci = os.environ.get('CI') == 'true' or os.environ.get('GITHUB_ACTIONS') == 'true'
 
-    # Chrome browser configuration
     if browser_name == "chrome":
         options = ChromeOptions()
         if is_ci:
@@ -44,36 +61,27 @@ def driver(browser_name):
             options.add_argument("--disable-gpu")
             options.add_argument("--window-size=1920,1080")
         driver = webdriver.Chrome(options=options)
-    # Firefox browser configuration
     elif browser_name == "firefox":
         options = FirefoxOptions()
         if is_ci:
             options.add_argument("--headless")
         driver = webdriver.Firefox(options=options)
-    # Microsoft Edge browser configuration
     elif browser_name == "edge":
         options = EdgeOptions()
         if is_ci:
             options.add_argument("--headless")
         driver = webdriver.Edge(options=options)
-    # Safari browser configuration
     elif browser_name == "safari":
-        options = SafariOptions()
-        if is_ci:
-            options.add_argument("--headless")
+        # Safari options for headless are not standard/widely supported like others
+        # It usually runs headful, WebDriver will use default Safari settings.
+        # If running in CI without a GUI, Safari might not work or require specific setup.
         driver = webdriver.Safari()
-    # Handle unsupported browser requests
     else:
         raise ValueError(f"Unsupported browser: {browser_name}")
 
-
-    # Create driver
     driver.maximize_window()
     driver.implicitly_wait(10)
-
     yield driver
-
-    # Cleanup
     try:
         driver.quit()
     except Exception as e:

@@ -1,5 +1,5 @@
 import allure
-import pytest
+import pytest # Make sure pytest is imported
 
 from Pages.inventory_page import ProductPage
 from Pages.login_page import LoginPage
@@ -16,8 +16,12 @@ from Utility.utility import Utility
 ])
 @allure.epic("Swag Labs E-commerce")
 @allure.feature("Swag Login Feature")
-def test_swag_login(driver, username, password, base_url):
+# Add 'allure_browser_param_fixture' to the function's argument list:
+def test_swag_login(driver, username, password, base_url, allure_browser_param_fixture):
     """Test login functionality and verify the product page with screenshot attachments."""
+    # By adding 'allure_browser_param_fixture' as an argument, pytest runs the fixture.
+    # The fixture then calls: allure.dynamic.parameter("Browser Used", browser_name.capitalize())
+
     allure.dynamic.story(f"User {username} logs in")
     login_page = LoginPage(driver)
     product_page = ProductPage(driver)

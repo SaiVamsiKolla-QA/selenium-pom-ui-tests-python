@@ -1,0 +1,3 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"Test login functionality and verify the product page with screenshot attachments.","1185","test_swag_login[standard_user-secret_sauce]","Tests","Fri May 30 20:21:10 MDT 2025","passed","Fri May 30 20:21:12 MDT 2025","","test_swag_login","",""
+"Test login functionality and verify the product page with screenshot attachments.","1252","test_swag_login[visual_user-secret_sauce]","Tests","Fri May 30 20:21:10 MDT 2025","passed","Fri May 30 20:21:11 MDT 2025","","test_swag_login","",""

@@ -1,0 +1,1 @@
+[{"uid":"47790c659674f2ab","name":"test_swag_login[visual_user-secret_sauce]","time":{"start":1748656860644,"stop":1748656861992,"duration":1348},"status":"passed","severity":"normal"},{"uid":"4d173db9f12a4576","name":"test_swag_login[standard_user-secret_sauce]","time":{"start":1748656861636,"stop":1748656862830,"duration":1194},"status":"passed","severity":"normal"}]

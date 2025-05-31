@@ -1,0 +1,1 @@
+Screenshot saved to: /Users/vamsikolla/Desktop/Projects/Demos/selenium-pom-ui-tests-python/assets/screenshots/firefox/Step_01_Login_error_user_2025-05-30_18-06-28.png

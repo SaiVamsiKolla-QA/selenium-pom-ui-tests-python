@@ -1,8 +1,3 @@
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
-
-
 class BasePage:
     """
     Base class for all page objects with common utilities and methods.
