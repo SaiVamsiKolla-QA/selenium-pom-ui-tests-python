@@ -35,7 +35,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r Requirements.txt
+          pip install -r requirements.txt
 
       - name: Install Google Chrome
         run: |
@@ -67,9 +67,9 @@ jobs:
       - name: Install Microsoft Edge
         run: |
           sudo apt-get update
-          sudo apt-get install -y software-properties-common apt-transport-https ca-certificates curl
-          wget -q https://packages.microsoft.com/keys/microsoft.asc -O- | sudo apt-key add -
-          sudo add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main"
+          sudo apt-get install -y software-properties-common apt-transport-https ca-certificates curl gpg
+          curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /usr/share/keyrings/microsoft.gpg > /dev/null
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/edge stable main" | sudo tee /etc/apt/sources.list.d/microsoft-edge.list
           sudo apt-get update
           sudo apt-get install -y microsoft-edge-stable
 
@@ -104,15 +104,6 @@ jobs:
 
       - name: Upload Allure Report Artifact for GitHub Pages
         if: success() || failure()
-        run: |
-          if [ -d "./allure-report" ]; then
-            echo "Uploading Allure report artifact..."
-            tar -czf allure-report.tgz -C ./ allure-report
-          else
-            echo "Warning: allure-report directory not found. Skipping upload."
-            mkdir empty-report && tar -czf allure-report.tgz -C ./ empty-report
-          fi
-        # Upload artifact step
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./allure-report
