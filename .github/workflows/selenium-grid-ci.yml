@@ -35,9 +35,7 @@ jobs:
           - 4444:4444
       node-chrome:
         image: selenium/node-chrome:4.18.1-20240224
-        depends_on:
-          - selenium-hub
-        environment:
+        env:
           SE_EVENT_BUS_HOST: selenium-hub
           SE_EVENT_BUS_PUBLISH_PORT: 4442
           SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
@@ -45,9 +43,7 @@ jobs:
           # SHM_SIZE: "2g"
       node-firefox:
         image: selenium/node-firefox:4.18.1-20240224
-        depends_on:
-          - selenium-hub
-        environment:
+        env:
           SE_EVENT_BUS_HOST: selenium-hub
           SE_EVENT_BUS_PUBLISH_PORT: 4442
           SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
