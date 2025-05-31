@@ -2,16 +2,14 @@ name: CI with Dynamic Allure Report and Email
 
 on:
   push:
-    branches: [main]                      # ← from Basic CI Test :contentReference[oaicite:0]{index=0}
+    branches: [main]
   pull_request:
-    branches: [main]                      # ← added to match Basic CI Test :contentReference[oaicite:1]{index=1}
+    branches: [main]
   workflow_dispatch:
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
-    # Declare outputs so that deploy/email steps can reference them
     outputs:
       total: ${{ steps.summary.outputs.total }}
       passed: ${{ steps.summary.outputs.passed }}
@@ -20,57 +18,54 @@ jobs:
       commit_message_text: ${{ steps.commit_info.outputs.commit_message_text }}
 
     steps:
-      - name: Check out code                      # ← from Basic CI Test :contentReference[oaicite:3]{index=3}
+      - name: Check out code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0                           # ← needed later to get full commit history :contentReference[oaicite:4]{index=4}
+          fetch-depth: 0
 
-      - name: Set up Python                        # ← from both workflows
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
 
-      - name: Install system dependencies (jq & bc)
+      - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y jq bc            # ← only in Dynamic workflow for summary parsing :contentReference[oaicite:6]{index=6}
+          sudo apt-get install -y jq bc
 
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r Requirements.txt           # ← mirrors “Install dependencies” from Basic CI, but split out 
+          pip install -r Requirements.txt
 
-      # ─────────────────────────────────────────────────────────────────────────────
-      # Install browsers and WebDrivers (multi‑browser support)
-      # ─────────────────────────────────────────────────────────────────────────────
-      - name: Install Google Chrome                 # ← from Dynamic workflow :contentReference[oaicite:8]{index=8}
+      - name: Install Google Chrome
         run: |
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable
 
-      - name: Install ChromeDriver                  # ← from Dynamic workflow :contentReference[oaicite:9]{index=9}
+      - name: Install ChromeDriver
         run: |
           CHROME_VERSION=$(google-chrome --version | cut -d' ' -f3)
-          CHROME_DRIVER_VERSION_FULL=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$(echo $CHROME_VERSION | cut -d'.' -f1,2,3))
-          wget -qO chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/${CHROME_DRIVER_VERSION_FULL}/chromedriver_linux64.zip
-          sudo unzip -o chromedriver_linux64.zip -d /usr/local/bin/
+          CHROME_DRIVER_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_VERSION%.*})
+          wget -qO chromedriver.zip https://chromedriver.storage.googleapis.com/${CHROME_DRIVER_VERSION}/chromedriver_linux64.zip
+          sudo unzip -o chromedriver.zip -d /usr/local/bin/
           sudo chmod +x /usr/local/bin/chromedriver
-          rm chromedriver_linux64.zip
+          rm chromedriver.zip
 
-      - name: Install Firefox                        # ← from Dynamic workflow :contentReference[oaicite:10]{index=10}
+      - name: Install Firefox
         run: |
           sudo apt-get update
           sudo apt-get install -y firefox
 
-      - name: Install GeckoDriver                    # ← from Dynamic workflow :contentReference[oaicite:11]{index=11}
+      - name: Install GeckoDriver
         run: |
-          GECKODRIVER_VERSION=$(curl -s https://api.github.com/repos/mozilla/geckodriver/releases/latest | jq -r .tag_name)
-          wget -qO geckodriver.tar.gz https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz
+          GECKO_VERSION=$(curl -s https://api.github.com/repos/mozilla/geckodriver/releases/latest | jq -r .tag_name)
+          wget -qO geckodriver.tar.gz https://github.com/mozilla/geckodriver/releases/download/${GECKO_VERSION}/geckodriver-${GECKO_VERSION}-linux64.tar.gz
           sudo tar -xzf geckodriver.tar.gz -C /usr/local/bin/
           sudo chmod +x /usr/local/bin/geckodriver
           rm geckodriver.tar.gz
 
-      - name: Install Microsoft Edge                  # ← from Dynamic workflow :contentReference[oaicite:12]{index=12}
+      - name: Install Microsoft Edge
         run: |
           sudo apt-get update
           sudo apt-get install -y software-properties-common apt-transport-https ca-certificates curl gpg
@@ -79,46 +74,43 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y microsoft-edge-stable
 
-      - name: Install MSEdgeDriver                     # ← from Dynamic workflow :contentReference[oaicite:13]{index=13}
+      - name: Install MSEdgeDriver
         run: |
-          EDGEDRIVER_VERSION=$(curl -s https://msedgewebdriverstorage.blob.core.windows.net/edgewebdriver/LATEST_STABLE | iconv -f utf-16le -t utf-8 | sed 's/^[ \t]*//;s/[ \t]*$//')
-          wget -qO msedgedriver.zip "https://msedgedriver.azureedge.net/${EDGEDRIVER_VERSION}/edgedriver_linux64.zip"
+          EDGE_VERSION=$(curl -s https://msedgewebdriverstorage.blob.core.windows.net/edgewebdriver/LATEST_STABLE | iconv -f utf-16le -t utf-8 | sed 's/^[ \t]*//;s/[ \t]*$//')
+          wget -qO msedgedriver.zip "https://msedgedriver.azureedge.net/${EDGE_VERSION}/edgedriver_linux64.zip"
           sudo unzip -o msedgedriver.zip -d /usr/local/bin/
           sudo chmod +x /usr/local/bin/msedgedriver
           rm msedgedriver.zip
 
-      # ─────────────────────────────────────────────────────────────────────────────
-      - name: Make run_tests.sh executable             # ← from Dynamic workflow :contentReference[oaicite:14]{index=14}
+      - name: Make tests executable
         run: chmod +x ./run_tests.sh
 
-      - name: Run Tests (All browsers, parallel, no HTML report from script)
-        run: ./run_tests.sh --all-browsers --parallel-browsers -p 2 --no-report   # ← from Dynamic workflow :contentReference[oaicite:15]{index=15}
+      - name: Run tests
+        run: ./run_tests.sh --all-browsers --parallel-browsers -p 2 --no-report
 
-      # ─────────────────────────────────────────────────────────────────────────────
-      - name: Generate Allure Report HTML               # ← from Dynamic workflow :contentReference[oaicite:16]{index=16}
+      - name: Generate Allure report
         id: allure_report_generation
         run: |
           ALLURE_VERSION="2.27.0"
           if [ -d "allure-results/parallel-multi-browser" ] && [ "$(ls -A allure-results/parallel-multi-browser)" ]; then
-            wget https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
-            unzip allure-${ALLURE_VERSION}.zip
-            ./allure-${ALLURE_VERSION}/bin/allure generate allure-results/parallel-multi-browser --clean -o allure‑report
-            rm allure-${ALLURE_VERSION}.zip
-            rm -rf allure-${ALLURE_VERSION}
+            wget -qO allure.zip https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
+            unzip -q allure.zip
+            ./allure-${ALLURE_VERSION}/bin/allure generate allure-results/parallel-multi-browser --clean -o allure-report
+            rm -rf allure.zip allure-${ALLURE_VERSION}
           else
-            echo "Error: allure-results/parallel-multi-browser is missing or empty. Ensure tests generate valid results."
+            echo "Error: No results to generate Allure report."
             exit 1
           fi
 
-      - name: Upload Allure Report Artifact             # ← mirrors Basic CI’s “Upload Allure Report Artifact” but with condition :contentReference[oaicite:17]{index=17}
+      - name: Upload Allure report
         if: success() || failure()
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "./allure‑report"
+          path: ./allure-report
 
-      - name: Extract Test Summary                      # ← from Dynamic workflow :contentReference[oaicite:18]{index=18}
-        if: success() || failure()
+      - name: Extract test summary
         id: summary
+        if: success() || failure()
         run: |
           STATS_FILE="allure-report/widgets/summary.json"
           if [ -f "$STATS_FILE" ]; then
@@ -126,24 +118,19 @@ jobs:
             PASSED=$(jq '.statistic.passed // 0' $STATS_FILE)
             FAILED=$(jq '.statistic.failed // 0' $STATS_FILE)
             DURATION_MS=$(jq '.time.duration // 0' $STATS_FILE)
-            if ! [[ "$DURATION_MS" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-              DURATION_MS=0
-            fi
             DURATION_SEC=$(echo "scale=2; $DURATION_MS / 1000" | bc)
             echo "total=$TOTAL" >> $GITHUB_OUTPUT
             echo "passed=$PASSED" >> $GITHUB_OUTPUT
             echo "failed=$FAILED" >> $GITHUB_OUTPUT
             echo "duration=$DURATION_SEC" >> $GITHUB_OUTPUT
-            echo "Summary extracted: Total=$TOTAL, Passed=$PASSED, Failed=$FAILED, Duration=${DURATION_SEC}s"
           else
-            echo "Warning: summary.json not found at $STATS_FILE. Setting default values."
             echo "total=0" >> $GITHUB_OUTPUT
             echo "passed=0" >> $GITHUB_OUTPUT
             echo "failed=0" >> $GITHUB_OUTPUT
-            echo "duration=0.00" >> $GITHUB_OUTPUT
+            echo "duration=0" >> $GITHUB_OUTPUT
           fi
 
-      - name: Get Commit Message for Email               # ← from Dynamic workflow :contentReference[oaicite:19]{index=19}
+      - name: Capture commit message
         id: commit_info
         run: |
           COMMIT_MSG=$(git log -1 --pretty=%B)
@@ -155,7 +142,7 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
-    if: always()                                  # ← ensure deploy (and email) run even if tests fail :contentReference[oaicite:20]{index=20}
+    if: always()
     permissions:
       pages: write
       id-token: write
@@ -164,22 +151,22 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Deploy to GitHub Pages                   # ← from both workflows
+      - name: Deploy Allure report
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Send Allure Report Email                  # ← from Dynamic workflow :contentReference[oaicite:22]{index=22}
-        env:
-          SMTP_USER_EXISTS: ${{ secrets.SMTP_USERNAME }}
-          SMTP_PASS_EXISTS: ${{ secrets.SMTP_PASSWORD }}
-        if: ${{ (needs.test.result == 'success' || needs.test.result == 'failure') && env.SMTP_USER_EXISTS != '' && env.SMTP_PASS_EXISTS != '' }}
+      - name: Send email notification
+        if: >
+          (needs.test.result == 'success' || needs.test.result == 'failure')
+          && secrets.SMTP_USERNAME
+          && secrets.SMTP_PASSWORD
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 587
           username: ${{ secrets.SMTP_USERNAME }}
           password: ${{ secrets.SMTP_PASSWORD }}
-          subject: >
+          subject: |
             Allure Report – ${{ github.repository }} | Status: ${{ needs.test.result }} | Event: ${{ github.event_name }}
           to: saivamsikolla@gmail.com
           from: GitHub Actions CI <${{ secrets.SMTP_USERNAME }}>
@@ -187,26 +174,18 @@ jobs:
             Hello,
 
             The automation test run for '${{ github.repository }}' has completed.
-            Run Status: **${{ needs.test.result }}**
-
-            Repository      : ${{ github.repository }}
-            Workflow        : ${{ github.workflow }}
-            Run ID          : ${{ github.run_id }}
-            Run Number      : ${{ github.run_number }}
-            Event Type      : ${{ github.event_name }}
-            Triggered By    : ${{ github.actor }}
-            Branch          : ${{ github.ref_name }}
-            Commit          : https://github.com/${{ github.repository }}/commit/${{ github.sha }}
-            Commit Message  : ${{ needs.test.outputs.commit_message_text }}
+            Run Status     : ${{ needs.test.result }}
+            Branch         : ${{ github.ref_name }}
+            Commit         : https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+            Commit Message : ${{ needs.test.outputs.commit_message_text }}
 
             Test Summary:
-            Total Tests     : ${{ needs.test.outputs.total }}
-            Tests Passed    : ${{ needs.test.outputs.passed }}
-            Tests Failed    : ${{ needs.test.outputs.failed }}
-            Duration        : ${{ needs.test.outputs.duration }} seconds
+            • Total     : ${{ needs.test.outputs.total }}
+            • Passed    : ${{ needs.test.outputs.passed }}
+            • Failed    : ${{ needs.test.outputs.failed }}
+            • Duration  : ${{ needs.test.outputs.duration }} seconds
 
-            View the full Allure Report:
-            ${{ steps.deployment.outputs.page_url }}
+            View full Allure report: ${{ steps.deployment.outputs.page_url }}
 
             Regards,
             GitHub Actions CI
