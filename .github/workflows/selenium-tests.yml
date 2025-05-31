@@ -28,13 +28,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r Requirements.txt
 
-      - name: Make run_tests.sh executable
-        run: chmod +x ./run_tests.sh
-
-      - name: Run tests across all browsers in parallel
-        run: |
-          ./run_tests.sh --all-browsers --parallel-browsers -n 5 -p 4 -o
-
       - name: Download and unzip Allure CLI
         run: |
           ALLURE_VERSION="2.27.0"
@@ -42,6 +35,13 @@ jobs:
             https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
           unzip -q allure.zip
           rm allure.zip
+
+      - name: Make run_tests.sh executable
+        run: chmod +x ./run_tests.sh
+
+      - name: Run tests across all browsers in parallel
+        run: |
+          ./run_tests.sh --all-browsers --parallel-browsers -n 5 -p 4 -o
 
       - name: Generate Allure HTML report
         run: |
@@ -76,5 +76,5 @@ jobs:
             • View interactive report online:
               ${{ steps.deploy-pages.outputs.page_url }}
 
-            Regards,
+            Regards,  
             GitHub Actions CI
