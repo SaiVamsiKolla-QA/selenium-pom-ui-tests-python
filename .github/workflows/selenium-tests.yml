@@ -1,4 +1,4 @@
-name: CI – Run Tests and Publish Allure Report
+name: CI – Run Tests and  Allure Report
 
 on:
   push:
@@ -28,6 +28,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r Requirements.txt
 
+      - name: Run pytest and collect Allure results
+        run: |
+          pytest --alluredir=allure-results
+
       - name: Download and unzip Allure CLI
         run: |
           ALLURE_VERSION="2.27.0"
@@ -35,18 +39,10 @@ jobs:
             https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
           unzip -q allure.zip
           rm allure.zip
-          sudo mv allure-${ALLURE_VERSION} /opt/allure
-          sudo ln -s /opt/allure/bin/allure /usr/local/bin/allure
-
-      - name: Make run_tests.sh executable
-        run: chmod +x ./run_tests.sh
-
-      - name: Run tests across all browsers in parallel
-        run: |
-          ./run_tests.sh --all-browsers --parallel-browsers -n 5 -p 4 -o
 
       - name: Generate Allure HTML report
         run: |
+          ALLURE_VERSION="2.27.0"
           ./allure-${ALLURE_VERSION}/bin/allure generate allure-results --clean -o allure-report
 
       - name: Upload Allure report as Pages artifact
