@@ -84,18 +84,36 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Debug repository content
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "\nDirectory contents:"
+          ls -la
+          echo "\nRepository root contents:"
+          ls -la $GITHUB_WORKSPACE
+          echo "\nSearching for requirements files:"
+          find . -name "requirements.txt" -o -name "pyproject.toml"
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
           cache: 'pip'
           cache-dependency-path: |
+            requirements.txt
             **/requirements.txt
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f "requirements.txt" ]; then
+            echo "Found requirements.txt in root directory"
+            pip install -r requirements.txt
+          else
+            echo "Error: requirements.txt not found!"
+            exit 1
+          fi
 
       - name: Build test framework image
         run: |
