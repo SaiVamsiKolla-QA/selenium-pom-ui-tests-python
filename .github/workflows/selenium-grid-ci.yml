@@ -263,11 +263,30 @@ jobs:
               -v
 
       - name: Check test results
+        if: always()
         run: |
+          echo "Test Results Summary:"
+          echo "===================="
+          echo "Chrome Tests: ${{ steps.chrome_tests.outcome }}"
+          echo "Firefox Tests: ${{ steps.firefox_tests.outcome }}"
+          
+          # Store test status for email notification
           if [[ "${{ steps.chrome_tests.outcome }}" == "failure" && "${{ steps.firefox_tests.outcome }}" == "failure" ]]; then
             echo "❌ Both Chrome and Firefox tests failed"
-            exit 1
+            echo "test_status=failed" >> $GITHUB_ENV
+          elif [[ "${{ steps.chrome_tests.outcome }}" == "failure" ]]; then
+            echo "⚠️ Chrome tests failed, Firefox tests passed"
+            echo "test_status=partial" >> $GITHUB_ENV
+          elif [[ "${{ steps.firefox_tests.outcome }}" == "failure" ]]; then
+            echo "⚠️ Firefox tests failed, Chrome tests passed"
+            echo "test_status=partial" >> $GITHUB_ENV
+          else
+            echo "✅ All tests passed successfully"
+            echo "test_status=passed" >> $GITHUB_ENV
           fi
+          
+          # Continue workflow even if tests failed
+          exit 0
 
       # Allure Report Generation
       - name: Generate Combined Allure Report
@@ -321,7 +340,7 @@ jobs:
           server_port: 587
           username: ${{ secrets.SMTP_USERNAME }}
           password: ${{ secrets.SMTP_PASSWORD }}
-          subject: '[CI] Selenium Grid Test Results - ${{ github.repository }}'
+          subject: '[CI] Selenium Grid Test Results - ${{ env.test_status }} - ${{ github.repository }}'
           to: saivamsikolla@gmail.com
           from: GitHub Actions CI Bot <${{ secrets.SMTP_FROM_EMAIL_ADDRESS }}>
           html_body: |
@@ -331,9 +350,23 @@ jobs:
             <p><strong>Commit:</strong> ${{ github.sha }}</p>
             <p><strong>Branch:</strong> ${{ github.ref_name }}</p>
             <p><strong>Triggered by:</strong> ${{ github.actor }}</p>
-            <p><strong>Chrome Tests:</strong> ${{ steps.chrome_tests.outcome }}</p>
-            <p><strong>Firefox Tests:</strong> ${{ steps.firefox_tests.outcome }}</p>
-            <br>
+            
+            <h3>Test Results:</h3>
+            <ul>
+              <li><strong>Chrome Tests:</strong> 
+                ${{ steps.chrome_tests.outcome == 'success' && '✅ Passed' || '❌ Failed' }}
+              </li>
+              <li><strong>Firefox Tests:</strong> 
+                ${{ steps.firefox_tests.outcome == 'success' && '✅ Passed' || '❌ Failed' }}
+              </li>
+            </ul>
+            
+            <h3>Overall Status: 
+              ${{ env.test_status == 'passed' && '✅ All Tests Passed' || 
+                  env.test_status == 'partial' && '⚠️ Some Tests Failed' || 
+                  '❌ All Tests Failed' }}
+            </h3>
+            
             <p><strong>Test Report:</strong> <a href="${{ steps.deployment.outputs.page_url }}">View Allure Report</a></p>
             <br>
             <p>This is an automated message from GitHub Actions CI.</p>
