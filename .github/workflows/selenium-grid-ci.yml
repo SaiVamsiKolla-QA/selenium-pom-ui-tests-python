@@ -212,6 +212,7 @@ jobs:
         env:
           SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
           BROWSER: chrome
+          PYTHONPATH: /usr/src/app
         run: |
           echo "Running Chrome tests..."
           docker run --rm \
@@ -221,6 +222,7 @@ jobs:
             -w /usr/src/app \
             -e BROWSER \
             -e SELENIUM_REMOTE_URL \
+            -e PYTHONPATH \
             -e PYTHONUNBUFFERED=1 \
             test-framework:latest \
             pytest Tests/ \
@@ -238,6 +240,7 @@ jobs:
         env:
           SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
           BROWSER: firefox
+          PYTHONPATH: /usr/src/app
         run: |
           echo "Running Firefox tests..."
           docker run --rm \
@@ -247,6 +250,7 @@ jobs:
             -w /usr/src/app \
             -e BROWSER \
             -e SELENIUM_REMOTE_URL \
+            -e PYTHONPATH \
             -e PYTHONUNBUFFERED=1 \
             test-framework:latest \
             pytest Tests/ \
