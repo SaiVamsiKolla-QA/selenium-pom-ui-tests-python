@@ -13,9 +13,9 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /usr/src/app
 COPY . /usr/src/app/
 
-# 4. Run pip install --upgrade pip and then pip install -r Requirements.txt plus pytest, pytest-xdist, allure-pytest, python-dotenv, and selenium
+# 4. Run pip install --upgrade pip and then pip install -r requirements.txt plus pytest, pytest-xdist, allure-pytest, python-dotenv, and selenium
 RUN pip install --upgrade pip
-RUN pip install -r Requirements.txt pytest pytest-xdist allure-pytest python-dotenv selenium
+RUN pip install -r requirements.txt pytest pytest-xdist allure-pytest python-dotenv selenium
 
 # 5. Download Allure CLI version 2.27.0, unzip it under /opt/allure, and create a symlink so allure is on the PATH
 RUN wget https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.zip -P /tmp && \

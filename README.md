@@ -67,7 +67,7 @@ selenium-pom-ui-tests-python/
 ├── 📄 pytest.ini                  # Pytest configuration
 ├── 📄 Dockerfile                  # Container configuration
 ├── 📄 docker-compose.yml          # Selenium Grid orchestration
-├── 📄 Requirements.txt            # Python dependencies
+├── 📄 requirements.txt            # Python dependencies
 ├── 📄 setup_check.py             # Environment verification
 ├── 📄 cleanup.py                 # Browser process cleanup
 └── 📄 README.md                   # Project documentation
@@ -92,7 +92,7 @@ selenium-pom-ui-tests-python/
    python -m venv .venv
    source .venv/bin/activate  # Linux/macOS
    .venv\Scripts\activate     # Windows
-   pip install -r Requirements.txt
+   pip install -r requirements.txt
    ```
 
 3. **Run Tests**
