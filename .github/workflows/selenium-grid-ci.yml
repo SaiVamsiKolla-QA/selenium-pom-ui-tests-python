@@ -20,12 +20,24 @@ on:
     branches: [ main ]
   workflow_dispatch: # Allows manual triggering of the workflow
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   ci:
     runs-on: ubuntu-latest
-    permissions:
-      pages: write      # Required to deploy to GitHub Pages
-      id-token: write   # Required for OIDC token authentication with GitHub Pages
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     services:
       # Selenium Grid Services: Hub and browser nodes
@@ -39,8 +51,11 @@ jobs:
           SE_EVENT_BUS_HOST: selenium-hub
           SE_EVENT_BUS_PUBLISH_PORT: 4442
           SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
-          # Optional: Add SHM_SIZE if needed for Chrome stability
-          # SHM_SIZE: "2g"
+          SE_NODE_MAX_SESSIONS: 4
+          SE_NODE_OVERRIDE_MAX_SESSIONS: true
+        shm_size: 2g
+        volumes:
+          - /dev/shm:/dev/shm
       node-firefox:
         image: selenium/node-firefox:4.18.1-20240224
         env:
@@ -100,14 +115,36 @@ jobs:
           SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
           BROWSER: chrome
         run: |
+          # Wait for Chrome node to be ready
+          timeout=60
+          while ! curl -s http://localhost:4444/status | jq -e '.value.nodes[] | select(.stereotypes[] | contains("chrome"))'; do
+            echo "Waiting for Chrome node to be ready..."
+            sleep 5
+            timeout=$((timeout - 5))
+            if [ $timeout -le 0 ]; then
+              echo "Timeout waiting for Chrome node"
+              exit 1
+            fi
+          done
+
+          # Run tests with increased timeouts and stability options
           docker run --rm \
             --network="host" \
+            --shm-size=2g \
             -v "${PWD}:/usr/src/app" \
             -w /usr/src/app \
             -e BROWSER \
             -e SELENIUM_REMOTE_URL \
+            -e PYTHONUNBUFFERED=1 \
             test-framework:latest \
-            pytest Tests/ --browser="${BROWSER}" --remote-url="${SELENIUM_REMOTE_URL}" -n 4 --alluredir=allure-results/chrome
+            pytest Tests/ \
+              --browser="${BROWSER}" \
+              --remote-url="${SELENIUM_REMOTE_URL}" \
+              -n 4 \
+              --alluredir=allure-results/chrome \
+              --reruns 2 \
+              --reruns-delay 1 \
+              -v
 
       - name: Run tests on Firefox
         env:
@@ -148,12 +185,14 @@ jobs:
           ls -la allure-report
 
       # GitHub Pages Deployment
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
       - name: Upload Allure report to Pages artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: github-pages # Explicitly name the artifact
-          path: allure-report # Directory containing the generated Allure report
+        uses: actions/upload-pages-artifact@v3
         if: always()
+        with:
+          path: allure-report
 
       - name: Deploy to GitHub Pages
         id: deployment
