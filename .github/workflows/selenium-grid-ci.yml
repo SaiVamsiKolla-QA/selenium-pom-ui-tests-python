@@ -47,23 +47,22 @@ jobs:
           - 4444:4444
       node-chrome:
         image: selenium/node-chrome:4.18.1-20240224
+        options: --shm-size="2g"
         env:
           SE_EVENT_BUS_HOST: selenium-hub
           SE_EVENT_BUS_PUBLISH_PORT: 4442
           SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
           SE_NODE_MAX_SESSIONS: 4
           SE_NODE_OVERRIDE_MAX_SESSIONS: true
-        shm_size: 2g
-        volumes:
-          - /dev/shm:/dev/shm
       node-firefox:
         image: selenium/node-firefox:4.18.1-20240224
+        options: --shm-size="2g"
         env:
           SE_EVENT_BUS_HOST: selenium-hub
           SE_EVENT_BUS_PUBLISH_PORT: 4442
           SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
-          # Optional: Add SHM_SIZE if needed for Firefox stability
-          # SHM_SIZE: "2g"
+          SE_NODE_MAX_SESSIONS: 4
+          SE_NODE_OVERRIDE_MAX_SESSIONS: true
 
     steps:
       # Initial setup steps
