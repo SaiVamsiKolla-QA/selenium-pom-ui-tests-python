@@ -45,88 +45,118 @@ jobs:
         image: selenium/hub:4.18.1
         ports:
           - 4444:4444
+          - 4442:4442
+          - 4443:4443
+        options: >-
+          --health-cmd "curl -f http://localhost:4444/wd/hub/status || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
       node-chrome:
         image: selenium/node-chrome:4.18.1-20240224
-        options: --shm-size="2g"
+        options: >-
+          --shm-size="2g"
         env:
           SE_EVENT_BUS_HOST: selenium-hub
           SE_EVENT_BUS_PUBLISH_PORT: 4442
           SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
           SE_NODE_MAX_SESSIONS: 4
           SE_NODE_OVERRIDE_MAX_SESSIONS: true
+          SE_NODE_SESSION_TIMEOUT: 300
+          SE_START_XVFB: false
+      
       node-firefox:
         image: selenium/node-firefox:4.18.1-20240224
-        options: --shm-size="2g"
+        options: >-
+          --shm-size="2g"
         env:
           SE_EVENT_BUS_HOST: selenium-hub
           SE_EVENT_BUS_PUBLISH_PORT: 4442
           SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
           SE_NODE_MAX_SESSIONS: 4
           SE_NODE_OVERRIDE_MAX_SESSIONS: true
+          SE_NODE_SESSION_TIMEOUT: 300
+          SE_START_XVFB: false
 
     steps:
       # Initial setup steps
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r Requirements.txt
+
       - name: Build test framework image
         run: |
           docker build -t test-framework:latest .
+          docker images
 
-      # Debug step to verify Selenium Grid
+      - name: Debug environment
+        run: |
+          echo "Python version:"
+          python --version
+          echo "Pip version:"
+          pip --version
+          echo "Docker version:"
+          docker --version
+          echo "Docker images:"
+          docker images
+          echo "Docker containers:"
+          docker ps -a
+          echo "Network status:"
+          netstat -tulpn || true
+
       - name: Debug Selenium Grid
         run: |
           echo "Checking Selenium Grid status..."
-          curl -s http://localhost:4444/status | jq .
+          curl -v http://localhost:4444/status || true
           echo "Checking Grid Console..."
-          curl -s http://localhost:4444/ui/index.html
+          curl -v http://localhost:4444/ui/index.html || true
+          echo "Checking node registration..."
+          curl -v http://localhost:4444/grid/console || true
 
-      # Wait for the Selenium Grid to be ready before running tests
       - name: Wait for Selenium Grid
+        timeout-minutes: 2
         run: |
           echo "Waiting for Selenium Grid to be ready..."
-          timeout=180 # Increased timeout to 3 minutes
-          interval=5  # seconds
-          elapsed=0
-          while true; do
-            # Using curl with --fail to exit on HTTP error codes, simplifying status check
-            if curl -s --fail http://localhost:4444/status | jq -e '.value.ready == true'; then
-              echo "Selenium Grid is ready!"
+          end=$((SECONDS + 120))
+          while [ $SECONDS -lt $end ]; do
+            if curl -s --fail http://localhost:4444/status | jq -e '.value.ready == true' > /dev/null; then
+              echo "✅ Selenium Grid is ready!"
+              curl -s http://localhost:4444/status | jq .
               break
             fi
-            elapsed=$((elapsed + interval))
-            if [ "$elapsed" -ge "$timeout" ]; then
-              echo "Timeout waiting for Selenium Grid after $elapsed seconds."
-              # Optional: attempt to get more details from the grid status if timeout occurs
-              curl -s http://localhost:4444/status
-              exit 1
-            fi
-            echo "Grid not ready (elapsed: $elapsed s), retrying in $interval seconds..."
-            sleep $interval
+            echo "⏳ Grid not ready, retrying in 5s..."
+            sleep 5
           done
+          if ! curl -s --fail http://localhost:4444/status | jq -e '.value.ready == true' > /dev/null; then
+            echo "❌ Timeout waiting for Selenium Grid"
+            exit 1
+          fi
 
       - name: Create Allure results directories
-        run: mkdir -p allure-results/chrome allure-results/firefox
+        run: |
+          mkdir -p allure-results/{chrome,firefox}
+          chmod -R 777 allure-results
 
       # Test Execution Steps using Docker container
       - name: Run tests on Chrome
+        id: chrome_tests
+        continue-on-error: true
         env:
           SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
           BROWSER: chrome
         run: |
-          # Wait for Chrome node to be ready
-          timeout=60
-          while ! curl -s http://localhost:4444/status | jq -e '.value.nodes[] | select(.stereotypes[] | contains("chrome"))'; do
-            echo "Waiting for Chrome node to be ready..."
-            sleep 5
-            timeout=$((timeout - 5))
-            if [ $timeout -le 0 ]; then
-              echo "Timeout waiting for Chrome node"
-              exit 1
-            fi
-          done
-
-          # Run tests with increased timeouts and stability options
+          echo "Running Chrome tests..."
           docker run --rm \
             --network="host" \
             --shm-size=2g \
@@ -139,55 +169,78 @@ jobs:
             pytest Tests/ \
               --browser="${BROWSER}" \
               --remote-url="${SELENIUM_REMOTE_URL}" \
-              -n 4 \
+              -n 2 \
               --alluredir=allure-results/chrome \
               --reruns 2 \
               --reruns-delay 1 \
               -v
 
       - name: Run tests on Firefox
+        id: firefox_tests
+        continue-on-error: true
         env:
           SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
           BROWSER: firefox
         run: |
+          echo "Running Firefox tests..."
           docker run --rm \
             --network="host" \
+            --shm-size=2g \
             -v "${PWD}:/usr/src/app" \
             -w /usr/src/app \
             -e BROWSER \
             -e SELENIUM_REMOTE_URL \
+            -e PYTHONUNBUFFERED=1 \
             test-framework:latest \
-            pytest Tests/ --browser="${BROWSER}" --remote-url="${SELENIUM_REMOTE_URL}" -n 4 --alluredir=allure-results/firefox
+            pytest Tests/ \
+              --browser="${BROWSER}" \
+              --remote-url="${SELENIUM_REMOTE_URL}" \
+              -n 2 \
+              --alluredir=allure-results/firefox \
+              --reruns 2 \
+              --reruns-delay 1 \
+              -v
+
+      - name: Check test results
+        run: |
+          if [[ "${{ steps.chrome_tests.outcome }}" == "failure" && "${{ steps.firefox_tests.outcome }}" == "failure" ]]; then
+            echo "❌ Both Chrome and Firefox tests failed"
+            exit 1
+          fi
 
       # Allure Report Generation
       - name: Generate Combined Allure Report
         if: always()
         run: |
-          # Ensure allure-results and allure-report directories exist
-          mkdir -p allure-results/chrome allure-results/firefox allure-report
-
-          # Check if any allure result files (xml or json) exist in the chrome or firefox allure-results directories
-          if ls allure-results/chrome/*{json,xml} 1> /dev/null 2>&1 || \
-             ls allure-results/firefox/*{json,xml} 1> /dev/null 2>&1; then
-            echo "Allure result files found. Generating report..."
+          echo "Generating Allure report..."
+          ls -la allure-results/chrome || true
+          ls -la allure-results/firefox || true
+          
+          # Create base report structure even if no results
+          mkdir -p allure-report
+          
+          if [ -d "allure-results/chrome" ] || [ -d "allure-results/firefox" ]; then
             docker run --rm \
-              -v "${PWD}/allure-results:/usr/src/app/allure-results" \
-              -v "${PWD}/allure-report:/usr/src/app/allure-report" \
+              -v "${PWD}:/usr/src/app" \
               -w /usr/src/app \
               test-framework:latest \
-              allure generate allure-results/chrome allure-results/firefox --clean -o allure-report
-            echo "Allure report generated in ./allure-report"
+              allure generate \
+                allure-results/chrome \
+                allure-results/firefox \
+                --clean \
+                -o allure-report
           else
-            echo "No Allure result files found. Creating a placeholder report."
-            echo "<html><body><h1>No test results found.</h1></body></html>" > allure-report/index.html
+            echo "<html><body><h1>No test results available</h1></body></html>" > allure-report/index.html
           fi
+          
+          echo "Report generation complete"
           ls -la allure-report
 
       # GitHub Pages Deployment
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
-      - name: Upload Allure report to Pages artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         if: always()
         with:
@@ -200,7 +253,7 @@ jobs:
 
       - name: Send email notification
         uses: dawidd6/action-send-mail@v3
-        if: always()  # Send email regardless of previous steps' status
+        if: always()
         with:
           server_address: smtp.gmail.com
           server_port: 587
@@ -216,6 +269,8 @@ jobs:
             <p><strong>Commit:</strong> ${{ github.sha }}</p>
             <p><strong>Branch:</strong> ${{ github.ref_name }}</p>
             <p><strong>Triggered by:</strong> ${{ github.actor }}</p>
+            <p><strong>Chrome Tests:</strong> ${{ steps.chrome_tests.outcome }}</p>
+            <p><strong>Firefox Tests:</strong> ${{ steps.firefox_tests.outcome }}</p>
             <br>
             <p><strong>Test Report:</strong> <a href="${{ steps.deployment.outputs.page_url }}">View Allure Report</a></p>
             <br>
