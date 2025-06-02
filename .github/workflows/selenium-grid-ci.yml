@@ -273,19 +273,20 @@ jobs:
           ls -la allure-results/chrome || true
           ls -la allure-results/firefox || true
           
+          # Install Allure CLI
+          curl -o allure-2.24.1.tgz -OLs https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline/2.24.1/allure-commandline-2.24.1.tgz
+          tar -zxvf allure-2.24.1.tgz
+          export PATH=$PATH:$PWD/allure-2.24.1/bin
+          
           # Create base report structure even if no results
           mkdir -p allure-report
           
           if [ -d "allure-results/chrome" ] || [ -d "allure-results/firefox" ]; then
-            docker run --rm \
-              -v "${PWD}:/usr/src/app" \
-              -w /usr/src/app \
-              test-framework:latest \
-              allure generate \
-                allure-results/chrome \
-                allure-results/firefox \
-                --clean \
-                -o allure-report
+            allure generate \
+              allure-results/chrome \
+              allure-results/firefox \
+              --clean \
+              -o allure-report
           else
             echo "<html><body><h1>No test results available</h1></body></html>" > allure-report/index.html
           fi
