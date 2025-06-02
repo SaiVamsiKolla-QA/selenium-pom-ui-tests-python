@@ -55,8 +55,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Pull test framework image
-        run: docker pull myorg/test-framework:latest
+      - name: Build test framework image
+        run: |
+          docker build -t test-framework:latest .
+
+      # Debug step to verify Selenium Grid
+      - name: Debug Selenium Grid
+        run: |
+          echo "Checking Selenium Grid status..."
+          curl -s http://localhost:4444/status | jq .
+          echo "Checking Grid Console..."
+          curl -s http://localhost:4444/ui/index.html
 
       # Wait for the Selenium Grid to be ready before running tests
       - name: Wait for Selenium Grid
@@ -93,11 +102,11 @@ jobs:
         run: |
           docker run --rm \
             --network="host" \
-            -v "${PWD}:/app" \
-            -w /app \
+            -v "${PWD}:/usr/src/app" \
+            -w /usr/src/app \
             -e BROWSER \
             -e SELENIUM_REMOTE_URL \
-            myorg/test-framework:latest \
+            test-framework:latest \
             pytest Tests/ --browser="${BROWSER}" --remote-url="${SELENIUM_REMOTE_URL}" -n 4 --alluredir=allure-results/chrome
 
       - name: Run tests on Firefox
@@ -107,11 +116,11 @@ jobs:
         run: |
           docker run --rm \
             --network="host" \
-            -v "${PWD}:/app" \
-            -w /app \
+            -v "${PWD}:/usr/src/app" \
+            -w /usr/src/app \
             -e BROWSER \
             -e SELENIUM_REMOTE_URL \
-            myorg/test-framework:latest \
+            test-framework:latest \
             pytest Tests/ --browser="${BROWSER}" --remote-url="${SELENIUM_REMOTE_URL}" -n 4 --alluredir=allure-results/firefox
 
       # Allure Report Generation
@@ -126,11 +135,11 @@ jobs:
              ls allure-results/firefox/*{json,xml} 1> /dev/null 2>&1; then
             echo "Allure result files found. Generating report..."
             docker run --rm \
-              -v "${PWD}/allure-results:/app/allure-results" \
-              -v "${PWD}/allure-report:/app/allure-report" \
-              -w /app \
-              myorg/test-framework:latest \
-              allure generate allure-results/chrome allure-results/firefox --clean -o /app/allure-report
+              -v "${PWD}/allure-results:/usr/src/app/allure-results" \
+              -v "${PWD}/allure-report:/usr/src/app/allure-report" \
+              -w /usr/src/app \
+              test-framework:latest \
+              allure generate allure-results/chrome allure-results/firefox --clean -o allure-report
             echo "Allure report generated in ./allure-report"
           else
             echo "No Allure result files found. Creating a placeholder report."
@@ -147,31 +156,29 @@ jobs:
         if: always()
 
       - name: Deploy to GitHub Pages
-        id: deployment # Give this step an ID to reference its outputs
+        id: deployment
         uses: actions/deploy-pages@v4
-        if: always() # Ensure this step runs to attempt deployment or report deployment status
+        if: always()
 
       - name: Send email notification
         uses: dawidd6/action-send-mail@v3
+        if: always()  # Send email regardless of previous steps' status
         with:
           server_address: smtp.gmail.com
           server_port: 587
-          username: ${{ secrets.SMTP_USERNAME }} # SMTP username from secrets
-          password: ${{ secrets.SMTP_PASSWORD }} # SMTP password from secrets
-          subject: '[CI] ${{ github.repository }} – Allure Report Published'
-          to: saivamsikolla@gmail.com # TODO: Replace with your desired email or use a secret like ${{ secrets.MAIL_TO }}
-          from: GitHub Actions CI Bot <${{ secrets.SMTP_FROM_EMAIL_ADDRESS }}> # Using a specific FROM email via secrets for better deliverability
-          body: |
-            Hello,
-
-            The Selenium Grid CI workflow for ${{ github.repository }} has completed.
-
-            • Workflow Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            • Commit: ${{ github.sha }}
-
-            View the Allure test report online:
-            ${{ steps.deployment.outputs.page_url }}
-
-            Regards,
-            GitHub Actions CI Bot
-        if: always() # Send email regardless of workflow status to report completion/failure
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: '[CI] Selenium Grid Test Results - ${{ github.repository }}'
+          to: saivamsikolla@gmail.com
+          from: GitHub Actions CI Bot <${{ secrets.SMTP_FROM_EMAIL_ADDRESS }}>
+          html_body: |
+            <h2>Selenium Grid Test Results</h2>
+            <p><strong>Repository:</strong> ${{ github.repository }}</p>
+            <p><strong>Workflow Run:</strong> <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}">View Run Details</a></p>
+            <p><strong>Commit:</strong> ${{ github.sha }}</p>
+            <p><strong>Branch:</strong> ${{ github.ref_name }}</p>
+            <p><strong>Triggered by:</strong> ${{ github.actor }}</p>
+            <br>
+            <p><strong>Test Report:</strong> <a href="${{ steps.deployment.outputs.page_url }}">View Allure Report</a></p>
+            <br>
+            <p>This is an automated message from GitHub Actions CI.</p>

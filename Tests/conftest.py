@@ -6,6 +6,7 @@ from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.safari.options import Options as SafariOptions
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 
 def pytest_addoption(parser):
@@ -49,70 +50,91 @@ def allure_browser_param_fixture(browser_name):
 def base_url():
     return "https://www.saucedemo.com/"
 
+def get_browser_options(browser_name, is_ci=False):
+    """Helper function to get browser-specific options"""
+    options = None
+    if browser_name == "chrome":
+        options = ChromeOptions()
+        if is_ci:
+            options.add_argument("--headless=new")
+            options.add_argument("--no-sandbox")
+            options.add_argument("--disable-dev-shm-usage")
+            options.add_argument("--disable-gpu")
+            options.add_argument("--window-size=1920,1080")
+    elif browser_name == "firefox":
+        options = FirefoxOptions()
+        if is_ci:
+            options.add_argument("--headless")
+    elif browser_name == "edge":
+        options = EdgeOptions()
+        if is_ci:
+            options.add_argument("--headless")
+    elif browser_name == "safari":
+        options = SafariOptions()
+    
+    return options
+
 @pytest.fixture(scope='function')
-def driver(browser_name, request): # Added 'request'
-    """Initialize and configure the WebDriver based on browser selection and remote URL."""
+def driver(browser_name, request):
+    """Initialize WebDriver with enhanced remote execution support"""
     remote_url = request.config.getoption("--remote-url")
     is_ci = os.environ.get('CI') == 'true' or os.environ.get('GITHUB_ACTIONS') == 'true'
-
-    if remote_url:
-        # Logic for remote driver
-        if browser_name == "chrome":
-            options = ChromeOptions()
-            if is_ci: # Apply CI options if needed for remote too
-                options.add_argument("--headless")
-                options.add_argument("--no-sandbox")
-                options.add_argument("--disable-dev-shm-usage")
-                options.add_argument("--disable-gpu")
-                options.add_argument("--window-size=1920,1080")
-        elif browser_name == "firefox":
-            options = FirefoxOptions()
-            if is_ci:
-                options.add_argument("--headless")
-        elif browser_name == "edge":
-            options = EdgeOptions()
-            if is_ci:
-                options.add_argument("--headless")
-        elif browser_name == "safari":
-            options = SafariOptions()
-            # Safari doesn't typically support headless in the same way
-            # and might not need specific CI options for remote execution.
-        else:
-            raise ValueError(f"Unsupported browser for remote execution: {browser_name}")
-
-        # Common capabilities/options setup for remote driver can go here if needed
-        # For Selenium 4, desired_capabilities is deprecated for Remote. Options object is preferred.
-        driver = webdriver.Remote(command_executor=remote_url, options=options)
-    else:
-        # Existing local driver logic
-        if browser_name == "chrome":
-            options = ChromeOptions()
-            if is_ci:
-                options.add_argument("--headless")
-                options.add_argument("--no-sandbox")
-                options.add_argument("--disable-dev-shm-usage")
-                options.add_argument("--disable-gpu")
-                options.add_argument("--window-size=1920,1080")
-            driver = webdriver.Chrome(options=options)
-        elif browser_name == "firefox":
-            options = FirefoxOptions()
-            if is_ci:
-                options.add_argument("--headless")
-            driver = webdriver.Firefox(options=options)
-        elif browser_name == "edge":
-            options = EdgeOptions()
-            if is_ci:
-                options.add_argument("--headless")
-            driver = webdriver.Edge(options=options)
-        elif browser_name == "safari":
-            driver = webdriver.Safari()
-        else:
+    
+    try:
+        options = get_browser_options(browser_name, is_ci)
+        
+        if not options:
             raise ValueError(f"Unsupported browser: {browser_name}")
 
-    driver.maximize_window()
-    driver.implicitly_wait(10)
-    yield driver
-    try:
-        driver.quit()
+        if remote_url:
+            # Set common capabilities for remote execution
+            options.set_capability("platformName", "Linux")
+            options.set_capability("browserName", browser_name)
+            options.set_capability("se:name", f"UI Test - {browser_name}")
+            
+            # Add logging preferences
+            options.set_capability("se:recordVideo", True)
+            
+            with allure.step(f"Creating remote driver for {browser_name} at {remote_url}"):
+                driver = webdriver.Remote(
+                    command_executor=remote_url,
+                    options=options
+                )
+        else:
+            with allure.step(f"Creating local driver for {browser_name}"):
+                if browser_name == "chrome":
+                    driver = webdriver.Chrome(options=options)
+                elif browser_name == "firefox":
+                    driver = webdriver.Firefox(options=options)
+                elif browser_name == "edge":
+                    driver = webdriver.Edge(options=options)
+                elif browser_name == "safari":
+                    driver = webdriver.Safari(options=options)
+        
+        # Common setup
+        driver.maximize_window()
+        driver.implicitly_wait(10)
+        
+        # Add driver information to Allure report
+        allure.attach(
+            str(driver.capabilities),
+            name="Driver Capabilities",
+            attachment_type=allure.attachment_type.JSON
+        )
+        
+        yield driver
+        
     except Exception as e:
-        print(f"Error closing browser: {e}")
+        allure.attach(
+            str(e),
+            name="Driver Setup Error",
+            attachment_type=allure.attachment_type.TEXT
+        )
+        raise
+    
+    finally:
+        try:
+            if 'driver' in locals():
+                driver.quit()
+        except Exception as e:
+            print(f"Error closing browser: {e}")
