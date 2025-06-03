@@ -1,5 +1,6 @@
 import os
-import allure # Make sure allure is imported
+import json
+import allure
 import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
@@ -8,6 +9,44 @@ from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.safari.options import Options as SafariOptions
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
+def pytest_configure(config):
+    """
+    Pytest hook to configure test execution.
+    Sets up Allure environment information.
+    """
+    allure_dir = config.getoption('--alluredir')
+    if allure_dir:
+        # Create environment.properties
+        env_file = os.path.join(allure_dir, 'environment.properties')
+        with open(env_file, 'w') as f:
+            f.write(f"Browser={config.getoption('--browser')}\n")
+            f.write(f"Remote URL={config.getoption('--remote-url') or 'local'}\n")
+            f.write(f"Python Version={os.environ.get('PYTHON_VERSION', 'unknown')}\n")
+            f.write(f"Environment=CI/CD\n")
+
+        # Create categories.json
+        categories = [
+            {
+                "name": "Test Failures",
+                "matchedStatuses": ["failed"]
+            },
+            {
+                "name": "Test Errors",
+                "matchedStatuses": ["broken"]
+            },
+            {
+                "name": "Test Skipped",
+                "matchedStatuses": ["skipped"]
+            },
+            {
+                "name": "Test Passed",
+                "matchedStatuses": ["passed"]
+            }
+        ]
+        
+        categories_file = os.path.join(allure_dir, 'categories.json')
+        with open(categories_file, 'w') as f:
+            json.dump(categories, f, indent=2)
 
 def pytest_addoption(parser):
     """
@@ -31,10 +70,13 @@ def browser_name(request):
 
     # Add an Allure step to make the selected browser visible in the fixture's execution
     with allure.step(f"Session Browser: {selected_browser.capitalize()}"):
-        # This step will appear under 'browser_name' in the Allure report's "Set up" section
-        pass # The step itself doesn't need to do more; its title is the key
+        allure.attach(
+            selected_browser,
+            name="Selected Browser",
+            attachment_type=allure.attachment_type.TEXT
+        )
 
-    return selected_browser # Return the actual browser name for other fixtures/tests
+    return selected_browser
 
 @pytest.fixture(scope="function")
 def allure_browser_param_fixture(browser_name):
@@ -160,6 +202,23 @@ def driver(browser_name, request):
     finally:
         try:
             if 'driver' in locals():
+                # Capture final screenshot on failure
+                if request.node.rep_call.failed if hasattr(request.node, 'rep_call') else False:
+                    allure.attach(
+                        driver.get_screenshot_as_png(),
+                        name="Test Failure Screenshot",
+                        attachment_type=allure.attachment_type.PNG
+                    )
                 driver.quit()
         except Exception as e:
             print(f"Error closing browser: {e}")
+
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    """
+    Pytest hook to capture test execution status.
+    This allows us to know if a test has failed when cleaning up.
+    """
+    outcome = yield
+    rep = outcome.get_result()
+    setattr(item, f"rep_{rep.when}", rep)
