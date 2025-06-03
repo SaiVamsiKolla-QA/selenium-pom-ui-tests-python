@@ -59,14 +59,15 @@ jobs:
           --health-retries 5
       
       node-chrome:
-        image: selenium/node-chrome:4.18.1-20240224
+        image: selenium/node-chrome:4.18.1
+        shm_size: 2gb
         volumes:
           - /dev/shm:/dev/shm
         env:
           SE_EVENT_BUS_HOST: selenium-hub
           SE_EVENT_BUS_PUBLISH_PORT: 4442
           SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
-          SE_NODE_MAX_SESSIONS: 2
+          SE_NODE_MAX_SESSIONS: 1
           SE_NODE_OVERRIDE_MAX_SESSIONS: true
           SE_NODE_SESSION_TIMEOUT: 300
           SE_START_XVFB: false
@@ -74,6 +75,8 @@ jobs:
           SE_SCREEN_HEIGHT: 1080
           SE_SCREEN_DEPTH: 24
           SE_SCREEN_DPI: 74
+          SE_VNC_NO_PASSWORD: 1
+          START_XVFB: false
         options: >-
           --health-cmd "curl -f http://selenium-hub:4444/wd/hub/status || exit 1"
           --health-interval 10s
@@ -81,14 +84,15 @@ jobs:
           --health-retries 5
       
       node-firefox:
-        image: selenium/node-firefox:4.18.1-20240224
+        image: selenium/node-firefox:4.18.1
+        shm_size: 2gb
         volumes:
           - /dev/shm:/dev/shm
         env:
           SE_EVENT_BUS_HOST: selenium-hub
           SE_EVENT_BUS_PUBLISH_PORT: 4442
           SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
-          SE_NODE_MAX_SESSIONS: 2
+          SE_NODE_MAX_SESSIONS: 1
           SE_NODE_OVERRIDE_MAX_SESSIONS: true
           SE_NODE_SESSION_TIMEOUT: 300
           SE_START_XVFB: false
@@ -96,6 +100,8 @@ jobs:
           SE_SCREEN_HEIGHT: 1080
           SE_SCREEN_DEPTH: 24
           SE_SCREEN_DPI: 74
+          SE_VNC_NO_PASSWORD: 1
+          START_XVFB: false
         options: >-
           --health-cmd "curl -f http://selenium-hub:4444/wd/hub/status || exit 1"
           --health-interval 10s
@@ -138,7 +144,7 @@ jobs:
           pytest-rerunfailures==13.0
           python-dotenv==1.1.0
           requests==2.32.3
-          selenium==4.31.0
+          selenium==4.18.1
           sniffio==1.3.1
           sortedcontainers==2.4.0
           trio==0.29.0
@@ -255,7 +261,7 @@ jobs:
         id: chrome_tests
         continue-on-error: true
         env:
-          SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
+          SELENIUM_REMOTE_URL: http://selenium-hub:4444/wd/hub
           BROWSER: chrome
           PYTHONPATH: /usr/src/app
           SELENIUM_TIMEOUT: 30
@@ -266,7 +272,7 @@ jobs:
           curl -s http://localhost:4444/status | jq .
           
           docker run --rm \
-            --network="host" \
+            --network="${{ job.container.network }}" \
             -v "${PWD}:/usr/src/app" \
             -v /dev/shm:/dev/shm \
             -w /usr/src/app \
@@ -291,7 +297,7 @@ jobs:
         id: firefox_tests
         continue-on-error: true
         env:
-          SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
+          SELENIUM_REMOTE_URL: http://selenium-hub:4444/wd/hub
           BROWSER: firefox
           PYTHONPATH: /usr/src/app
           SELENIUM_TIMEOUT: 30
@@ -302,7 +308,7 @@ jobs:
           curl -s http://localhost:4444/status | jq .
           
           docker run --rm \
-            --network="host" \
+            --network="${{ job.container.network }}" \
             -v "${PWD}:/usr/src/app" \
             -v /dev/shm:/dev/shm \
             -w /usr/src/app \

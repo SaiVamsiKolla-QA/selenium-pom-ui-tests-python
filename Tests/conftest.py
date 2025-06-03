@@ -55,16 +55,18 @@ def get_browser_options(browser_name, is_ci=False):
     options = None
     if browser_name == "chrome":
         options = ChromeOptions()
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
         if is_ci:
             options.add_argument("--headless=new")
-            options.add_argument("--no-sandbox")
-            options.add_argument("--disable-dev-shm-usage")
             options.add_argument("--disable-gpu")
             options.add_argument("--window-size=1920,1080")
     elif browser_name == "firefox":
         options = FirefoxOptions()
         if is_ci:
             options.add_argument("--headless")
+            options.add_argument("--width=1920")
+            options.add_argument("--height=1080")
     elif browser_name == "edge":
         options = EdgeOptions()
         if is_ci:
@@ -91,6 +93,29 @@ def driver(browser_name, request):
             options.set_capability("platformName", "Linux")
             options.set_capability("browserName", browser_name)
             options.set_capability("se:name", f"UI Test - {browser_name}")
+            
+            # Add browser-specific capabilities
+            if browser_name == "chrome":
+                chrome_prefs = {}
+                chrome_prefs["profile.default_content_settings"] = {"images": 2}
+                chrome_prefs["profile.managed_default_content_settings"] = {"images": 2}
+                options.add_experimental_option("prefs", chrome_prefs)
+                options.add_argument("--no-sandbox")
+                options.add_argument("--disable-dev-shm-usage")
+                options.add_argument("--disable-gpu")
+                options.add_argument("--window-size=1920,1080")
+                options.add_argument("--disable-extensions")
+                options.add_argument("--proxy-server='direct://'")
+                options.add_argument("--proxy-bypass-list=*")
+                options.add_argument("--start-maximized")
+                options.add_argument("--headless=new")
+            elif browser_name == "firefox":
+                options.add_argument("--headless")
+                options.add_argument("--width=1920")
+                options.add_argument("--height=1080")
+                options.set_preference("browser.download.folderList", 2)
+                options.set_preference("browser.download.manager.showWhenStarting", False)
+                options.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/x-debian-package")
             
             # Add logging preferences
             options.set_capability("se:recordVideo", True)
