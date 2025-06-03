@@ -8,6 +8,7 @@ from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.safari.options import Options as SafariOptions
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+import time
 
 def pytest_configure(config):
     """
@@ -83,13 +84,22 @@ def get_browser_options(browser_name, is_ci=False):
             options.add_argument("--headless=new")
             options.add_argument("--no-sandbox")
             options.add_argument("--disable-dev-shm-usage")
+            options.add_argument("--disable-gpu")
             options.add_argument("--window-size=1920,1080")
+            options.add_argument("--disable-extensions")
+            options.add_argument("--disable-infobars")
+            options.add_argument("--remote-debugging-port=9222")
+            options.add_argument("--disable-dev-shm-usage")
+            options.add_argument("--no-sandbox")
+            options.add_argument("--disable-setuid-sandbox")
     else:  # firefox
         options = FirefoxOptions()
         if is_ci:
             options.add_argument("--headless")
             options.add_argument("--width=1920")
             options.add_argument("--height=1080")
+            options.add_argument("--no-sandbox")
+            options.add_argument("--disable-dev-shm-usage")
     
     return options
 
@@ -98,35 +108,86 @@ def driver(browser_name, request):
     """Initialize WebDriver for test execution"""
     remote_url = request.config.getoption("--remote-url")
     is_ci = os.environ.get('CI') == 'true'
+    driver = None
     
     try:
         options = get_browser_options(browser_name, is_ci)
         
         if remote_url:
-            # Configure remote execution
-            options.set_capability("browserName", browser_name)
-            driver = webdriver.Remote(
-                command_executor=remote_url,
-                options=options
-            )
+            # Configure remote execution with detailed capabilities
+            capabilities = {
+                "browserName": browser_name,
+                "platformName": "Linux",
+                "se:name": "UI Automation Test",
+                "se:vncEnabled": True,
+            }
+            
+            if browser_name == "chrome":
+                capabilities.update({
+                    "goog:chromeOptions": {
+                        "args": options.arguments,
+                        "excludeSwitches": ["enable-automation"],
+                        "extensions": [],
+                        "prefs": {
+                            "profile.default_content_settings.popups": 0,
+                            "download.default_directory": "/tmp/downloads"
+                        }
+                    }
+                })
+            else:  # firefox
+                capabilities.update({
+                    "moz:firefoxOptions": {
+                        "args": options.arguments,
+                        "prefs": {
+                            "browser.download.folderList": 2,
+                            "browser.download.dir": "/tmp/downloads",
+                            "browser.download.useDownloadDir": True
+                        }
+                    }
+                })
+            
+            max_retries = 3
+            retry_delay = 5
+            last_exception = None
+            
+            for attempt in range(max_retries):
+                try:
+                    print(f"Attempt {attempt + 1} to create WebDriver session...")
+                    driver = webdriver.Remote(
+                        command_executor=remote_url,
+                        options=options
+                    )
+                    driver.set_window_size(1920, 1080)
+                    driver.implicitly_wait(10)
+                    print("WebDriver session created successfully!")
+                    break
+                except Exception as e:
+                    last_exception = e
+                    if attempt < max_retries - 1:
+                        print(f"Attempt {attempt + 1} failed: {str(e)}")
+                        print(f"Retrying in {retry_delay} seconds...")
+                        time.sleep(retry_delay)
+                    else:
+                        print(f"All {max_retries} attempts failed. Last error: {str(e)}")
+                        raise
         else:
             # Configure local execution
             if browser_name == "chrome":
                 driver = webdriver.Chrome(options=options)
             else:
                 driver = webdriver.Firefox(options=options)
-        
-        driver.maximize_window()
-        driver.implicitly_wait(10)
+            
+            driver.maximize_window()
+            driver.implicitly_wait(10)
         
         yield driver
         
     except Exception as e:
-        print(f"Error setting up WebDriver: {e}")
+        print(f"Error setting up WebDriver: {str(e)}")
         raise
     
     finally:
-        if 'driver' in locals():
+        if driver:
             try:
                 if request.node.rep_call.failed:
                     allure.attach(
