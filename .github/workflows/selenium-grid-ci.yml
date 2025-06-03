@@ -62,8 +62,6 @@ jobs:
         image: selenium/node-chrome:4.18.1-20240224
         volumes:
           - /dev/shm:/dev/shm
-        depends_on:
-          - selenium-hub
         env:
           SE_EVENT_BUS_HOST: selenium-hub
           SE_EVENT_BUS_PUBLISH_PORT: 4442
@@ -76,13 +74,16 @@ jobs:
           SE_SCREEN_HEIGHT: 1080
           SE_SCREEN_DEPTH: 24
           SE_SCREEN_DPI: 74
+        options: >-
+          --health-cmd "curl -f http://selenium-hub:4444/wd/hub/status || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
       
       node-firefox:
         image: selenium/node-firefox:4.18.1-20240224
         volumes:
           - /dev/shm:/dev/shm
-        depends_on:
-          - selenium-hub
         env:
           SE_EVENT_BUS_HOST: selenium-hub
           SE_EVENT_BUS_PUBLISH_PORT: 4442
@@ -95,6 +96,11 @@ jobs:
           SE_SCREEN_HEIGHT: 1080
           SE_SCREEN_DEPTH: 24
           SE_SCREEN_DPI: 74
+        options: >-
+          --health-cmd "curl -f http://selenium-hub:4444/wd/hub/status || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       # Initial setup steps
@@ -204,7 +210,7 @@ jobs:
           echo "Waiting for Selenium Grid to be ready..."
           end=$((SECONDS + 120))
           while [ $SECONDS -lt $end ]; do
-            if curl -s --fail http://localhost:4444/status | jq -e '.value.ready == true && .value.nodes | length > 0' > /dev/null; then
+            if curl -s --fail http://localhost:4444/status | jq -e '.value.ready == true && .value.nodes | length > 1' > /dev/null; then
               echo "✅ Selenium Grid is ready!"
               echo "Grid Status:"
               curl -s http://localhost:4444/status | jq .
@@ -215,9 +221,11 @@ jobs:
               break
             fi
             echo "⏳ Grid not ready, retrying in 5s..."
+            echo "Current Grid Status:"
+            curl -s http://localhost:4444/status | jq . || echo "Failed to get grid status"
             sleep 5
           done
-          if ! curl -s --fail http://localhost:4444/status | jq -e '.value.ready == true && .value.nodes | length > 0' > /dev/null; then
+          if ! curl -s --fail http://localhost:4444/status | jq -e '.value.ready == true && .value.nodes | length > 1' > /dev/null; then
             echo "❌ Timeout waiting for Selenium Grid"
             echo "Final Grid Status:"
             curl -s http://localhost:4444/status | jq .
