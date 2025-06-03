@@ -60,7 +60,6 @@ jobs:
       
       node-chrome:
         image: selenium/node-chrome:4.18.1
-        shm_size: 2gb
         volumes:
           - /dev/shm:/dev/shm
         env:
@@ -77,15 +76,17 @@ jobs:
           SE_SCREEN_DPI: 74
           SE_VNC_NO_PASSWORD: 1
           START_XVFB: false
+          JAVA_OPTS: "-Dwebdriver.chrome.whitelistedIps= -Xmx1024m"
         options: >-
           --health-cmd "curl -f http://selenium-hub:4444/wd/hub/status || exit 1"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+          --memory 2g
+          --shm-size 2g
       
       node-firefox:
         image: selenium/node-firefox:4.18.1
-        shm_size: 2gb
         volumes:
           - /dev/shm:/dev/shm
         env:
@@ -102,11 +103,14 @@ jobs:
           SE_SCREEN_DPI: 74
           SE_VNC_NO_PASSWORD: 1
           START_XVFB: false
+          JAVA_OPTS: "-Dwebdriver.gecko.whitelistedIps= -Xmx1024m"
         options: >-
           --health-cmd "curl -f http://selenium-hub:4444/wd/hub/status || exit 1"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+          --memory 2g
+          --shm-size 2g
 
     steps:
       # Initial setup steps
@@ -282,6 +286,8 @@ jobs:
             -e SELENIUM_TIMEOUT \
             -e SELENIUM_IMPLICIT_WAIT \
             -e PYTHONUNBUFFERED=1 \
+            --memory=2g \
+            --shm-size=2g \
             test-framework:latest \
             pytest Tests/ \
               --browser="${BROWSER}" \
@@ -318,6 +324,8 @@ jobs:
             -e SELENIUM_TIMEOUT \
             -e SELENIUM_IMPLICIT_WAIT \
             -e PYTHONUNBUFFERED=1 \
+            --memory=2g \
+            --shm-size=2g \
             test-framework:latest \
             pytest Tests/ \
               --browser="${BROWSER}" \
