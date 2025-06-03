@@ -47,6 +47,11 @@ jobs:
           - 4444:4444
           - 4442:4442
           - 4443:4443
+        env:
+          SE_NODE_MAX_SESSIONS: 4
+          SE_NODE_OVERRIDE_MAX_SESSIONS: true
+          SE_SESSION_REQUEST_TIMEOUT: 300
+          SE_SESSION_RETRY_INTERVAL: 2
         options: >-
           --health-cmd "curl -f http://localhost:4444/wd/hub/status || exit 1"
           --health-interval 10s
@@ -55,29 +60,41 @@ jobs:
       
       node-chrome:
         image: selenium/node-chrome:4.18.1-20240224
-        options: >-
-          --shm-size="2g"
+        volumes:
+          - /dev/shm:/dev/shm
+        depends_on:
+          - selenium-hub
         env:
           SE_EVENT_BUS_HOST: selenium-hub
           SE_EVENT_BUS_PUBLISH_PORT: 4442
           SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
-          SE_NODE_MAX_SESSIONS: 4
+          SE_NODE_MAX_SESSIONS: 2
           SE_NODE_OVERRIDE_MAX_SESSIONS: true
           SE_NODE_SESSION_TIMEOUT: 300
           SE_START_XVFB: false
+          SE_SCREEN_WIDTH: 1920
+          SE_SCREEN_HEIGHT: 1080
+          SE_SCREEN_DEPTH: 24
+          SE_SCREEN_DPI: 74
       
       node-firefox:
         image: selenium/node-firefox:4.18.1-20240224
-        options: >-
-          --shm-size="2g"
+        volumes:
+          - /dev/shm:/dev/shm
+        depends_on:
+          - selenium-hub
         env:
           SE_EVENT_BUS_HOST: selenium-hub
           SE_EVENT_BUS_PUBLISH_PORT: 4442
           SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
-          SE_NODE_MAX_SESSIONS: 4
+          SE_NODE_MAX_SESSIONS: 2
           SE_NODE_OVERRIDE_MAX_SESSIONS: true
           SE_NODE_SESSION_TIMEOUT: 300
           SE_START_XVFB: false
+          SE_SCREEN_WIDTH: 1920
+          SE_SCREEN_HEIGHT: 1080
+          SE_SCREEN_DEPTH: 24
+          SE_SCREEN_DPI: 74
 
     steps:
       # Initial setup steps
@@ -187,16 +204,23 @@ jobs:
           echo "Waiting for Selenium Grid to be ready..."
           end=$((SECONDS + 120))
           while [ $SECONDS -lt $end ]; do
-            if curl -s --fail http://localhost:4444/status | jq -e '.value.ready == true' > /dev/null; then
+            if curl -s --fail http://localhost:4444/status | jq -e '.value.ready == true && .value.nodes | length > 0' > /dev/null; then
               echo "✅ Selenium Grid is ready!"
+              echo "Grid Status:"
               curl -s http://localhost:4444/status | jq .
+              echo "Node Count:"
+              curl -s http://localhost:4444/status | jq '.value.nodes | length'
+              echo "Node Details:"
+              curl -s http://localhost:4444/status | jq '.value.nodes'
               break
             fi
             echo "⏳ Grid not ready, retrying in 5s..."
             sleep 5
           done
-          if ! curl -s --fail http://localhost:4444/status | jq -e '.value.ready == true' > /dev/null; then
+          if ! curl -s --fail http://localhost:4444/status | jq -e '.value.ready == true && .value.nodes | length > 0' > /dev/null; then
             echo "❌ Timeout waiting for Selenium Grid"
+            echo "Final Grid Status:"
+            curl -s http://localhost:4444/status | jq .
             exit 1
           fi
 
@@ -213,22 +237,30 @@ jobs:
           SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
           BROWSER: chrome
           PYTHONPATH: /usr/src/app
+          SELENIUM_TIMEOUT: 30
+          SELENIUM_IMPLICIT_WAIT: 10
         run: |
           echo "Running Chrome tests..."
+          echo "Verifying Grid status before running tests..."
+          curl -s http://localhost:4444/status | jq .
+          
           docker run --rm \
             --network="host" \
-            --shm-size=2g \
             -v "${PWD}:/usr/src/app" \
+            -v /dev/shm:/dev/shm \
             -w /usr/src/app \
             -e BROWSER \
             -e SELENIUM_REMOTE_URL \
             -e PYTHONPATH \
+            -e SELENIUM_TIMEOUT \
+            -e SELENIUM_IMPLICIT_WAIT \
             -e PYTHONUNBUFFERED=1 \
             test-framework:latest \
             pytest Tests/ \
               --browser="${BROWSER}" \
               --remote-url="${SELENIUM_REMOTE_URL}" \
-              -n 2 \
+              -n 1 \
+              --dist=loadfile \
               --alluredir=allure-results/chrome \
               --reruns 2 \
               --reruns-delay 1 \
@@ -241,22 +273,30 @@ jobs:
           SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
           BROWSER: firefox
           PYTHONPATH: /usr/src/app
+          SELENIUM_TIMEOUT: 30
+          SELENIUM_IMPLICIT_WAIT: 10
         run: |
           echo "Running Firefox tests..."
+          echo "Verifying Grid status before running tests..."
+          curl -s http://localhost:4444/status | jq .
+          
           docker run --rm \
             --network="host" \
-            --shm-size=2g \
             -v "${PWD}:/usr/src/app" \
+            -v /dev/shm:/dev/shm \
             -w /usr/src/app \
             -e BROWSER \
             -e SELENIUM_REMOTE_URL \
             -e PYTHONPATH \
+            -e SELENIUM_TIMEOUT \
+            -e SELENIUM_IMPLICIT_WAIT \
             -e PYTHONUNBUFFERED=1 \
             test-framework:latest \
             pytest Tests/ \
               --browser="${BROWSER}" \
               --remote-url="${SELENIUM_REMOTE_URL}" \
-              -n 2 \
+              -n 1 \
+              --dist=loadfile \
               --alluredir=allure-results/firefox \
               --reruns 2 \
               --reruns-delay 1 \
