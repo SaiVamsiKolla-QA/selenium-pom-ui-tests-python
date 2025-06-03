@@ -30,12 +30,10 @@ class ProductPage:
         self.available_products = self.AVAILABLE_PRODUCTS.copy()
 
     def is_product_page_loaded(self):
-        """
-        Verify if the products page is loaded successfully.
-        """
+        """Check if the products page is loaded"""
         try:
-            return Utility.wait_for_element_visible(self.driver, self.INVENTORY_CONTAINER).is_displayed()
-        except Exception:
+            return self.wait.until(EC.visibility_of_element_located(self.INVENTORY_CONTAINER)).is_displayed()
+        except:
             return False
 
     def add_product_to_cart(self, product_id):

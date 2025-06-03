@@ -4,27 +4,25 @@ from .base_page import BasePage
 
 
 class LoginPage(BasePage):
-    # -------------------------------
-    # Locators for the login elements on the page
-    # -------------------------------
+    # Page elements
     USERNAME_FIELD = (By.ID, "user-name")
     PASSWORD_FIELD = (By.ID, "password")
     LOGIN_BUTTON = (By.ID, "login-button")
 
-    # -------------------------------
-    # Page Actions: Methods to interact with the login page elements
-    # -------------------------------
     def enter_username(self, username):
+        """Enter username in the login form"""
         self.driver.find_element(*self.USERNAME_FIELD).send_keys(username)
 
     def enter_password(self, password):
+        """Enter password in the login form"""
         self.driver.find_element(*self.PASSWORD_FIELD).send_keys(password)
 
     def click_login(self):
+        """Click the login button"""
         self.driver.find_element(*self.LOGIN_BUTTON).click()
 
-    def login_as(self, username, password, url):
-        self.open_url(url)  # This uses the inherited method from BasePage
+    def login(self, username, password):
+        """Perform complete login action"""
         self.enter_username(username)
         self.enter_password(password)
         self.click_login()

@@ -49,34 +49,16 @@ def pytest_configure(config):
             json.dump(categories, f, indent=2)
 
 def pytest_addoption(parser):
-    """
-      Pytest hook that adds custom command-line options
-      This allows us to specify which browser to use when running tests
-    """
+    """Add command-line options for browser selection and remote execution"""
     parser.addoption("--browser", default="chrome",
-                     help="Browser to run tests: chrome, firefox, edge, safari")
+                     help="Browser to run tests: chrome, firefox")
     parser.addoption("--remote-url", default=None,
                      help="Remote Selenium Grid URL (e.g., http://localhost:4444/wd/hub)")
 
 @pytest.fixture(scope="session")
 def browser_name(request):
-    """
-        Session-scoped fixture that retrieves the browser name from command line arguments.
-        The 'session' scope means this value is calculated once per test session.
-        It now includes an Allure step to log the selected browser.
-    """
-    # Retrieve the browser name from command line option
-    selected_browser = request.config.getoption("--browser").lower()
-
-    # Add an Allure step to make the selected browser visible in the fixture's execution
-    with allure.step(f"Session Browser: {selected_browser.capitalize()}"):
-        allure.attach(
-            selected_browser,
-            name="Selected Browser",
-            attachment_type=allure.attachment_type.TEXT
-        )
-
-    return selected_browser
+    """Get browser name from command line"""
+    return request.config.getoption("--browser").lower()
 
 @pytest.fixture(scope="function")
 def allure_browser_param_fixture(browser_name):
@@ -90,135 +72,74 @@ def allure_browser_param_fixture(browser_name):
 
 @pytest.fixture
 def base_url():
+    """Return the base URL for tests"""
     return "https://www.saucedemo.com/"
 
 def get_browser_options(browser_name, is_ci=False):
-    """Helper function to get browser-specific options"""
-    options = None
+    """Configure browser options for local or CI execution"""
     if browser_name == "chrome":
         options = ChromeOptions()
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
         if is_ci:
             options.add_argument("--headless=new")
-            options.add_argument("--disable-gpu")
+            options.add_argument("--no-sandbox")
+            options.add_argument("--disable-dev-shm-usage")
             options.add_argument("--window-size=1920,1080")
-    elif browser_name == "firefox":
+    else:  # firefox
         options = FirefoxOptions()
         if is_ci:
             options.add_argument("--headless")
             options.add_argument("--width=1920")
             options.add_argument("--height=1080")
-    elif browser_name == "edge":
-        options = EdgeOptions()
-        if is_ci:
-            options.add_argument("--headless")
-    elif browser_name == "safari":
-        options = SafariOptions()
     
     return options
 
-@pytest.fixture(scope='function')
+@pytest.fixture
 def driver(browser_name, request):
-    """Initialize WebDriver with enhanced remote execution support"""
+    """Initialize WebDriver for test execution"""
     remote_url = request.config.getoption("--remote-url")
-    is_ci = os.environ.get('CI') == 'true' or os.environ.get('GITHUB_ACTIONS') == 'true'
+    is_ci = os.environ.get('CI') == 'true'
     
     try:
         options = get_browser_options(browser_name, is_ci)
         
-        if not options:
-            raise ValueError(f"Unsupported browser: {browser_name}")
-
         if remote_url:
-            # Set common capabilities for remote execution
-            options.set_capability("platformName", "Linux")
+            # Configure remote execution
             options.set_capability("browserName", browser_name)
-            options.set_capability("se:name", f"UI Test - {browser_name}")
-            
-            # Add browser-specific capabilities
-            if browser_name == "chrome":
-                chrome_prefs = {}
-                chrome_prefs["profile.default_content_settings"] = {"images": 2}
-                chrome_prefs["profile.managed_default_content_settings"] = {"images": 2}
-                options.add_experimental_option("prefs", chrome_prefs)
-                options.add_argument("--no-sandbox")
-                options.add_argument("--disable-dev-shm-usage")
-                options.add_argument("--disable-gpu")
-                options.add_argument("--window-size=1920,1080")
-                options.add_argument("--disable-extensions")
-                options.add_argument("--proxy-server='direct://'")
-                options.add_argument("--proxy-bypass-list=*")
-                options.add_argument("--start-maximized")
-                options.add_argument("--headless=new")
-            elif browser_name == "firefox":
-                options.add_argument("--headless")
-                options.add_argument("--width=1920")
-                options.add_argument("--height=1080")
-                options.set_preference("browser.download.folderList", 2)
-                options.set_preference("browser.download.manager.showWhenStarting", False)
-                options.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/x-debian-package")
-            
-            # Add logging preferences
-            options.set_capability("se:recordVideo", True)
-            
-            with allure.step(f"Creating remote driver for {browser_name} at {remote_url}"):
-                driver = webdriver.Remote(
-                    command_executor=remote_url,
-                    options=options
-                )
+            driver = webdriver.Remote(
+                command_executor=remote_url,
+                options=options
+            )
         else:
-            with allure.step(f"Creating local driver for {browser_name}"):
-                if browser_name == "chrome":
-                    driver = webdriver.Chrome(options=options)
-                elif browser_name == "firefox":
-                    driver = webdriver.Firefox(options=options)
-                elif browser_name == "edge":
-                    driver = webdriver.Edge(options=options)
-                elif browser_name == "safari":
-                    driver = webdriver.Safari(options=options)
+            # Configure local execution
+            if browser_name == "chrome":
+                driver = webdriver.Chrome(options=options)
+            else:
+                driver = webdriver.Firefox(options=options)
         
-        # Common setup
         driver.maximize_window()
         driver.implicitly_wait(10)
-        
-        # Add driver information to Allure report
-        allure.attach(
-            str(driver.capabilities),
-            name="Driver Capabilities",
-            attachment_type=allure.attachment_type.JSON
-        )
         
         yield driver
         
     except Exception as e:
-        allure.attach(
-            str(e),
-            name="Driver Setup Error",
-            attachment_type=allure.attachment_type.TEXT
-        )
+        print(f"Error setting up WebDriver: {e}")
         raise
     
     finally:
-        try:
-            if 'driver' in locals():
-                # Capture final screenshot on failure
-                if request.node.rep_call.failed if hasattr(request.node, 'rep_call') else False:
+        if 'driver' in locals():
+            try:
+                if request.node.rep_call.failed:
                     allure.attach(
                         driver.get_screenshot_as_png(),
-                        name="Test Failure Screenshot",
+                        name="Failure Screenshot",
                         attachment_type=allure.attachment_type.PNG
                     )
-                driver.quit()
-        except Exception as e:
-            print(f"Error closing browser: {e}")
+            except: pass
+            driver.quit()
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
-    """
-    Pytest hook to capture test execution status.
-    This allows us to know if a test has failed when cleaning up.
-    """
+    """Store test result for screenshot capture on failure"""
     outcome = yield
     rep = outcome.get_result()
     setattr(item, f"rep_{rep.when}", rep)

@@ -5,15 +5,16 @@ from Pages.inventory_page import ProductPage
 from Pages.login_page import LoginPage
 from Utility.utility import Utility
 
-
-@pytest.mark.parametrize("username,password", [
+TEST_USERS = [
     ("standard_user", "secret_sauce"),
     ("locked_out_user", "secret_sauce"),
     ("problem_user", "secret_sauce"),
     ("performance_glitch_user", "secret_sauce"),
     ("error_user", "secret_sauce"),
-    ("visual_user", "secret_sauce"),
-])
+    ("visual_user", "secret_sauce")
+]
+
+@pytest.mark.parametrize("username,password", TEST_USERS)
 @allure.epic("Swag Labs E-commerce")
 @allure.feature("Authentication")
 @allure.story("User Login")
