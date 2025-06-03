@@ -26,9 +26,8 @@ RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key
 RUN apt-get update && apt-get install -y firefox-esr \
     && rm -rf /var/lib/apt/lists/*
 
-# 5. Copy the entire repo into /usr/src/app
+# 5. Set up working directory
 WORKDIR /usr/src/app
-COPY . /usr/src/app/
 
 # 6. Copy requirements first to leverage Docker cache
 COPY requirements.txt .
@@ -36,17 +35,27 @@ COPY requirements.txt .
 # 7. Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 8. Set environment variables
+# 8. Copy the entire repo into /usr/src/app
+COPY . /usr/src/app/
+
+# 9. Create necessary directories with proper permissions
+RUN mkdir -p /usr/src/app/assets/screenshots/{chrome,firefox} && \
+    mkdir -p /usr/src/app/allure-results/{chrome,firefox} && \
+    chmod -R 777 /usr/src/app/assets && \
+    chmod -R 777 /usr/src/app/allure-results
+
+# 10. Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV DISPLAY=:99
 ENV SELENIUM_REMOTE_URL=http://selenium-hub:4444/wd/hub
 
-# 9. Create a non-root user
-RUN useradd -m testuser && chown -R testuser:testuser /usr/src/app
+# 11. Create a non-root user and set proper ownership
+RUN useradd -m testuser && \
+    chown -R testuser:testuser /usr/src/app
 USER testuser
 
-# 10. Ensure run_tests.sh is executable
+# 12. Ensure run_tests.sh is executable
 RUN chmod +x ./run_tests.sh
 
-# 11. Default CMD should simply invoke ./run_tests.sh
+# 13. Default CMD should simply invoke ./run_tests.sh
 CMD ["./run_tests.sh"]
