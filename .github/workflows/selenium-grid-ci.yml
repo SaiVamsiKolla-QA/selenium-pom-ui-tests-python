@@ -210,25 +210,38 @@ jobs:
           echo "Waiting for Selenium Grid to be ready..."
           end=$((SECONDS + 120))
           while [ $SECONDS -lt $end ]; do
-            if curl -s --fail http://localhost:4444/status | jq -e '.value.ready == true && .value.nodes | length > 1' > /dev/null; then
+            status=$(curl -s http://localhost:4444/status)
+            nodes_count=$(echo "$status" | jq '.value.nodes | length')
+            is_ready=$(echo "$status" | jq '.value.ready')
+            
+            if [[ "$is_ready" == "true" && "$nodes_count" -gt 1 ]]; then
               echo "✅ Selenium Grid is ready!"
               echo "Grid Status:"
-              curl -s http://localhost:4444/status | jq .
-              echo "Node Count:"
-              curl -s http://localhost:4444/status | jq '.value.nodes | length'
+              echo "$status" | jq .
+              echo "Node Count: $nodes_count"
               echo "Node Details:"
-              curl -s http://localhost:4444/status | jq '.value.nodes'
+              echo "$status" | jq '.value.nodes'
               break
             fi
+            
             echo "⏳ Grid not ready, retrying in 5s..."
             echo "Current Grid Status:"
-            curl -s http://localhost:4444/status | jq . || echo "Failed to get grid status"
+            echo "$status" | jq .
+            echo "Current Node Count: $nodes_count"
+            echo "Grid Ready: $is_ready"
             sleep 5
           done
-          if ! curl -s --fail http://localhost:4444/status | jq -e '.value.ready == true && .value.nodes | length > 1' > /dev/null; then
+          
+          status=$(curl -s http://localhost:4444/status)
+          nodes_count=$(echo "$status" | jq '.value.nodes | length')
+          is_ready=$(echo "$status" | jq '.value.ready')
+          
+          if [[ "$is_ready" != "true" || "$nodes_count" -le 1 ]]; then
             echo "❌ Timeout waiting for Selenium Grid"
             echo "Final Grid Status:"
-            curl -s http://localhost:4444/status | jq .
+            echo "$status" | jq .
+            echo "Final Node Count: $nodes_count"
+            echo "Grid Ready: $is_ready"
             exit 1
           fi
 
